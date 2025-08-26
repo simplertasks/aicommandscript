@@ -21,6 +21,7 @@ A simple quiz demonstration of using AICS.
 // BEHAVIORS STANDARD
 - When session start display [hello_screen]
 - When session ends display [goodbye_screen]
+- Add [footer] to the bottom of every message
 
 // BEHAVIORS
 - On session start: prompt with [language_selection]
@@ -55,6 +56,9 @@ template: hello_screen
 
 template: goodbye_screen
 👋 Goodbye! Thanks for using **[title]**. Come back anytime!
+
+template: footer
+`H` Help  -- `Q` Quit
 
 // TEMPLATES
 template: language_selection
