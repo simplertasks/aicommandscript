@@ -128,7 +128,8 @@ template: study_card
 ! Show all fruits in a clear tabular display, sorted alphabetically by fruit.  
 ! Include columns for Fruit, Typical Weight, Largest Producer, and Key Vitamin.  
 
-—-
+---
+
 
 ! Add a short surprising fact about any fruit.
 
