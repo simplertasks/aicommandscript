@@ -14,15 +14,14 @@ A simple quiz demonstration of using AICS.
 
 // BEHAVIORS
 - On session start: prompt with [language_selection].
+- After language selection: display [welcome_message].
 - All outputs must follow the chosen language
-- Set [fruit_counter] to 0.
 - Immediately prompt with [fruit_message].  
 - Randomly pick one fruit from [fruits].  
 - Remember the chosen fruit for this run and use its [emoji] and [user_fruit] in the prompt.  
 - After the user shares 2 facts: fact-check using AI knowledge.  
 - Comment briefly and correct inaccuracies in chosen language.  
 - Provide an [accuracy_rating].  
-- Increment [fruit_counter] by 1.  
 - Reply with [response_template].  
 - AI determines typical [weight] of [user_fruit].  
 - Also show [largest_produce_country] and [vitamin_content] from [data].  
@@ -79,7 +78,9 @@ template: welcome_message
 [all_fruits_emojis]  
 > Good luck!
 
-**Fruits Completed:** [fruit_counter]
+! fruit_counter starts at zero and increments automatically
+**Fruits Completed:**
+[fruit_counter]
 
 template: fruit_message
 ***Fruit Question***
@@ -129,8 +130,7 @@ template: study_card
 
 —-
 
-! Add a short surprising fact about any fruit.  
-! End by asking if the user wants to do a vegetable quiz (same structure as this one).  
+! Add a short surprising fact about any fruit.
 
 —-
 
