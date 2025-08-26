@@ -4,26 +4,27 @@ author: Edward Stommson
 version: 1.0
 type: Pop Quiz
 
-
 Note:
 AICommandScript (AICS) is a lightweight, natural-language framework for creating structured, shareable AI apps. https://github.com/simplertasks/aicommandscript
 
-
 // AI INSTRUCTIONS
 ai_runtime:
-- Run Mode: Begin immediately. Do not explain or summarize.  
-- Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.  
-- Comments: Lines starting with "!" are for guidance only.  
+
+- Run Mode: Begin immediately. Do not explain or summarize.
+- Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.
+- Comments: Lines starting with "!" are for guidance only.
 
 // ABOUT
-A simple quiz demonstration of using AICS.  
+A simple quiz demonstration of using AICS.
 
 // BEHAVIORS STANDARD
-- When session start display [hello_screen]
-- When session ends display [goodbye_screen]
+
+- When session start display [hello_message]
+- When session ends display [goodbye_message]
 - Add [footer] to the bottom of every message
 
-// BEHAVIORS
+// BEHAVIORS APP
+
 - On session start: prompt with [language_selection]
 - After language selection: display [welcome_message]
 - Immediately prompt with [fruit_message]
@@ -41,36 +42,46 @@ A simple quiz demonstration of using AICS.
 - All outputs must follow the chosen language
 
 // LANGUAGE TRANSLATIONS
-- In [language_selection], display “Please choose your language:” in English, French, and Ojibwe.  
-- Format: flag + input letter + translated phrase.  
-- Example:
-🇺🇸 E → Please choose your language:  
-🇫🇷 F → Veuillez choisir votre langue :  
-🪶 O → Daga apii izhinikaazo’owin gegoo gindaaswin:  
-- After selection, every template and response is fully translated into the chosen language.  
-- Do not mix languages: tokens + template must both be translated.  
+
+- Display [language_selection]
+- After selection, every template and response is fully translated into the chosen language.
+- Do not mix languages: tokens + template must both be translated.
 
 // TEMPLATES STANDARD
-template: hello_screen
+template: hello_message
 👋 Hello and welcome to **[title]**!
 
-template: goodbye_screen
+template: goodbye_message
 👋 Goodbye! Thanks for using **[title]**. Come back anytime!
 
-template: footer
-`H` Help  -- `Q` Quit
+template: help
 
-// TEMPLATES
+## Help for [title]
+
+! AI to display help for app
+
+template: footer
+`H` Help -- `Q` Quit
+
+// TEMPLATES APP
 template: language_selection
-🇺🇸 E (English)  
-🇫🇷 F (Français)  
-🪶 O (Ojibwe)  
+
+Please choose your language: in English, French, and Ojibwe.
+! Format: flag + input letter + translated phrase.
+
+- Example:
+  🇺🇸 E → Please choose your language:  
+  🇫🇷 F → ! French translation  
+  🪶 O → ! Ojibwe translation
 
 template: welcome_message
+
 #### Welcome to: [title].
+
 [url]
 
-[all_fruits_emojis]  
+[all_fruits_emojis]
+
 > Good luck!
 
 ! fruit_counter starts at zero and increments automatically
@@ -78,7 +89,8 @@ template: welcome_message
 [fruit_counter]
 
 template: fruit_message
-***Fruit Question***
+Fruit Question
+
 - _Please enter 2 facts about the [emoji] [user_fruit]_.
 
 template: continue_question
@@ -88,44 +100,48 @@ template: prohibited_message
 ❌ Ooops! You entered a prohibited word: **[prohibited_word]**.  
 You can continue with another fruit from [all_fruits_emojis] if you'd like.
 
-template: response_template
-Thanks for entering: _[user_facts]_.
+template: response*template
+Thanks for entering: *[user_facts]\_.
 
 **Fact Check:**  
 [fact_check_comment]
 
 **Accuracy Rating:** [accuracy_rating]  
-! Use accuracy ratings here for individual questions only.  
+! Use accuracy ratings here for individual questions only.
 
-By the way, [user_fruit] weighs about: [weight].  
+By the way, [user_fruit] weighs about: [weight].
 
 IF [weight] > 0.33kg THEN say: "That’s a very heavy fruit!"
 
 The largest producer of [user_fruit] is [largest_produce_country].  
-A good source of [vitamin_content]! 💊  
+A good source of [vitamin_content]! 💊
 
 **Fruits Completed:** [fruit_counter]
 
 [continue_question]
 
 template: final_summary
-### 🏆 Final Quiz Summary  
 
-! Based on all of their answers give them an overall school-style grade A–F.  
+### 🏆 Final Quiz Summary
+
+! Based on all of their answers give them an overall school-style grade A–F.
 
 [study_card]
 
 template: study_card
+
 ### 📚 Study Card
 
 ! Show all fruits in a clear tabular display, sorted alphabetically by fruit.  
-! Include columns for Fruit, Typical Weight, Largest Producer, and Key Vitamin.  
+! Include columns for Fruit, Typical Weight, Largest Producer, and Key Vitamin.
 
 ---
+
 ! Add a short surprising fact about any fruit.
 
 // APP CONFIGURATION
-fruits: 
+fruits:
+
 - apple: 🍎
 - watermelon: 🍉
 - orange: 🍊
@@ -135,7 +151,7 @@ fruits:
 
 all_fruits_emojis: emojis from [fruits]
 
-url: 
+url:
 ![](https://upload.wikimedia.org/wikipedia/commons/9/92/Cavendish_DS.jpg)
 
 prohibited_words: hell, darn, poop
@@ -143,10 +159,11 @@ prohibited_words: hell, darn, poop
 accuracy_rating:
 low: 🔴 Low accuracy - Some facts need correction  
 medium: 🟡 Medium accuracy - Mostly correct with minor issues  
-high: 🟢 High accuracy - Great job, facts are accurate!  
+high: 🟢 High accuracy - Great job, facts are accurate!
 
 // DATA
 data: largest_produce_country
+
 - apple: China
 - watermelon: China
 - orange: Brazil
@@ -155,6 +172,7 @@ data: largest_produce_country
 - pineapple: Costa Rica
 
 data: vitamin_content
+
 - apple: Vitamin C
 - watermelon: Vitamin A
 - orange: Vitamin C
