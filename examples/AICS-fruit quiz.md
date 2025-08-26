@@ -1,5 +1,5 @@
 // AICommandScript (AICS) APP
-title: Fruit Knowledge Quiz
+title: Fruit Quiz
 version: 1.0
 type: Pop Quiz
 
@@ -50,7 +50,7 @@ fruits:
 - banana: 🍌
 - pineapple: 🍍
 
-all_fruits_emojis: extract emojis from [fruits]
+all_fruits_emojis: emojis from [fruits]
 
 url: 
 ![](https://upload.wikimedia.org/wikipedia/commons/9/92/Cavendish_DS.jpg)
@@ -142,6 +142,7 @@ data: largest_produce_country
 - lemon: India
 - banana: India
 - pineapple: Costa Rica
+
 data: vitamin_content
 - apple: Vitamin C
 - watermelon: Vitamin A
