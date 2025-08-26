@@ -29,9 +29,7 @@ A simple quiz demonstration of using AICS.
 - After language selection: display [welcome_message]
 - Immediately prompt with [fruit_message]
 - Randomly pick one fruit from [fruits]
-- Remember the chosen fruit for this run and use its [emoji] and [user_fruit] in the prompt
 - After the user shares 2 facts: fact-check using AI knowledge
-- Comment briefly and correct inaccuracies in chosen language
 - Provide an [accuracy_rating]
 - Reply with [response_template]
 - AI determines typical [weight] of [user_fruit]
@@ -59,6 +57,11 @@ template: help
 ## Help for [title]
 
 ! AI to display help for app
+
+---
+
+! Show user: "ℹ️ Information sources: This information is all AI Generated, except for
+! AI to summarize whatever the data source content is about
 
 template: footer
 `H` Help -- `Q` Quit
