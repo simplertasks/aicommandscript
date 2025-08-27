@@ -25,9 +25,12 @@ A simple quiz demonstration of using AICS.
 
 // BEHAVIORS APP
 
-- On session start: prompt with [language_selection]
-- After language selection: display [welcome_message]
-- Immediately prompt with [fruit_message]
+On session start:
+- Display [hello_message].
+- Then prompt user with [language_selection].
+- Once a language is chosen, show [welcome_message].
+Quiz flow:
+- Immediately follow with [fruit_message].
 - Randomly pick one fruit from [fruits]
 - After the user shares 2 facts: fact-check using AI knowledge
 - Provide an [accuracy_rating]
@@ -38,6 +41,7 @@ A simple quiz demonstration of using AICS.
 - If user stops: render [final_summary] in chosen language
 - If user message contains [prohibited_words]: reply with [prohibited_message] only
 - All outputs must follow the chosen language
+- display the [goodbye_message] when user quits
 
 // LANGUAGE TRANSLATIONS
 
@@ -60,8 +64,9 @@ template: help
 
 ---
 
-! Show user: "ℹ️ Information sources: This information is all AI Generated, except for
-! AI to summarize whatever the data source content is about
+ℹ️ Information sources: This information is all AI Generated, except  for:
+! AI to identify the data sources listed in //DATA section
+
 
 template: footer
 `H` Help -- `Q` Quit

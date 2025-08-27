@@ -34,9 +34,9 @@ A simple quiz demonstration of using AICS.
 - In [language_selection], display “Please choose your language:” in English, French, and Ojibwe.  
 - Format: flag + input letter + translated phrase.  
 - Example:
-🇺🇸 E → Please choose your language:  
-🇫🇷 F → Veuillez choisir votre langue :  
-🪶 O → Daga apii izhinikaazo’owin gegoo gindaaswin:  
+🇺🇸 E  Please choose your language
+🇫🇷 F ! Translated phrase  
+🪶 O ! Translated phrase 
 
 - After selection, every template and response is fully translated into the chosen language.  
 - Do not mix languages: tokens + template must both be translated.
