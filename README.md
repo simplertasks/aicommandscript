@@ -1,3 +1,5 @@
+![AICommandScript Logo](images/bee-64.png)
+
 # AICommandScript (AICS)
 
 A lightweight, natural-language framework for creating structured, shareable AI applications.
