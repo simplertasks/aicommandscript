@@ -62,6 +62,8 @@ On session end:
 template: hello_message
 👋 Hello and welcome to **[title]**!
 
+_built with: AICS - AI Command Scrit_
+
 template: goodbye_message
 👋 Goodbye! Thanks for using **[title]**. Come back anytime!
 
