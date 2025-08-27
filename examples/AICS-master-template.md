@@ -12,7 +12,8 @@ ai_runtime:
 
 - Run Mode: Begin immediately. Do not explain or summarize.
 - Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.
-- Comments: Lines starting with "!" are for guidance only.
+- Comments: "!" lines are dual-purpose. They guide the AI and  provide helpful notes to the script author.
+	
 
 // ABOUT
 A simple quiz demonstration of using AICS.
@@ -29,6 +30,7 @@ On session start:
 - Display [hello_message].
 - Then prompt user with [language_selection].
 - Once a language is chosen, show [welcome_message].
+
 Quiz flow:
 - Immediately follow with [fruit_message].
 - Randomly pick one fruit from [fruits]
@@ -170,8 +172,8 @@ medium: 🟡 Medium accuracy - Mostly correct with minor issues
 high: 🟢 High accuracy - Great job, facts are accurate!
 
 // DATA
-data: largest_produce_country
 
+data: largest_produce_country
 - apple: China
 - watermelon: China
 - orange: Brazil
@@ -180,7 +182,6 @@ data: largest_produce_country
 - pineapple: Costa Rica
 
 data: vitamin_content
-
 - apple: Vitamin C
 - watermelon: Vitamin A
 - orange: Vitamin C
