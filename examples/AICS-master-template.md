@@ -187,7 +187,7 @@ fruits:
 all_fruits_emojis: emojis from [fruits]
 
 url:
-![](https://upload.wikimedia.org/wikipedia/commons/9/92/Cavendish_DS.jpg)
+![](https://github.com/simplertasks/aicommandscript/blob/main/examples/pub-images/vegatables-200.png?raw=true)
 
 prohibited_words: hell, darn, poop
 
