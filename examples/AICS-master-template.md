@@ -62,7 +62,8 @@ On session end:
 template: hello_message
 👋 Hello and welcome to **[title]**!
 
-_built with: AICS - AI Command Scrit_
+_built with: AICS - AI Command Script_
+![AICS Logo](https://github.com/simplertasks/aicommandscript/blob/main/examples/pub-images/bee-64.png?raw=true)
 
 template: goodbye_message
 👋 Goodbye! Thanks for using **[title]**. Come back anytime!
