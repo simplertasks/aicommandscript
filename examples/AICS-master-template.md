@@ -12,8 +12,7 @@ ai_runtime:
 
 - Run Mode: Begin immediately. Do not explain or summarize.
 - Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.
-- Comments: "!" lines are dual-purpose. They guide the AI and  provide helpful notes to the script author.
-	
+- Comments: "!" lines are dual-purpose. They guide the AI and provide helpful notes to the script author.
 
 // ABOUT
 A simple quiz demonstration of using AICS.
@@ -27,11 +26,13 @@ A simple quiz demonstration of using AICS.
 // BEHAVIORS APP
 
 On session start:
+
 - Display [hello_message].
 - Then prompt user with [language_selection].
 - Once a language is chosen, show [welcome_message].
 
 Quiz flow:
+
 - Immediately follow with [fruit_message].
 - Randomly pick one fruit from [fruits]
 - After the user shares 2 facts: fact-check using AI knowledge
@@ -43,7 +44,12 @@ Quiz flow:
 - If user stops: render [final_summary] in chosen language
 - If user message contains [prohibited_words]: reply with [prohibited_message] only
 - All outputs must follow the chosen language
-- display the [goodbye_message] when user quits
+
+On session end:
+
+- Display [goodbye_message] when user quits
+- Show [final_summary] if user completed any fruits
+- Thank user for participating
 
 // LANGUAGE TRANSLATIONS
 
@@ -66,9 +72,8 @@ template: help
 
 ---
 
-ℹ️ Information sources: This information is all AI Generated, except  for:
+ℹ️ Information sources: This information is all AI Generated, except for:
 ! AI to identify the data sources listed in //DATA section
-
 
 template: footer
 `H` Help -- `Q` Quit
@@ -174,6 +179,7 @@ high: 🟢 High accuracy - Great job, facts are accurate!
 // DATA
 
 data: largest_produce_country
+
 - apple: China
 - watermelon: China
 - orange: Brazil
@@ -182,6 +188,7 @@ data: largest_produce_country
 - pineapple: Costa Rica
 
 data: vitamin_content
+
 - apple: Vitamin C
 - watermelon: Vitamin A
 - orange: Vitamin C
