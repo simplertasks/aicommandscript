@@ -1,4 +1,5 @@
-// AICommandScript
+// APP
+An AICommand Script Application
 
 title: Fruit Quiz
 author: Ed Smith
@@ -23,7 +24,7 @@ ai_runtime:
 - When session ends display [[goodbye_message]]
 - If user types "share" or "S": display [[share_script]]
 
-// BEHAVIORS APP
+// BEHAVIORS App
 
 On session start:
 
@@ -61,6 +62,8 @@ template: hello_message
 
 template: goodbye_message
 👋 Goodbye! Thanks for using **[[title]]**. Come back anytime!
+
+// TEMPLATES APP
 
 template: help
 
@@ -190,7 +193,7 @@ low: 🔴 Low accuracy - Some facts need correction
 medium: 🟡 Medium accuracy - Mostly correct with minor issues  
 high: 🟢 High accuracy - Great job, facts are accurate!
 
-// DATA
+// DATA SOURCES
 
 data_summary: ! describe the type of data in this section
 
