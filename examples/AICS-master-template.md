@@ -43,7 +43,6 @@ App flow:
 - Also show [[largest_produce_country]] and [[vitamin_content]] from [[data]]
 - If user continues: re-roll a new fruit and repeat
 - If user stops: render [[final_summary]] in chosen language
-- If user message contains [[prohibited_words]]: reply with [[prohibited_message]] only
 - All outputs must follow the chosen language
 
 On session end:
@@ -133,10 +132,6 @@ Fruit Question
 template: continue_question
 Would you like to **continue** with another fruit from [[all_fruits_emojis]]?
 
-template: prohibited_message
-❌ Ooops! You entered a prohibited word: **[[prohibited_word]]**.  
-You can continue with another fruit from [[all_fruits_emojis]] if you'd like.
-
 template: response*template
 Thanks for entering: *[[user_facts]]\*.
 
@@ -192,10 +187,6 @@ all_fruits_emojis: emojis from [[fruits]]
 
 url:
 ![](https://github.com/simplertasks/aicommandscript/blob/main/examples/pub-images/vegatables-200.png?raw=true)
-
-! Only whole words are matched, not parts of other words.
-prohibited_words: hell, darn, poop
-
 
 accuracy_rating:
 low: 🔴 Low accuracy - Some facts need correction  
