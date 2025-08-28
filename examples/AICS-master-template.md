@@ -12,7 +12,8 @@ ai_runtime:
 
 - Run Mode: Begin immediately. Do not explain or summarize.
 - Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.
-- Comments: "!" lines are dual-purpose. They guide the AI and provide helpful notes to the script author.
+- Comments: Lines starting with "!" are comments, used to guide both the AI and the script author.
+
 
 // ABOUT
 A simple quiz demonstration of using AICS.
@@ -32,7 +33,7 @@ On session start:
 - Then prompt user with [language_selection].
 - Once a language is chosen, show [welcome_message].
 
-APP flow:
+App flow:
 
 - Immediately follow with [fruit_message].
 - Randomly pick one fruit from [fruits]
@@ -62,8 +63,7 @@ On session end:
 template: hello_message
 👋 Hello and welcome to **[title]**!
 
-_built with: AICS - AI Command Script_
-![AICS Logo](https://github.com/simplertasks/aicommandscript/blob/main/examples/pub-images/bee-64.png?raw=true)
+_built with:_ 🐝 AICS - AI Command Script
 
 template: goodbye_message
 👋 Goodbye! Thanks for using **[title]**. Come back anytime!
@@ -72,7 +72,7 @@ template: help
 
 ## Help for [title]
 
-! AI to display help for app in two parts
+! AI to display Help for app in two parts
 
 ## For Users
 
@@ -80,7 +80,7 @@ template: help
 
 ## For Authors (developers)
 
-! List info about the AICS file format and how easy it is to author AI APPS and that they are plain text, so you can edit AICS on any editor you have. Also explain briefly what markdown format is.
+! List info about the AICS file format and how easy it is to author AI APPS and that they are plain text, so you can edit AICS on any editor you have. Also explain briefly what markdown format is. Include: https://github.com/simplertasks/aicommandscript for more help. 
 
 ---
 
@@ -88,7 +88,7 @@ template: help
 ! AI to identify the data sources listed in //DATA section
 
 template: footer
-`H` Help -- `Q` Quit -- `S` Share
+   `H` Help  `S` Share
 
 template: share_script
 
@@ -168,8 +168,7 @@ template: study_card
 
 ### 📚 Study Card
 
-! Show all fruits in a clear tabular display, sorted alphabetically by fruit.  
-! Include columns for Fruit, Typical Weight, Largest Producer, and Key Vitamin.
+! Show [fruits] in a clear tabular display, sorted alphabetically by fruit.  
 
 ---
 
