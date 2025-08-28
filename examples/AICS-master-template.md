@@ -16,9 +16,6 @@ ai_runtime:
 - Tokens: Any text wrapped in [[square_brackets]] must be replaced with its corresponding value (from metadata, data, or runtime variables).
 - Always render all markdown unless told otherwise
 
-// ABOUT
-A simple quiz demonstration of using AICS.
-
 // BEHAVIORS STANDARD
 
 - When session start display [[hello_message]]
