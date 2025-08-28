@@ -28,7 +28,6 @@ A simple quiz demonstration of using AICS.
 // BEHAVIORS APP
 
 On session start:
-[
 
 - Display [[hello_message]].
 - Then prompt user with [[language_selection]].
