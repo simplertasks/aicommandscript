@@ -1,4 +1,4 @@
-// AICommandScript APP
+// AICommandScript
 
 title: Fruit Quiz
 author: Ed Smith
