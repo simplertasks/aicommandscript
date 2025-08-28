@@ -75,13 +75,13 @@ _built with:_ 🐝 AICS - AI Command Script
 
 ! list basics of APP, including sharing features
 
+**Information sources**: This information is all AI Generated, except for: [[data_summary]]
+
 ## For Authors (developers)
 
 ! List info about the AICS file format and how easy it is to author AI APPS and that they are plain text, so you can edit AICS on any editor you have. Also explain briefly what markdown format is. Include: https://github.com/simplertasks/aicommandscript for more help.
 
 ---
-
-Information sources: This information is all AI Generated, except for: [[data_summary]]
 
 template: footer
 `H` Help
