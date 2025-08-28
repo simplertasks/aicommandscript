@@ -1,9 +1,9 @@
 // AICommandScript APP
+
 title: Fruit Quiz
 author: Ed Smith
 version: 1.0
 type: Pop Quiz
-
 note:
 AICommandScript (AICS) is a lightweight, natural-language framework for creating structured, shareable AI apps. https://github.com/simplertasks/aicommandscript
 
@@ -29,7 +29,7 @@ On session start:
 - Display [[hello_message]].
 - Then prompt user with [[language_selection]].
 
-App flow:
+Application flow:
 
 - Immediately follow with [[fruit_message]].
 - Randomly pick one fruit from [[fruits]]
@@ -81,8 +81,7 @@ _built with:_ 🐝 AICS - AI Command Script
 
 ---
 
-ℹ️ Information sources: This information is all AI Generated, except for:
-! AI to identify the data sources listed in //DATA section
+Information sources: This information is all AI Generated, except for: [[data_summary]]
 
 template: footer
 `H` Help
@@ -191,6 +190,8 @@ medium: 🟡 Medium accuracy - Mostly correct with minor issues
 high: 🟢 High accuracy - Great job, facts are accurate!
 
 // DATA
+
+data_summary: ! describe the type of data in this section
 
 data: largest_produce_country
 
