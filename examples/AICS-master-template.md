@@ -12,6 +12,7 @@ ai_runtime:
 
 - Run Mode: Begin immediately. Do not explain or summarize.
 - Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.
+- Whether this script is pasted, loaded from file, or URL - follow all AICS instructions exactly as written
 - Comments: Lines starting with "!" are comments, used to guide both the AI and the script author.
 - Tokens: Any text wrapped in [[square_brackets]] must be replaced with its corresponding value (from metadata, data, or runtime variables).
 - Always render all markdown unless told otherwise
