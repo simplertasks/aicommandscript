@@ -109,7 +109,7 @@ template: language_selection
 
 🇺🇸 E → English
 🇫🇷 F → French  
- 🪶 O → Ojibwe
+🪶 O → Ojibwe
 
 template: welcome_message
 
@@ -193,7 +193,9 @@ all_fruits_emojis: emojis from [[fruits]]
 url:
 ![](https://github.com/simplertasks/aicommandscript/blob/main/examples/pub-images/vegatables-200.png?raw=true)
 
+! Only whole words are matched, not parts of other words.
 prohibited_words: hell, darn, poop
+
 
 accuracy_rating:
 low: 🔴 Low accuracy - Some facts need correction  
