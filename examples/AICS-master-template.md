@@ -64,7 +64,6 @@ On session end:
 template: hello_message
 👋 Hello and welcome to **[title]**!
 
-_built with:_ 🐝 AICS - AI Command Script
 
 template: goodbye_message
 👋 Goodbye! Thanks for using **[title]**. Come back anytime!
@@ -72,6 +71,8 @@ template: goodbye_message
 template: help
 
 ## Help for [title]
+
+_built with:_ 🐝 AICS - AI Command Script
 
 ! AI to display Help for app in two parts
 
@@ -82,6 +83,7 @@ template: help
 ## For Authors (developers)
 
 ! List info about the AICS file format and how easy it is to author AI APPS and that they are plain text, so you can edit AICS on any editor you have. Also explain briefly what markdown format is. Include: https://github.com/simplertasks/aicommandscript for more help. 
+
 
 ---
 
