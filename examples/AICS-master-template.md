@@ -13,6 +13,8 @@ ai_runtime:
 - Run Mode: Begin immediately. Do not explain or summarize.
 - Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.
 - Comments: Lines starting with "!" are comments, used to guide both the AI and the script author.
+- Always render all markdown unless told otherwise
+
 
 
 // ABOUT
@@ -22,7 +24,6 @@ A simple quiz demonstration of using AICS.
 
 - When session start display [hello_message]
 - When session ends display [goodbye_message]
-- Add [footer] to the bottom of every message
 - If user types "share" or "S": display [share_script]
 
 // BEHAVIORS APP
@@ -88,7 +89,7 @@ template: help
 ! AI to identify the data sources listed in //DATA section
 
 template: footer
-   `H` Help  `S` Share
+       `H` Help
 
 template: share_script
 
@@ -120,7 +121,7 @@ template: welcome_message
 
 > Good luck!
 
-! fruit_counter starts at zero and increments automatically
+! fruit_counter auto increment
 **Fruits Completed:**
 [fruit_counter]
 
@@ -153,6 +154,7 @@ The largest producer of [user_fruit] is [largest_produce_country].
 A good source of [vitamin_content]! 💊
 
 **Fruits Completed:** [fruit_counter]
+[footer]
 
 [continue_question]
 
@@ -170,9 +172,12 @@ template: study_card
 
 ! Show [fruits] in a clear tabular display, sorted alphabetically by fruit.  
 
+
 ---
 
 ! Add a short surprising fact about any fruit.
+
+[footer]
 
 // APP CONFIGURATION
 fruits:
