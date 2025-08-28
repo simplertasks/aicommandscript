@@ -32,7 +32,7 @@ On session start:
 - Then prompt user with [language_selection].
 - Once a language is chosen, show [welcome_message].
 
-Quiz flow:
+APP flow:
 
 - Immediately follow with [fruit_message].
 - Randomly pick one fruit from [fruits]
