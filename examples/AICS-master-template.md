@@ -6,7 +6,7 @@ author: Ed Smith
 version: 1.0
 type: Pop Quiz
 note:
-AICommandScript (AICS) is a lightweight, structured natural language framework for creating structured, shareable AI apps. https://github.com/simplertasks/aicommandscript
+AICommandScript (AICS) is a lightweight, structured natural language framework for creating shareable AI apps. https://github.com/simplertasks/aicommandscript
 
 // AI BEHAVIORS
 ai_runtime:
@@ -30,6 +30,7 @@ On session start:
 
 - Display [[hello_message]].
 - Then prompt user with [[language_selection]].
+- Then translate all outputs to the selected language. 
 
 Application flow:
 
