@@ -159,6 +159,10 @@ By the way, [[user_fruit]] weighs about: [[weight]].
 
 IF [[weight]] > 0.33kg THEN say: "That’s a very heavy fruit!"
 
+
+largest_produce_country:
+! create a clickable link to Wikipedia for that country
+
 The largest producer of [[user_fruit]] is [[largest_produce_country]].  
 A good source of [[vitamin_content]]! 💊
 
