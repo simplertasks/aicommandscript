@@ -189,7 +189,10 @@ template: study_card
 
 ! Add a short surprising fact about any fruit.
 
+[[apple_bar_chart]]
+
 [[footer]]
+[[div]]
 
 // APP CONFIGURATION
 fruits:
@@ -234,3 +237,10 @@ data: vitamin_content
 - lemon: Vitamin C
 - banana: Vitamin B6
 - pineapple: Vitamin C
+
+---
+// CHART
+! AI to provide the top five countries and then display them as a bar chart. 
+apple_bar_chart:
+chart: bar
+title: "Top 5 Apple Exporting Countries"
