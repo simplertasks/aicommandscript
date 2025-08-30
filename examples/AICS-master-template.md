@@ -216,7 +216,7 @@ high: 🟢 High accuracy - Great job, facts are accurate!
 
 ---
 
-// DATA SOURCES
+// DATA SOURCES INTERNAL
 
 data_summary: ! describe the type of data in this section
 
@@ -239,6 +239,14 @@ data: vitamin_content
 - pineapple: Vitamin C
 
 ---
+// DATA SOURCES EXTERNAL
+! Get more information from Internet
+
+
+https://www.fruityvice.com/api/fruit/banana
+
+---
+
 
 // GRAPH
 name: apple producers
