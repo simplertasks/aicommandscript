@@ -239,8 +239,21 @@ data: vitamin_content
 - pineapple: Vitamin C
 
 ---
-// CHART
+
+// GRAPH
+name: apple producers
 ! AI to provide the top five countries and then display them as a bar chart. 
 apple_bar_chart:
-chart: bar
+graph-type: bar
 title: "Top 5 Apple Exporting Countries"
+
+---
+
+//FLOW CHART
+
+name: wine_process
+! AI to create a flowchat
+color: purple
+description: Wine making process
+
+
