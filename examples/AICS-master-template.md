@@ -1,6 +1,6 @@
 // APP
-An AICommand Script Application - 
-
+This is an AI Command Script Application AICS
+---
 title: Fruit Quiz
 author: Ed Smith
 version: 1.0
@@ -9,6 +9,8 @@ languages: English, French,  Ojibwe
 
 note:
 AICommandScript (AICS) is a lightweight, structured natural language framework for creating shareable AI apps. https://github.com/simplertasks/aicommandscript
+
+---
 
 // BEHAVIORS AI
 ai_runtime:
