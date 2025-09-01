@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>AICS Sections – Safe Full-Width Highlight</title>
+
+    <!-- Highlight.js theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+
+    <style>
+        :root {
+            --pad: 1rem;
+            --stripe: #fff6a6;
+            /* pale yellow */
+            --border: #ececec;
+        }
+
+        body {
+            font-family: system-ui, sans-serif;
+            margin: 2rem;
+            background: #f7f7f7;
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #222;
+        }
+
+        pre {
+            padding: var(--pad);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: #fff;
+            overflow: auto;
+        }
+
+        /* Optional token tweaks */
+        .hljs-comment {
+            color: #6a737d;
+            font-style: italic;
+        }
+
+        /* ! comments */
+        .hljs-meta {
+            color: #7b3fb8;
+            font-style: italic;
+        }
+
+        /* // headers */
+        .hljs-section {
+            color: #d35400;
+            font-weight: 600;
+        }
+
+        /* // headers with full-line yellow background */
+        .hljs-meta {
+            display: block;
+            background: var(--stripe);
+            margin-left: calc(-1 * var(--pad));
+            margin-right: calc(-1 * var(--pad));
+            padding-left: var(--pad);
+            padding-right: var(--pad);
+            font-weight: 900;
+            font-size: 1.2em;
+        }
+
+        /* --- divider */
+        .hljs-attr {
+            color: #005cc5;
+            font-weight: 600;
+        }
+
+        /* key: */
+        .hljs-template-variable {
+            color: #005cc5;
+            font-weight: 600;
+        }
+
+        /* [[tokens]] with green brackets */
+        .hljs-template-variable {
+            color: #006400;
+        }
+
+        /* [[tokens]] */
+
+        /* Full-width yellow stripe for an entire section */
+        .aics-section-wrap {
+            display: block;
+            background: var(--stripe);
+            /* extend edge-to-edge inside <pre> by canceling its padding */
+            margin-left: calc(-1 * var(--pad));
+            margin-right: calc(-1 * var(--pad));
+            padding-left: var(--pad);
+            padding-right: var(--pad);
+        }
+
+        /* Make headers pop a bit more inside the stripe */
+        .aics-section-wrap .hljs-meta {
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>// header → yellow until next --- (safe DOM method)</h1>
+
+    <pre><code class="language-aics" id="aics-code"></code></pre>
+
+    <!-- Highlight.js FULL build -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // 1) Your AICS source (SAFE: we assign it via textContent)
+        const SRC = `// APP
+This is an AI Command Script Application AICS. 
+---
+title: Fruit Quiz
+author: Ed Smith
+version: 1.0
+type: Pop Quiz
+
+// GRAPH
+name: apple producers
+! AI to provide the top five countries and then display them as a bar chart. 
+apple_bar_chart:
+graph-type: bar
+title: "Top 5 Apple Exporting Countries"
+---
+template: help
+! AICS help text follows...
+[[note]]
+---`;
+
+        // 2) Define the AICS language for highlight.js
+        hljs.registerLanguage('aics', function (hljs) {
+            return {
+                name: 'AICS',
+                contains: [
+                    { className: 'comment', begin: /^(?<!\S)!\s.*$/m },        // ! comments at line start
+                    { className: 'meta', begin: /^(?<!\S)\/\/\s.*$/m },     // // headers at line start
+                    {
+                        className: 'template-variable',
+                        begin: /\[\[(?:[^\]\r\n]|](?!]))+\]\]/
+                    },                 // [[tokens]]
+                    { className: 'section', begin: /^(?<!\S)---\s*$/m },        // --- divider line
+                    { className: 'attr', begin: /^[A-Za-z_][\w-]*\s*:/m } // key: value pairs
+                ]
+            };
+        });
+
+        // 3) Inject source safely and highlight
+        const codeEl = document.getElementById('aics-code');
+        codeEl.textContent = SRC;              // SAFE: escapes any HTML
+        hljs.highlightElement(codeEl);         // adds <span> tokens
+
+        // 4) Post-process using DOM Ranges (no innerHTML string hacks)
+        //    Wrap every // header through (but NOT including) the next --- divider.
+        (function wrapSections(code) {
+            // We’ll collect all header spans first so iteration is stable while we wrap.
+            const headers = Array.from(code.querySelectorAll('.hljs-meta'));
+            headers.forEach(header => {
+                // Find the next divider after this header
+                let endDivider = null;
+                const walker = document.createTreeWalker(
+                    code,
+                    NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT,
+                    {
+                        acceptNode(node) {
+                            // Only consider nodes that come after the header
+                            return (node.compareDocumentPosition(header) & Node.DOCUMENT_POSITION_FOLLOWING)
+                                ? NodeFilter.FILTER_ACCEPT
+                                : NodeFilter.FILTER_REJECT;
+                        }
+                    }
+                );
+
+                // Walk forward until we hit a '---' line (span.hljs-section or raw '---')
+                while (walker.nextNode()) {
+                    const n = walker.currentNode;
+                    if (n.nodeType === 1 /* ELEMENT */) {
+                        if (n.classList && n.classList.contains('hljs-section')) {
+                            endDivider = n;
+                            break;
+                        }
+                    } else if (n.nodeType === 3 /* TEXT */) {
+                        // In rare cases the '---' might remain as plain text
+                        if (/^\s*---\s*$/.test(n.nodeValue)) {
+                            // Wrap that raw '---' in the hljs-section span so style remains consistent
+                            const span = document.createElement('span');
+                            span.className = 'hljs-section';
+                            span.textContent = n.nodeValue;
+                            n.parentNode.replaceChild(span, n);
+                            endDivider = span;
+                            break;
+                        }
+                    }
+                }
+
+                if (!endDivider) return; // no divider found; skip
+
+                // Build a Range from just BEFORE header to just BEFORE divider
+                const rng = document.createRange();
+                rng.setStartBefore(header);
+                rng.setEndBefore(endDivider);
+
+                // Surround with our block wrapper
+                const wrapper = document.createElement('span');
+                wrapper.className = 'aics-section-wrap';
+                try {
+                    rng.surroundContents(wrapper);
+                } catch (e) {
+                    // If the range isn't "surroundable" (rare), fallback: move nodes manually
+                    const contents = rng.extractContents();
+                    wrapper.appendChild(contents);
+                    rng.insertNode(wrapper);
+                }
+            });
+        })(codeEl);
+    </script>
+</body>
+
+</html>
