@@ -89,7 +89,7 @@ template: footer-continue
 
 ! The first letter of each choice must be bolded only, not the whole word.
 
-_Continue?_  Yes/No  Help Quit
+Continue    Help Share Quit
 
 ---
 
