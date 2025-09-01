@@ -70,7 +70,8 @@ On session end:
 // TEMPLATES STANDARD
 template: hello_message
 👋 Hello and welcome to **[[title]]**!
-now: fetch the current time in eastern standard Time
+
+now: fetch the current time in eastern standard Time, format as YYYY-MM-DD
 
 _[[now]]_
 
@@ -79,6 +80,16 @@ template: goodbye_message
 👋 Goodbye! Thanks for using **[[title]]**. Come back anytime!
 
 div: · · · · · · · · 
+
+template: footer
+`H` Help
+
+template: footer-continue
+! Bold first leter if each choice
+
+! The first letter of each choice must be bolded only, not the whole word.
+
+_Continue?_  Yes/No  Help Quit
 
 ---
 
@@ -102,12 +113,12 @@ _built with:_ 🐝 AICS - AI Command Script
 
 ## For Authors (developers)
 
-! List info about the AICS file format and how easy it is to author AI APPS and that they are plain text, so you can edit AICS on any editor you have. Also explain briefly what markdown format is. Include: https://github.com/simplertasks/aicommandscript for more help.
+! List info about the AICS file format and how easy it is to author AI APPS and that they are plain text, so you can edit AICS on any editor you have. Also explain briefly what markdown format is. 
 
+! Include link to https://github.com/simplertasks/aicommandscript for more help.
+
+[[footer-continue]]
 ---
-
-template: footer
-`H` Help
 
 template: share_script
 
@@ -147,8 +158,6 @@ Fruit Question
 
 - _Please enter 2 facts about the [[emoji]] [[user_fruit]]_.
 
-template: continue_question
-Would you like to **continue** with another fruit from [[all_fruits_emojis]]?
 
 template: response*template
 Thanks for entering: *[[user_facts]]\*.
@@ -171,9 +180,9 @@ The largest producer of [[user_fruit]] is [[largest_produce_country]].
 A good source of [[vitamin_content]]! 💊
 
 **Fruits Completed:** [[fruit_counter]]
-[[footer]]
 
-[[continue_question]]
+[[footer-continue]]
+
 
 template: final_summary
 
