@@ -6,6 +6,8 @@ A lightweight, natural-language framework for creating structured, shareable AI 
 
 ## The Vision
 
+A future where anyone can build  an “application” is as easy as writing a structured note.
+
 AICommandScript addresses **The Goldilocks Problem** in AI development:
 
 - **Too little structure** → Inconsistent, unreliable, hard to maintain
