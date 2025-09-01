@@ -70,6 +70,10 @@ On session end:
 // TEMPLATES STANDARD
 template: hello_message
 👋 Hello and welcome to **[[title]]**!
+now: fetch the current time in eastern standard Time
+
+_[[now]]_
+
 
 template: goodbye_message
 👋 Goodbye! Thanks for using **[[title]]**. Come back anytime!
@@ -265,8 +269,8 @@ color: purple
 description: Wine making process
 
 // PDF CREATION
-When user enters "PDF":
+! When user enters "PDF":
 - Render [[study_card]] table (alphabetical)
 - Include surprising fact line
-- Export as "Fruit_Quiz_Study_Card.pdf"
+- Export as "[[title]].pdf"
 - Display a download link
