@@ -264,4 +264,10 @@ name: wine_process
 color: purple
 description: Wine making process
 
+// PDF CREATION
+
+! create a PDF file for the user to download that summarizes the table
+
+! do this when the users enters PDF at the prompt
+
 
