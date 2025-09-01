@@ -265,9 +265,8 @@ color: purple
 description: Wine making process
 
 // PDF CREATION
-
-! create a PDF file for the user to download that summarizes the table
-
-! do this when the users enters PDF at the prompt
-
-
+When user enters "PDF":
+- Render [[study_card]] table (alphabetical)
+- Include surprising fact line
+- Export as "Fruit_Quiz_Study_Card.pdf"
+- Display a download link
