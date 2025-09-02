@@ -35,7 +35,7 @@ Q: quit
 - - - - - - - - - - - - -
 // BEHAVIORS APP
 
-On session start:
+When session starts:
 
 - Display [[hello_message]].
 - Then prompt user with [[language_selection]].
@@ -55,7 +55,7 @@ Application flow:
 - If user stops: render [[final_summary]] in chosen language
 - All outputs must follow the chosen language
 
-On session end:
+When session ends:
 
 - Display [[goodbye_message]] when user quits
 - Show [[final_summary]] if user completed any fruits
