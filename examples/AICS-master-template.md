@@ -154,7 +154,7 @@ Fruit Question
 - _Please enter 2 facts about the [[emoji]] [[user_fruit]]_.
 
 
-template: response*template
+template: response_template
 Thanks for entering: *[[user_facts]]\*.
 
 **Fact Check:**  
@@ -280,58 +280,31 @@ description: Wine making  process
 ----------------------------
   !! DO NOT EDIT THIS SECTION
 ----------------------------
+----------------------------
 // AICS SYSTEM VALIDATOR
 
-When a user asks to validate an AICS file, check the following:
+Validation rules:
 
 BASIC (must pass)
-- Section headings must be IN ALL CAPS and start with //
-  (Example: // APP, // BEHAVIORS AI, // TEMPLATES)
-- Every [[token]] that appears in the script must have a matching value
-  somewhere else in the file as a simple “name: value”
-  (Example: [[title]] → title: My App)
+- Section headers: ALL CAPS, start with //  
+- Every [[token]] defined either as:
+  • variable (name: value), or  
+  • template (template: name)  
 
 PLUS (recommended)
-- Required core sections are present:
-  // APP, // BEHAVIORS AI, // BEHAVIORS STANDARD, // TEMPLATES, // APP CONFIGURATION
-- APP section includes these items as “name: value”:
-  title, author, version, type
-- Each template is named once only (no duplicate “template:” names)
-- Hotkeys listed under BEHAVIORS STANDARD actually point to real templates
-  (Example: S → share template, H → help template, Q → goodbye or quit template)
-- Markdown looks tidy (no half-finished tables or code blocks)
+- Core sections present: APP, BEHAVIORS AI, BEHAVIORS STANDARD, TEMPLATES, APP CONFIGURATION  
+- APP includes: title, author, version, type  
+- Template names are unique  
+- Hotkeys map to real templates/variables  
+- Markdown tidy (no broken tables/blocks)  
+- Template text checked for spelling & grammar  
 
 STRICT (nice to have)
-- No leftover “!!” notes show up in the final user text
-- External links start with https:// and look clickable
-- If there are charts/flows/PDF mentions, they include a title or filename
-- The script ends with a newline (clean file ending)
+- No “!!” notes in user text  
+- External links start with https://  
+- Graphs/flows/PDFs have titles/filenames  
+- Script ends with a newline  
 
-HOW TO REPORT
-- Say how many problems you found, grouped by “Basic / Plus / Strict”
-- For each problem, show:
-  1) What’s wrong (plain words)
-  2) Where you saw it (section or line if obvious)
-  3) A quick fix (one sentence)
-
-EXAMPLES (for clarity)
-
-✔ Section heading (good)
-  // TEMPLATES
-
-✖ Section heading (needs fix)
-  # templates   → Make it: // TEMPLATES
-
-✔ Token defined (good)
-  In text: [[title]]
-  Elsewhere: title: Fruit Quiz
-
-✖ Token missing (needs fix)
-  In text: [[welcome_message]]
-  Elsewhere: (not defined) → Add: welcome_message: Hello!
-
-✔ Template name (good)
-  template: hello_message
-
-✖ Duplicate template name (needs fix)
-  template: hello_message   (appears twice) → Rename one of them
+REPORTING
+- Group issues under BASIC / PLUS / STRICT  
+- For each issue give: problem, location, quick fix
