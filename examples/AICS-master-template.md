@@ -1,13 +1,21 @@
 - - - - - - - - - - - - -
-// 🐝 APP
-This is an AI Command Script Application. 
+// APP
 
 title: Fruit Quiz
 author: Ed Smith
 version: 1.0
 type: Pop Quiz
-note:
-AICommandScript (AICS) is a lightweight, structured natural language framework for creating shareable AI apps. https://github.com/simplertasks/aicommandscript
+note: A simple quiz about fruits. 
+
+
+- - - - - - - - - - - - -
+// ABOUT
+🐝 
+This is an AICommandScript (AICS) application. 
+
+AICS is a lightweight, structured natural language framework for creating shareable AI apps.
+
+Ref: https://github.com/simplertasks/aicommandscript
 
 - - - - - - - - - - - - -
 // BEHAVIORS AI
@@ -68,13 +76,13 @@ template: hello_message
 
 today: !! current time in eastern standard Time, format as Sep-02-25
 
-_[[today]]_
+[[today]]
 
 
 template: goodbye_message
 👋 Goodbye!! Thanks for using **[[title]]**. Come back anytime!!
 
-div: · · · · · · · · 
+· · · · · · · · 
 
 template: footer
 `H` Help
