@@ -33,7 +33,7 @@ H: display [[help]]
 Q: quit
 
 - - - - - - - - - - - - -
-// BEHAVIORS App
+// BEHAVIORS APP
 
 On session start:
 
@@ -253,7 +253,7 @@ data: vitamin_content
 
 - - - - - - - - - - - - -
 // DATA SOURCES EXTERNAL
-!! Get more information from Internet
+!! Get more information from Internet API
 
 
 https://www.fruityvice.com/api/fruit/banana
