@@ -7,7 +7,6 @@ version: 1.0
 type: Pop Quiz
 note: A simple quiz about fruits. 
 
-
 - - - - - - - - - - - - -
 // ABOUT
 🐝 
@@ -80,7 +79,7 @@ today: !! current time in eastern standard Time, format as Sep-02-25
 
 
 template: goodbye_message
-👋 Goodbye!! Thanks for using **[[title]]**. Come back anytime!!
+👋 Goodby.  Thanks for using **[[title]]**. Come back anytime!!
 
 · · · · · · · · 
 
