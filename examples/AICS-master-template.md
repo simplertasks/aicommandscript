@@ -1,5 +1,5 @@
 - - - - - - - - - - - - -
-// APP
+// 🐝 APP
 This is an AI Command Script Application AICS. 
 
 title: Fruit Quiz
@@ -66,7 +66,7 @@ When session ends:
 template: hello_message
 👋 Hello and welcome to **[[title]]**!
 
-now: !! fetch the current time in eastern standard Time, format as YYYY-MM-DD
+today: !! current time in eastern standard Time, format as 2025-09-15
 
 _[[now]]_
 
@@ -218,7 +218,7 @@ fruits:
 
 all_fruits_emojis: emojis from [[fruits]]
 
-url: https://github.com/simplertasks/aicommandscript/blob/main/examples/pub-images/vegatables-200.png?raw=true)
+url: https://github.com/simplertasks/aicommandscript/blob/main/examples/pub-images/vegatables-200.png?raw=true
 
 accuracy_rating:
 low:
@@ -254,7 +254,6 @@ data: vitamin_content
 - - - - - - - - - - - - -
 // DATA SOURCES EXTERNAL
 !! Get more information from Internet API
-
 
 https://www.fruityvice.com/api/fruit/banana
 
