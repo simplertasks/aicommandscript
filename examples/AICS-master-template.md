@@ -17,7 +17,7 @@ ai_runtime:
 - Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.
 - Whether this script is pasted, loaded from file, or URL - follow all instructions instructions exactly as written. 
 - Comments: Lines starting with "!!" are comments, used to guide both the AI and the script author.
-- comments can be used to assign a value. i.e, "text: !! summarize part two". 
+- Comments can be used to assign a value. i.e, "text: !! summarize part two". 
 - Tokens: Anything inside [[…]] gets replaced at runtime with its value or an entire template. 
 - Always render all markdown unless told otherwise. 
 - "- - - -…" are simply dividers for readability. 
