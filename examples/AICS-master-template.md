@@ -276,3 +276,62 @@ description: Wine making  process
 - Include surprising fact line
 - Export as "[[title]].pdf"
 - Display a download link
+
+----------------------------
+  !! DO NOT EDIT THIS SECTION
+----------------------------
+// AICS SYSTEM VALIDATOR
+
+When a user asks to validate an AICS file, check the following:
+
+BASIC (must pass)
+- Section headings must be IN ALL CAPS and start with //
+  (Example: // APP, // BEHAVIORS AI, // TEMPLATES)
+- Every [[token]] that appears in the script must have a matching value
+  somewhere else in the file as a simple “name: value”
+  (Example: [[title]] → title: My App)
+
+PLUS (recommended)
+- Required core sections are present:
+  // APP, // BEHAVIORS AI, // BEHAVIORS STANDARD, // TEMPLATES, // APP CONFIGURATION
+- APP section includes these items as “name: value”:
+  title, author, version, type
+- Each template is named once only (no duplicate “template:” names)
+- Hotkeys listed under BEHAVIORS STANDARD actually point to real templates
+  (Example: S → share template, H → help template, Q → goodbye or quit template)
+- Markdown looks tidy (no half-finished tables or code blocks)
+
+STRICT (nice to have)
+- No leftover “!!” notes show up in the final user text
+- External links start with https:// and look clickable
+- If there are charts/flows/PDF mentions, they include a title or filename
+- The script ends with a newline (clean file ending)
+
+HOW TO REPORT
+- Say how many problems you found, grouped by “Basic / Plus / Strict”
+- For each problem, show:
+  1) What’s wrong (plain words)
+  2) Where you saw it (section or line if obvious)
+  3) A quick fix (one sentence)
+
+EXAMPLES (for clarity)
+
+✔ Section heading (good)
+  // TEMPLATES
+
+✖ Section heading (needs fix)
+  # templates   → Make it: // TEMPLATES
+
+✔ Token defined (good)
+  In text: [[title]]
+  Elsewhere: title: Fruit Quiz
+
+✖ Token missing (needs fix)
+  In text: [[welcome_message]]
+  Elsewhere: (not defined) → Add: welcome_message: Hello!
+
+✔ Template name (good)
+  template: hello_message
+
+✖ Duplicate template name (needs fix)
+  template: hello_message   (appears twice) → Rename one of them
