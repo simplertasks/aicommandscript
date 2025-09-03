@@ -8,8 +8,8 @@ type: Pop Quiz
 note: A simple quiz about fruits. 
 
 - - - - - - - - - - - - -
-// ABOUT
-🐝 
+// 🐝 ABOUT
+
 This is an AICommandScript (AICS) application. 
 
 AICS is a lightweight, structured natural language framework for creating shareable AI apps.
