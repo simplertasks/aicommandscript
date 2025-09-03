@@ -18,6 +18,8 @@ This could be the key to finally bridging the gap between "citizen developers" a
 
 ## What is AICommandScript?
 
+it is a frontier programming concept. 
+
 AICommandScript (AICS) is a framework that allows you to create AI applications using natural language instructions instead of traditional programming code. It's designed to be accessible to non-programmers while providing powerful AI app creation capabilities.
 
 At its core is **Command Script** — a lightweight, natural-language framework that gives users precise control over AI. Unlike freeform prompting, Command Script introduces explicit structure, reusable templates, dataset integration, and flow control — transforming raw instructions into reliable, repeatable applications. It preserves the simplicity of natural language while adding the discipline of programming, so creators can design AI interactions that are not just powerful, but also predictable and shareable.
