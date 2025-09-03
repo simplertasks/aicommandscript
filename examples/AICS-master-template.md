@@ -28,6 +28,7 @@ ai_runtime:
 - Tokens: Anything inside [[…]] gets replaced at runtime with its value or an entire template. 
 - Always render all markdown unless told otherwise. 
 - "- - - -…" are simply dividers for readability. 
+- all URLs should be converted to clickable links. 
 
 - - - - - - - - - - - - -
 // BEHAVIORS STANDARD
