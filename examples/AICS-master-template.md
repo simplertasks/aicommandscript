@@ -72,6 +72,7 @@ When session ends:
 - - - - - - - - - - - - -
 // TEMPLATES STANDARD
 template: hello_message
+![](https://placehold.co/300x40/ff0000/FFFFFF/png?text=Hello+World&font=roboto)
 👋 Hello and welcome to **[[title]]**!
 
 today: !! current time in EST, format as Sep-02-25
