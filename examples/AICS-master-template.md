@@ -81,8 +81,10 @@ today: !! current time in EST, format as Sep-02-25
 
 template: goodbye_message
 👋 Goodby.  Thanks for using **[[title]]**. Come back anytime!!
+[[div]]
 
-· · · · · · · · 
+template: div
+·  ·  ·  ·  ·  ·  ·  ·  ·  ·
 
 template: footer
 `H` Help
