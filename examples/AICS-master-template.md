@@ -4,7 +4,7 @@
 title: Fruit Quiz
 author: Ed Smith
 version: 1.0
-type: Pop Quiz
+type: Quiz
 note: A simple quiz about fruits. 
 
 - - - - - - - - - - - - -
