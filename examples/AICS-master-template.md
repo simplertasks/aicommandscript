@@ -295,7 +295,7 @@ description: Wine making  process
 - - - - - - - - - - - - -
 // AICS SYSTEM VALIDATOR
 
-!! only run this if the user asks for validation
+!! only run this if the author asks for validation
 
 
 Validation rules:
