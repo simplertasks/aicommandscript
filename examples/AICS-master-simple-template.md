@@ -19,6 +19,7 @@ When session starts:
 - Ask user for 1 fact
 - Fact-check using AI knowledge
 - Display [[response_template]]
+
 - Quit
 
 // TEMPLATES
@@ -27,6 +28,8 @@ template: hello_message
 
 template: goodbye_message
 👋 Goodbye! Thanks for playing **[[title]]**.
+
+!! display something surprising about  [[user_fruit]]. 
 
 template: fruit_message
 !! place the proper emoji beside the fruit
