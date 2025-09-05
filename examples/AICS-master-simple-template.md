@@ -2,15 +2,23 @@
 title: Fruit Quiz
 author: J. Smith
 
+// 🐝 ABOUT
+
+This is an AICommandScript (AICS) application. 
+
+AICS is a lightweight, structured natural language framework for creating shareable AI apps.
+
+Ref: https://github.com/simplertasks/aicommandscript
 
 // BEHAVIORS AI
 ai_runtime:
-- Run Mode: Run the App immediately
-- DO NOT run the validator
+- Run Mode: follow the script and run the App immediately
 
 // BEHAVIORS STANDARD
 - When session start display [[hello_message]]
 - When session ends display [[goodbye_message]]
+- Comments: Lines starting with "!!" are comments, used to guide both the AI and the script author.
+
 
 // BEHAVIORS APP
 When session starts:
