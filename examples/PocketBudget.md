@@ -3,9 +3,9 @@
 
 title: Pocket Spreadsheet – Expenses Only
 author: You
-version: 1.1
+version: 1.4
 type: Utility
-note: A clean, mobile-friendly household budget tracker for expenses only. Variance shows 🔻 for overspend, ✅ for underspend.
+note: Mobile-friendly household expense tracker. Variance = plain numbers in rows, ✅/🔻 in Totals and Summary.
 
 - - - - - - - - - - - - -
 // BEHAVIORS AI
@@ -25,7 +25,7 @@ Q: quit
 - - - - - - - - - - - - -
 // BEHAVIORS APP
 When session starts:
-- Initialize the expense ledger with [[default_categories]] and [[default_estimates]]/[[default_actuals]].
+- Initialize ledger with [[default_categories]], [[default_estimates]], [[default_actuals]].
 - Display [[hello_message]] then render [[budget_table]].
 - Accept natural-language updates like:
   • “set groceries actual 320”
@@ -54,9 +54,12 @@ template: goodbye_message
 template: help
 ## Help — [[title]]
 
-- Only expenses are tracked (no income).  
+- Only **expenses** are tracked.  
 - Columns: Estimated, Actual, Variance, Notes.  
-- Variance:  
+
+**Variance rules:**  
+- **Rows:** plain numbers only (absolute values).  
+- **Totals & Summary:**  
   - 🔻 overspend (Actual > Estimated)  
   - ✅ underspend (Actual < Estimated)  
   - `0.00` if exact match  
@@ -77,6 +80,15 @@ template: budget_table
 |---|---:|---:|---:|---|
 [[table_rows]]
 | **Total Expenses** | **[[total_exp_est]]** | **[[total_exp_act]]** | **[[total_exp_var]]** | |
+
+---
+
+#### Summary
+| Type | Amount |
+|---|---:|
+| Total Estimated | [[total_exp_est]] |
+| Total Actual | [[total_exp_act]] |
+| Variance | [[total_exp_var]] |
 
 - - - - - - - - - - - - -
 // APP CONFIGURATION
@@ -119,16 +131,18 @@ default_actuals:
 
 table_rows: !! For each expense category, sorted alphabetically:
   - Category name
-  - Estimated with [[currency_symbol]] + [[decimal_places]]
+  - Estimated with [[currency_symbol]] and [[decimal_places]]
   - Actual formatted same
-  - Variance column rules:
-    • If Actual > Estimated → 🔻 (Actual − Estimated)
-    • If Actual < Estimated → ✅ (Estimated − Actual)
-    • If equal → 0.00
+  - Variance = [[row_variance]]
   - Notes (empty if none)
+
+row_variance: !! For each category:
+  Always display absolute difference (Actual − Estimated) as a plain number with [[currency_symbol]].
+  No ✅ or 🔻 symbols here.
 
 total_exp_est: !! Sum of all estimates formatted with currency
 total_exp_act: !! Sum of all actuals formatted
-total_exp_var: !! If total actual > total estimate → 🔻 (Actual − Estimated);
-                 If total actual < total estimate → ✅ (Estimated − Actual);
-                 Else 0.00
+total_exp_var: !! For totals and summary:
+  - If total actual > total estimate → 🔻 (Actual − Estimated)
+  - If total actual < total estimate → ✅ (Estimated − Actual)
+  - If equal → 0.00
