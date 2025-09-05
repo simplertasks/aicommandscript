@@ -1,8 +1,7 @@
 // APP
 title: Fruit Quiz
-author: Demo
-version: 0.1
-type: Quiz
+author: J. Smith
+
 
 // BEHAVIORS AI
 ai_runtime:
@@ -30,6 +29,8 @@ template: goodbye_message
 👋 Goodbye! Thanks for playing **[[title]]**.
 
 template: fruit_message
+!! place the proper emoji beside the fruit
+
 Please tell me one fact about the [[user_fruit]].
 
 template: response_template
