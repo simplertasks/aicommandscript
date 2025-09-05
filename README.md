@@ -2,49 +2,77 @@
 
 # AICommandScript (AICS)
 
-A lightweight, natural-language framework for creating structured, shareable AI applications.
+*A lightweight, natural-language framework for creating structured, shareable AI applications.*
+
+---
+
+AICommandScript makes AI app creation accessible to everyone — as easy as writing a note, as powerful as writing an app.
+## Why AICS?
+
+> **AICS is the only framework where writing an app feels like writing a note.**  
+> **You can run an AICS app by pasting text — no setup, no installs.**
+
+With AICS, apps are just plain-text notes with lightweight structure.  
+They’re easy to create, easy to share, and run instantly inside an AI environment — no coding, no installation, no special tools required.
+
+---
 
 ## The Vision
 
-A future where anyone can build  an “application” is as easy as writing a structured note.
+A future where building an “application” is as easy as writing a structured note.
 
-AICommandScript addresses **The Goldilocks Problem** in AI development:
+AICommandScript solves the **Goldilocks Problem** in AI development:
 
-- **Too little structure** → Inconsistent, unreliable, hard to maintain
-- **Too much structure** → Intimidating, requires technical knowledge, loses accessibility
-- **AICS** → Just right
+- **Too little structure** → Inconsistent, unreliable, hard to maintain  
+- **Too much structure** → Intimidating, requires technical knowledge, loses accessibility  
+- **AICS** → Just right  
 
-This could be the key to finally bridging the gap between "citizen developers" and professional developers using the same toolchain.
+This balance bridges the gap between *citizen developers* and professional developers, enabling both to work with the same approachable toolchain.
+
+---
 
 ## What is AICommandScript?
 
-it is a frontier programming concept. 
+AICommandScript (AICS) is a framework for creating AI applications using natural language instructions instead of programming code. It’s designed to be **accessible to non-programmers** while offering enough structure and power for repeatable, reliable AI workflows.
 
-AICommandScript (AICS) is a framework that allows you to create AI applications using natural language instructions instead of traditional programming code. It's designed to be accessible to non-programmers while providing powerful AI app creation capabilities.
+At its core is the **Command Script**:  
+a lightweight, natural-language framework that adds just enough discipline to AI interactions through:
 
-At its core is **Command Script** — a lightweight, natural-language framework that gives users precise control over AI. Unlike freeform prompting, Command Script introduces explicit structure, reusable templates, dataset integration, and flow control — transforming raw instructions into reliable, repeatable applications. It preserves the simplicity of natural language while adding the discipline of programming, so creators can design AI interactions that are not just powerful, but also predictable and shareable.
+- **Reusable templates**  
+- **Explicit structure**  
+- **Data integration**  
+- **Flow control**
+
+Unlike freeform prompting, AICS ensures your AI interactions are not just powerful, but **predictable, shareable, and consistent**.  
+
+---
 
 ## How It Works
 
 Instead of writing code, you define:
 
-- **Behaviors** - What should happen when (session flow, user interactions)
-- **Templates** - How messages should look with placeholders like `[emoji]`, `[user_fruit]`
-- **Data structures** - Facts, information, and content your app will use
-- **AI instructions** - How the AI should respond and behave
+- **Behaviors** → session flow and user interactions  
+- **Templates** → reusable message formats with placeholders like `[[emoji]]`, `[[user_fruit]]`  
+- **Data structures** → facts and content your app will use  
+- **AI instructions** → rules that guide how the AI responds  
 
-The AI reads these natural language instructions and executes your application accordingly.
+The AI reads these instructions and executes your application exactly as described.
+
+---
 
 ## Key Features
 
-- **Natural Language**: Write apps in plain English (or other languages)
-- **Shareable**: AICS files can be shared and reused across different AI platforms
-- **Structured**: Clear organization with sections for behaviors, templates, and data
-- **Multi-language Support**: Built-in support for multiple languages
-- **Template System**: Reusable message formats with dynamic content
-- **Data Verification**: Distinguish between human-verified facts and AI-generated content
-- **Reliable & Repeatable**: Transform raw instructions into consistent applications
-- **Accessible**: Designed for both citizen developers and professionals
+- **Plain Text & Natural Language** → Write apps like you’re writing notes  
+- **Zero Setup** → Paste and run immediately, no installs required  
+- **Shareable** → AICS files can be sent, copied, or versioned anywhere  
+- **Structured** → Clear organization with sections for behaviors, templates, and data  
+- **Multi-language Support** → Switch outputs seamlessly into multiple languages  
+- **Template System** → Enforce consistent, repeatable outputs  
+- **Data Verification** → Distinguish between AI-generated and human-verified facts  
+- **Reliable & Repeatable** → Eliminate AI “drift” with explicit control  
+- **Accessible** → Designed for teachers, creators, and professionals alike  
+
+---
 
 ## Example Structure
 
@@ -69,36 +97,46 @@ fruits:
 - banana: 🍌
 ```
 
-## Getting Started
+⸻
 
-1. Check out the examples in the `examples/` folder
-2. Use the `AICS-master-template.md` as a starting point
-3. Customize behaviors, templates, and data for your app
-4. Share your AICS file with others
+Getting Started
+	1.	Browse examples in the examples/ folder
+	2.	Start with the AICS-master-template.md file
+	3.	Customize behaviors, templates, and data
+	4.	Share your AICS file — anyone can run it instantly
 
-## Examples
+⸻
 
-- **Fruit Quiz**: A multi-language quiz app demonstrating core AICS concepts
-- **Master Template**: A comprehensive template showing all available features
+Examples
+	•	Fruit Quiz → a multi-language quiz app showcasing AICS basics
+	•	Master Template → a comprehensive demo of all features
 
-## Documentation
+⸻
 
-See `docs/AICommandScript.md` for detailed documentation and specifications.
+Documentation
 
-## License
+See docs/AICommandScript.md for detailed specifications.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+⸻
 
-## Contributing
+License
 
-Contributions are welcome! Feel free to submit issues, feature requests, or pull requests.
+This project is licensed under the MIT License — see the LICENSE file for details.
 
-## Contact
+⸻
 
-- **From**: rob-mccormack@gmail.com
-- **Project**: AICommandScript (AICS)
-- **GitHub**: [aicommandscript](https://github.com/simplertasks/aicommandscript)
+Contributing
+
+Contributions are welcome! Please open issues, suggest features, or submit pull requests.
+
+⸻
+
+Contact
+
+	•	Project: AICommandScript (AICS)
+	•	GitHub: aicommandscript
+
+
 
 ---
 
-_AICommandScript makes AI app creation accessible to everyone through natural language instructions._

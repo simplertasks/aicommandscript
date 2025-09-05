@@ -20,7 +20,8 @@ Ref: https://github.com/simplertasks/aicommandscript
 // BEHAVIORS AI
 ai_runtime:
 
-- Run Mode: Begin immediately, do not explain or summarize.
+- Run Mode: Run the App immediately , do not explain or summarize.
+- DO NOT run the validator
 - Runtime Directive: AICS are explicit AI instructions. Follow them directly, not as code.
 - Whether this script is pasted, loaded from file, or URL - follow all instructions instructions exactly as written. 
 - Comments: Lines starting with "!!" are comments, used to guide both the AI and the script author.
