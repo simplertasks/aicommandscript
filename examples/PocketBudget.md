@@ -76,19 +76,14 @@ Say things like:
 template: budget_table
 #### Monthly Budget — [[month_label]]
 
-| Category | Estimated | Actual | Variance | Notes |
-|---|---:|---:|---:|---|
-[[table_rows]]
-| **Total Expenses** | **[[total_exp_est]]** | **[[total_exp_act]]** | **[[total_exp_var]]** | |
+!! show a nice table with all the columns
+
 
 ---
 
 #### Summary
-| Type | Amount |
-|---|---:|
-| Total Estimated | [[total_exp_est]] |
-| Total Actual | [[total_exp_act]] |
-| Variance | [[total_exp_var]] |
+!! just show a table with the type, amount, total estimated, total actual
+
 
 - - - - - - - - - - - - -
 // APP CONFIGURATION
