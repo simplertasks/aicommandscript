@@ -3,7 +3,6 @@ title: Fruit Quiz
 author: J. Smith
 
 // 🐝 ABOUT
-
 This is an AICommandScript (AICS) application. 
 
 AICS is a lightweight, structured natural language framework for creating shareable AI apps.
@@ -17,8 +16,7 @@ ai_runtime:
 // BEHAVIORS STANDARD
 - When session start display [[hello_message]]
 - When session ends display [[goodbye_message]]
-- Comments: Lines starting with "!!" are comments, used to guide both the AI and the script author.
-
+- Comments: Lines starting with "!!" are comments, used to guide both the AI and the script author. Never display "!!" to user. 
 
 // BEHAVIORS APP
 When session starts:
@@ -42,7 +40,7 @@ template: goodbye_message
 template: fruit_message
 !! place the proper emoji beside the fruit
 
-Please tell me one fact about the [[user_fruit]].
+Please tell a few things that you know about  [[user_fruit]]s.
 
 template: response_template
 You said: *[[user_fact]]*  
@@ -53,3 +51,5 @@ fruits:
 - apple
 - banana
 - orange
+- strawberry 
+- pineapple 
