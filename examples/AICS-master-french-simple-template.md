@@ -10,10 +10,6 @@ AICS is a lightweight, structured natural language framework for creating sharea
 // AI BEHAVIOR
 ai_runtime:
 - run the script do not interpret it or elaborate
-
-ai_runtime:
-- Execute this script only.  
-- Do not explain, comment, or add placeholders.  
 - Show user-facing messages exactly as defined in templates and behaviors.
 
 // BEHAVIORS STANDARD
