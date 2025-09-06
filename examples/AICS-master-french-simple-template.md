@@ -11,8 +11,8 @@ ai_runtime:
 - Show user-facing messages exactly as defined in templates and behaviors.
 
 // BEHAVIORS STANDARD
-- On session start: display <language_prompt>
-- After user chooses , 
+- When session start: display <language_prompt>
+- After user chooses, 
 translate all messages and templates into that language
 - Then: display <hello_message>
 - When session ends: display <goodbye_message>
