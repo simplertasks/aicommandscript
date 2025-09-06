@@ -2,10 +2,8 @@
 title: Fruit Quiz
 author: J. Smith
 
-// 🐝 ABOUT 
-AICommandScript application. 
-
-AICS is a lightweight, structured natural language framework for creating shareable AI LLM apps.
+// ABOUT 
+🐝 AICommandScript application: AICS is a lightweight, structured natural language framework for creating shareable AI LLM apps.
 
 // AI BEHAVIOR
 ai_runtime:
