@@ -21,12 +21,9 @@ ai_runtime:
 // BEHAVIORS APP
 When session starts:
 - Display [[fruit_message]]
-- Randomly pick one fruit from [[fruits]]
-- Ask user for 1 fact
-- Fact-check using AI knowledge
 - Display [[response_template]]
+- Ask the user: "Would you like to **C** continue or **Q** quit?"
 
-- Quit
 
 // TEMPLATES
 template: hello_message
@@ -40,11 +37,12 @@ template: goodbye_message
 template: fruit_message
 !! place the proper emoji beside the fruit
 
-Please tell a few things that you know about  [[user_fruit]]s.
+Please tell a few things that you know about: 
+!! display a random fruit from [[fruits]].
 
 template: response_template
-You said: *[[user_fact]]*  
-Fact check: [[fact_check_comment]]
+You said: *[[user_ answer]]*  
+!! display a fact check of answer. 
 
 // APP CONFIGURATION
 fruits:
