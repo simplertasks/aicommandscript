@@ -11,16 +11,16 @@ ai_runtime:
 - Show user-facing messages exactly as defined in templates and behaviors.
 
 // BEHAVIORS STANDARD
-- When session start: display <language_prompt>
+- When session starts display <language_prompt>
 - After user chooses, 
 translate all messages and templates into that language
-- Then: display <hello_message>
-- When session ends: display <goodbye_message>
+- Then display <hello_message>
+- When session ends display <goodbye_message>
 
 // BEHAVIORS APP
 - Display <fruit_message>
 - Display <response_template>
-- After user reponds, ask: "Would you like to **C** continue with another fruit or **Q** quit?"
+- After user reponds, ask "Would you like to **C** continue with another fruit or **Q** quit?"
 
 // TEMPLATES
 
