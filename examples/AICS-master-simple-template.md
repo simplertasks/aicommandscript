@@ -1,9 +1,9 @@
-// APP
+// AICS APP
 title: Fruit Quiz
 author: J. Smith
 
-// 🐝 ABOUT
-This is an AICommandScript (AICS) application. 
+// 🐝 ABOUT 
+AICommandScript application. 
 
 AICS is a lightweight, structured natural language framework for creating shareable AI LLM apps.
 
@@ -11,23 +11,20 @@ AICS is a lightweight, structured natural language framework for creating sharea
 ai_runtime:
 - run the script do not interpret it or elaborate
 
-
 // BEHAVIORS STANDARD
 - When session starts: display <hello_message>
 - When session ends: display <goodbye_message>
 
-
 // BEHAVIORS APP
 - Display <fruit_message>
 - Display <response_template>
-- After user reponds, ask the user: "Would you like to **C** continue with another fruit or **Q** quit?"
-
+- After user reponds, ask: "Would you like to **C** continue with another fruit or **Q** quit?"
 
 // TEMPLATES
 
 template: hello_message
 👋 Hello! Welcome to **<title>**!
-	an application by <author>
+	an application by <author>. 
 
 template: goodbye_message
 👋 Goodbye! Thanks for playing **<title>**.
@@ -37,7 +34,8 @@ Please tell a few things that you know about:
 <choose a fruit from the fruits list and add an emoji>
 
 template: response_template
-You said: *<user_answer>*  
+You said: *<user_answer>*. 
+  
 <display a fact check of answer>
 
 // APP CONFIGURATION
