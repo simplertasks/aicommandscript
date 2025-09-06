@@ -15,7 +15,6 @@ ai_runtime:
 - After user chooses , 
 translate all messages and templates into that language
 - Then: display <hello_message>
-- On session end: display <goodbye_message>
 - When session ends: display <goodbye_message>
 
 // BEHAVIORS APP
@@ -25,17 +24,13 @@ translate all messages and templates into that language
 
 // TEMPLATES
 
-template: hello_message
-👋 Hello! Welcome to **<title>**!
-	an application by <author>. 
-
-template: goodbye_message
-👋 Goodbye! Thanks for playing **<title>**.
-	
 template: language_prompt
 🌍 Please choose your language:  
 Type **E** for English or **F** for French
 
+template: hello_message
+👋 Hello! Welcome to **<title>**!
+	an application by <author>. 
 
 template: fruit_message
 Please tell a few things that you know about: 
@@ -44,7 +39,12 @@ Please tell a few things that you know about:
 template: response_template
 You said: *<user_answer>*. 
   
-<display a fact check of answer>
+<Display a fact check of answer>
+
+<Display an interesting fact about the answer>
+
+template: goodbye_message
+👋 Goodbye! Thanks for playing **<title>**.
 
 // APP CONFIGURATION
 
