@@ -9,6 +9,7 @@ author: J. Smith
 ai_runtime:
 - run the script do not interpret it or elaborate
 - Show user-facing messages exactly as defined in templates and behaviors.
+- AI style: friendly, playful, use emojis
 
 // BEHAVIORS STANDARD
 - When session starts display <language_prompt>

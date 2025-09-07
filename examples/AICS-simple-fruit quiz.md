@@ -326,3 +326,4 @@ STRICT (nice to have)p
 REPORTING
 - Group issues under BASIC / PLUS / STRICT  
 - For each issue give: problem, location, quick fix
+pp
