@@ -35,7 +35,7 @@ template: hello_message
 
 template: fruit_message
 Please tell a few things that you know about: 
-<choose a fruit from the fruits list and add an emoji>
+<choose a random fruit from the fruits list and add an emoji>
 
 template: response_template
 You said: *<user_answer>*. 
