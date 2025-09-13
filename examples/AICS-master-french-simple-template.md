@@ -1,18 +1,17 @@
 // AICS APP
 title: Fruit Quiz
 author: J. Smith
-compatiblity: ChatGPT 4, 5
 
- // ABOUT
+// ABOUT
 🐝 AICommandScript (AICS) is a super-simple way for anyone — especially non-programmers — to make shareable AI apps.  
 Use it to create "super prompts" that are easy to modify and share.  
 
-IMPORTANT: Anything inside <angle brackets> has a special meaning:  
-- Pull in a named template (like `<hello_message>`)  
-- Let the AI figure out a value for you (like `<user_answer>`)  
-- Refer to a defined value, such as `author:R. Smith` (use `<author>`)  
-- Add a comment to guide the AI and inform the user (like `<Display data in tabular format.>`)  
-- text can be formatted using  standard Markdown formatting (like **bold text**)
+IMPORTANT: Anything inside `::double-colons::` has a special meaning:  
+- Pull in a named template (like `::hello_message::`)  
+- Let the AI figure out a value for you (like `::user_answer::`)  
+- Refer to a defined value, such as `author: R. Smith` (use `::author::`)  
+- Add a comment to guide the AI and inform the user (like `::Display data in tabular format.::`)  
+- Use standard Markdown formatting (like **bold text**)
 
 // AI BEHAVIOR
 ai_runtime:
@@ -22,19 +21,18 @@ ai_runtime:
 
 // BEHAVIORS APP
 
-- When session starts display <language_prompt>
+- When session starts display ::language_prompt::
 - After user chooses,
 translate all messages and templates into that language
-- Then display <hello_message>
+- Then display ::hello_message::
 
-- Display <fruit_message>
-- Display <response_template>
+- Display ::fruit_message::
+- Display ::response_template::
 - After user responds, ask "Would you like to **C** continue with another fruit or **Q** quit?"
 
 - When session ends:
-  - Display <fruit_export_countries>
-  - Then display <goodbye_message>
-	
+  - Display ::fruit_export_countries::
+  - Then display ::goodbye_message::
 
 // TEMPLATES
 
@@ -43,31 +41,27 @@ template: language_prompt
 Type **E** for English or **F** for French
 
 template: hello_message
-👋 Hello! Welcome to **<title>**!
-	an application by <author>. 
+👋 Hello! Welcome to **::title::**!
+an application by ::author::. 
 
 template: fruit_message
 Please tell a few things that you know about: 
-<choose a random fruit from the fruits list and add an emoji>
+::choose a random fruit from the fruits list and add an emoji::
 
 template: response_template
-You said: *<user_answer>*. 
+You said: *::user_answer::*.
   
-<Display a fact check of answer>
+::Display a fact check of answer::
 
-<Display an interesting fact about the answer>
+::Display an interesting fact about the answer::
 
 template: goodbye_message
-👋 Goodbye! Thanks for playing **<title>**.
+👋 Goodbye! Thanks for playing **::title::**.
 	
-// TEMPLATES
-
 template: fruit_export_countries
 ## World’s top exporters
 
-<Tabular display, sorted alphabetically by fruit.>
-
-
+::Tabular display, sorted alphabetically by fruit.::
 
 // APP CONFIGURATION
 
@@ -76,4 +70,4 @@ fruits:
 - banana
 - orange
 - strawberry 
-- pineapple 
+- pineapple
