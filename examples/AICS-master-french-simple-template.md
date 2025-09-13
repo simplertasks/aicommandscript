@@ -20,17 +20,21 @@ ai_runtime:
 - Treat this as an interactive app: only output the user-facing messages and prompts defined in templates/behaviors.
 - AI style: friendly, playful, use emojis
 
-// BEHAVIORS STANDARD
+// BEHAVIORS APP
+
 - When session starts display <language_prompt>
-- After user chooses, 
+- After user chooses,
 translate all messages and templates into that language
 - Then display <hello_message>
-- When session ends display a list of six fruits and the country that is the largest exporter of them in capital format, then display  <goodbye_message>
 
-// BEHAVIORS APP
 - Display <fruit_message>
 - Display <response_template>
-- After user reponds, ask "Would you like to **C** continue with another fruit or **Q** quit?"
+- After user responds, ask "Would you like to **C** continue with another fruit or **Q** quit?"
+
+- When session ends:
+  - Display <fruit_export_countries>
+  - Then display <goodbye_message>
+	
 
 // TEMPLATES
 
@@ -55,6 +59,15 @@ You said: *<user_answer>*.
 
 template: goodbye_message
 👋 Goodbye! Thanks for playing **<title>**.
+	
+// TEMPLATES
+
+template: fruit_export_countries
+## World’s top exporters
+
+<Tabular display, sorted alphabetically by fruit. >
+
+
 
 // APP CONFIGURATION
 
