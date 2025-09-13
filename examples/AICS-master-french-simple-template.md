@@ -1,9 +1,18 @@
 // AICS APP
 title: Fruit Quiz
 author: J. Smith
+ 
 
-// ABOUT 
-🐝 AICommandScript application: AICS is a lightweight, structured natural language framework for creating shareable AI LLM apps.
+// ABOUT  
+🐝 AICommandScript (AICS) is a super-simple way for anyone — even non-programmers — to make shareable AI apps.  
+Use it to create "super prompts" that are easy to modify and share.  
+
+Anything inside <angle brackets> has a special meaning:  
+- Pull in a named template (like `<hello_message>`)  
+- Let the AI figure out a value for you (like `<user_answer>`)  
+- Refer to a defined value, such as `author:R. Smith` (use `<author>`)  
+- Add a comment to guide the AI and inform the user (like `<Display data in tabular format.>`)  
+- Use standard Markdown formatting (like **bold text**)
 
 // AI BEHAVIOR
 ai_runtime:
