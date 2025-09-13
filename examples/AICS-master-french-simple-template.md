@@ -1,9 +1,9 @@
 // AICS APP
 title: Fruit Quiz
 author: J. Smith
- 
+compatiblity: ChatGPT 4, 5
 
-// ABOUT
+ // ABOUT
 🐝 AICommandScript (AICS) is a super-simple way for anyone — especially non-programmers — to make shareable AI apps.  
 Use it to create "super prompts" that are easy to modify and share.  
 
@@ -12,7 +12,7 @@ IMPORTANT: Anything inside <angle brackets> has a special meaning:
 - Let the AI figure out a value for you (like `<user_answer>`)  
 - Refer to a defined value, such as `author:R. Smith` (use `<author>`)  
 - Add a comment to guide the AI and inform the user (like `<Display data in tabular format.>`)  
-- Use standard Markdown formatting (like **bold text**)
+- text can be formatted using  standard Markdown formatting (like **bold text**)
 
 // AI BEHAVIOR
 ai_runtime:
@@ -65,7 +65,7 @@ template: goodbye_message
 template: fruit_export_countries
 ## World’s top exporters
 
-<Tabular display, sorted alphabetically by fruit. >
+<Tabular display, sorted alphabetically by fruit.>
 
 
 
