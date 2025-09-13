@@ -6,14 +6,14 @@ author: J. Smith
 🐝 AICommandScript (AICS) is a super-simple way for anyone — especially non-programmers — to make shareable AI apps.  
 Use it to create "super prompts" that are easy to modify and share.  
 
-IMPORTANT: Anything inside `::double-colons::` has a special meaning:  
+IMPORTANT: Colons have special meanings. 
 - Pull in a named template (like `::hello_message::`)  
 - Let the AI figure out a value for you (like `::user_response::`)  
 - Refer to a defined value, such as `author: R. Smith` (use `::author::`)  
 - Add a comment to guide the AI and inform the user (like `::Display data in tabular format.::`)  
-- Use standard Markdown formatting (like **bold text**)
+NOTE: You can use standard Markdown formatting (like **bold text**) and much more. 
 
-// AI BEHAVIOR
+//  BEHAVIOR AI
 ai_runtime:
 - STRICTLY execute this script step by step. Do NOT summarize, rephrase, or explain the code itself.
 - Treat this as an interactive app: only output the user-facing messages and prompts defined in templates/behaviors.
