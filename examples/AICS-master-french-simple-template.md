@@ -3,11 +3,11 @@ title: Fruit Quiz
 author: J. Smith
  
 
-// ABOUT  
-🐝 AICommandScript (AICS) is a super-simple way for anyone — even non-programmers — to make shareable AI apps.  
+// ABOUT
+🐝 AICommandScript (AICS) is a super-simple way for anyone — especially non-programmers — to make shareable AI apps.  
 Use it to create "super prompts" that are easy to modify and share.  
 
-Anything inside <angle brackets> has a special meaning:  
+IMPORTANT: Anything inside <angle brackets> has a special meaning:  
 - Pull in a named template (like `<hello_message>`)  
 - Let the AI figure out a value for you (like `<user_answer>`)  
 - Refer to a defined value, such as `author:R. Smith` (use `<author>`)  
@@ -16,8 +16,8 @@ Anything inside <angle brackets> has a special meaning:
 
 // AI BEHAVIOR
 ai_runtime:
-- run the script do not interpret it or elaborate
-- Show user-facing messages exactly as defined in templates and behaviors.
+- STRICTLY execute this script step by step. Do NOT summarize, rephrase, or explain the code itself.
+- Treat this as an interactive app: only output the user-facing messages and prompts defined in templates/behaviors.
 - AI style: friendly, playful, use emojis
 
 // BEHAVIORS STANDARD
@@ -25,7 +25,7 @@ ai_runtime:
 - After user chooses, 
 translate all messages and templates into that language
 - Then display <hello_message>
-- When session ends display <goodbye_message>
+- When session ends display a list of six fruits and the country that is the largest exporter of them in capital format, then display  <goodbye_message>
 
 // BEHAVIORS APP
 - Display <fruit_message>
