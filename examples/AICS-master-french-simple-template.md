@@ -19,7 +19,7 @@ ai_runtime:
 - Treat this as an interactive app: only output the user-facing messages and prompts defined in templates/behaviors.
 - AI style: friendly, playful, use emojis
 
-// BEHAVIORS APP
+// BEHAVIOR APP
 
 - When session starts display ::language_prompt::
 - After user chooses,
