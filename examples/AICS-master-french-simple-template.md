@@ -8,7 +8,7 @@ Use it to create "super prompts" that are easy to modify and share.
 
 IMPORTANT: Anything inside `::double-colons::` has a special meaning:  
 - Pull in a named template (like `::hello_message::`)  
-- Let the AI figure out a value for you (like `::user_answer::`)  
+- Let the AI figure out a value for you (like `::user_response::`)  
 - Refer to a defined value, such as `author: R. Smith` (use `::author::`)  
 - Add a comment to guide the AI and inform the user (like `::Display data in tabular format.::`)  
 - Use standard Markdown formatting (like **bold text**)
@@ -32,6 +32,7 @@ translate all messages and templates into that language
 
 - When session ends:
   - Display ::fruit_export_countries::
+	- Display a grade to the user between A, B, C, D, F based on how well they answered. 
   - Then display ::goodbye_message::
 
 // TEMPLATES
