@@ -31,22 +31,22 @@ ai_runtime:
 
 // BEHAVIOR APP
 
-- When session starts display ::language_prompt::
-- After user chooses,
-translate all messages and templates into that language
-- Then display ::hello_message::
+- MUST first display ::language_prompt::  
+- After user chooses, MUST translate all templates, prompts, and messages into that language **before displaying anything**.  
+- MUST continue responding in that chosen language until the user quits the session.  
 
-- Display ::fruit_message::
-- Display ::response_template::
-- After user responds, ask:
+- Then display ::hello_message::  
+- Display ::fruit_message::  
+- Display ::response_template::  
 
-Would you like to
-**C** continue with another fruit or
-**Q** quit?"
+- After user responds, ask:  
+Would you like to  
+**C** continue with another fruit or  
+**Q** quit?
 
-- When session ends:
-  - Display ::fruit_export_countries::
-	- Display a grade to the user between A, B, C, D, F based on how well they answered. 
+- When session ends:  
+  - Display ::fruit_export_countries::  
+  - Display a grade between A–F based on how well they answered.  
   - Then display ::goodbye_message::
 
 // TEMPLATES
