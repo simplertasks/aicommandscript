@@ -9,18 +9,20 @@ Compatibility: ChatGPT 4, 5
 
 🐝 AICommandScript (AICS) is a super-simple way for anyone — especially non-programmers — to make shareable AI apps.
 
-Think if AICS as an easy way to create "super prompts" with great control over input and output. 
+Think of AICS as an easy way to create "super prompts" with great control over input, output and data sources. 
 
- Just paste this entire text into ChatGPT. 
+ Try it out by simply pasting this entire text into ChatGPT. 
 
 
 // ❓ HELP FOR AUTHORS
 
 Colons have special uses:
-	•	Templates: Display a named template → ::hello_message::
-	•	AI-generated values like → ::user_response::
-	•	References: Use a defined value → ::author::
-	•	Comments/Notes: Guide AI & user → ::Show in a table::
+ • Templates: Show a named template → ::hello_message::
+ • AI Values: Let AI fill in → ::user_response::
+ • References: Use a defined value → ::author::
+ • Comments: Guide AI and author → ::Show in a table::
+
+You can use standard Markdown formatting (like **bold text**) and much more. 
 
 You can use standard Markdown formatting (like **bold text**) and much more. 
 
@@ -67,7 +69,7 @@ an application by ::author::.
 
 template: fruit_message
 Please tell a few things that you know about: 
-::choose a random fruit from the fruits list and add an emoji::
+::Choose a random fruit from ::fruits:: and add an emoji::
 
 template: response_template
 You said: *::user_answer::*.
