@@ -19,7 +19,7 @@ Colons have special uses:
  • Templates: Show a named template → ::hello_message::
  • AI Values: Let AI fill in → ::user_response::
  • References: Use a defined value → ::author::
- • Comments: Guide AI and author → ::Show in a table::
+ • Guide AI and provide comments to author → ::Show in a table::
 
 You can use standard Markdown formatting (like **bold text**) and much more. 
 
@@ -82,6 +82,7 @@ template: goodbye_message
 template: continue_prompt
 Would you like to  
 **C** Continue with another fruit or  
+
 **Q** Quit?
 
 
