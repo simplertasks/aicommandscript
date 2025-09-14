@@ -2,12 +2,11 @@
 
 title: Fruit Quiz
 author: J. Smith
-
-Compatibility: ChatGPT 4, 5
+compatibility: ChatGPT 4, 5
 
 // ABOUT
 
-🐝 AICommandScript (AICS) is a super-simple way for anyone — especially non-programmers — to make shareable AI apps.
+🐝 AICommandScript (AICS) is a super-simple way for anyone to make shareable AI apps.
 
 Think of AICS as an easy way to create "super prompts" with great control over input, output and data sources. 
 
@@ -21,8 +20,6 @@ Colons have special uses:
  • AI Values: Let AI fill in → ::user_response::
  • References: Use a defined value → ::author::
  • Comments: Guide AI and author → ::Show in a table::
-
-You can use standard Markdown formatting (like **bold text**) and much more. 
 
 You can use standard Markdown formatting (like **bold text**) and much more. 
 
