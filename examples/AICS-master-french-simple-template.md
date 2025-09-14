@@ -36,13 +36,10 @@ ai_runtime:
 - MUST continue responding in that chosen language until the user quits the session.  
 
 - Then display ::hello_message::  
-- Display ::fruit_message::  
+- Display ::fruit_message:: and wait for users response.   
 - Display ::response_template::  
 
-- After user responds, ask:  
-Would you like to  
-**C** continue with another fruit or  
-**Q** quit?
+- Display ::continue_prompt::
 
 - When session ends:  
   - Display ::fruit_export_countries::  
@@ -78,7 +75,14 @@ You said: *::user_answer::*.
 
 template: goodbye_message
 👋 Goodbye! Thanks for playing **::title::**.
-	
+
+
+template: continue_prompt
+Would you like to  
+**C** continue with another fruit or  
+**Q** quit?
+
+
 template: fruit_export_countries
 ## World’s top exporters
 
