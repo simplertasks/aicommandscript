@@ -53,16 +53,16 @@ ai_runtime:
 template: language_prompt
 🌍 Please choose your language:  
 
-**E** English or,
+**E** English
 
-**F** French or,
+**F** French
 
 **O** Ojibwe
 
 
 template: hello_message
 👋 Hello! Welcome to **::title::**!
-an application by ::author::. 
+an quiz by ::author::. 
 
 template: fruit_message
 Please tell a few things that you know about: 
