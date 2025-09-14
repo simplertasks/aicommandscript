@@ -11,7 +11,7 @@ Use it to create "super prompts" that are easy to modify and share.
 
 Just paste this entire text into ChatGPT. 
 
-IMPORTANT:
+❓HELP For Authors:
 Colons have special meanings:
 
 - Pull in a named template (like `::hello_message::`)  
@@ -54,9 +54,12 @@ Would you like to
 template: language_prompt
 🌍 Please choose your language:  
 
-**E** for English or,
+**E** English or,
 
-**F** for French
+**F** French or,
+
+**O** Ojibwe
+
 
 template: hello_message
 👋 Hello! Welcome to **::title::**!
