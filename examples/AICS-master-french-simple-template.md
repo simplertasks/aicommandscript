@@ -1,4 +1,4 @@
-// AICS APP
+// AICommandScript APP
 
 title: Fruit Quiz
 author: J. Smith
@@ -32,7 +32,7 @@ ai_runtime:
 - STRICTLY execute this script step by step. Do NOT summarize, rephrase, or explain the code itself.
 - Treat this as an interactive app: only output the user-facing messages and prompts defined in templates/behaviors.
 - AI style: friendly, playful, use emojis
-- When rendering templates, REPLACE placeholders like ::user_answer::, ::title::, etc. with their actual values or user inputs before outputting.
+- When rendering templates, REPLACE placeholders like ::title::, etc. with their actual values or user inputs before outputting.
 
 // BEHAVIOR APP
 
