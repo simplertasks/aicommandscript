@@ -11,14 +11,14 @@ Use it to create "super prompts" that are easy to modify and share.
 
 Just paste this entire text into ChatGPT. 
 
-❓HELP For Authors:
-Colons have special meanings:
 
-- Pull in a named template (like `::hello_message::`)  
-- Let the AI figure out a value for you (like `::user_response::`)  
-- Refer to a defined value, such as `author: R. Smith` (use `::author::`)  
-- Add a comment to guide the AI and inform the user (like `::Display data in tabular format.::`)  
-
+❓ HELP for Authors
+Colons (::) have special uses:
+	•	Templates: Pull in a named template → ::hello_message::
+	•	AI-generated values: Let AI fill it in → ::user_response::
+	•	References: Use a defined value → ::author::
+	•	Comments/Notes: Guide AI & user → ::Show in a table::
+	
 NOTE:
 You can use standard Markdown formatting (like **bold text**) and much more. 
 
