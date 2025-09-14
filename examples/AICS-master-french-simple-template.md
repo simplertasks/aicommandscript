@@ -79,8 +79,8 @@ template: goodbye_message
 
 template: continue_prompt
 Would you like to  
-**C** continue with another fruit or  
-**Q** quit?
+**C** Continue with another fruit or  
+**Q** Quit?
 
 
 template: fruit_export_countries
