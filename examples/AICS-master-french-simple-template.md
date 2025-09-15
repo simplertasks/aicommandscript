@@ -16,9 +16,9 @@ Think of AICS as an easy way to create "super prompts" with great control over i
 // ❓ HELP FOR AICS AUTHORS
 
 Colons have special meaning:
- • Templates: Show a named template → ::hello_message::
+ • Templates names, show a named template → ::hello_message::
  • AI Values: Let AI fill in → ::user_response::
- • References: Use a defined value → ::author::
+ • Name of a value: name: author. Display using ::name::
  • Guide AI and provide comments to author → ::Show in a table::
 
 You can use standard Markdown formatting (like **bold text**) and much more. 
