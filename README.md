@@ -6,7 +6,7 @@
 
 ---
 
-AICommandScript makes AI app creation accessible to everyone — as easy as writing a note, as powerful as writing an app.
+AICommandScript makes AI app creation accessible to everyone — as easy as writing a note, as powerful as writing an app. 
 ## Why AICS?
 
 > **AICS is the only framework where writing an app feels like writing a note.**  

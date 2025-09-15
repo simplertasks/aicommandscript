@@ -1,4 +1,4 @@
-// AICommandScript APP
+// 🐝 AICommandScript APP
 
 title: Fruit Quiz
 author: J. Smith
@@ -6,7 +6,7 @@ compatibility: ChatGPT 4, 5
 
 // ABOUT
 
-🐝 AICommandScript (AICS) is a super-simple way for anyone to make shareable AI apps.
+AICommandScript (AICS) is a super-simple way for anyone to make shareable AI apps.
 
 Think of AICS as an easy way to create "super prompts" with great control over input, output and data sources. 
 
@@ -37,7 +37,7 @@ ai_runtime:
 - After user chooses, MUST translate all templates, prompts, and messages into that language **before displaying anything**.  
 - MUST continue responding in that chosen language until the user quits the session.  
 
-- Then display ::hello_message::  
+- Then, display ::hello_message::  
 - Display ::fruit_message:: and wait for users response.   
 - Display ::response_template::  
 
