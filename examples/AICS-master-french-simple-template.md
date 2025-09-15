@@ -40,7 +40,6 @@ ai_runtime:
 - Then, display ::hello_message::  
 - Display ::fruit_message:: and wait for users response.   
 - Display ::response_template::  
-
 - Display ::continue_prompt::
 
 - When session ends:  
