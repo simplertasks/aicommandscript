@@ -13,9 +13,9 @@ Think of AICS as an easy way to create "super prompts" with great control over i
  Try it out by simply pasting this entire text into ChatGPT. 
 
 
-// ❓ HELP FOR AUTHORS
+// ❓ HELP FOR AICS AUTHORS
 
-Colons have special uses:
+Colons have special meaning:
  • Templates: Show a named template → ::hello_message::
  • AI Values: Let AI fill in → ::user_response::
  • References: Use a defined value → ::author::
