@@ -74,30 +74,6 @@ The AI reads these instructions and executes your application exactly as describ
 
 ---
 
-## Example Structure
-
-```yaml
-// AICommandScript APP
-title: Fruit Quiz
-author: Your Name
-version: 1.0
-type: Quiz App
-
-// BEHAVIORS
-- On session start: prompt with [language_selection]
-- After language selection: display [welcome_message]
-
-// TEMPLATES
-template: welcome_message
-Welcome to [title]!
-
-// DATA
-fruits:
-- apple: 🍎
-- banana: 🍌
-```
-
-⸻
 
 Getting Started
 	1.	Browse examples in the examples/ folder
