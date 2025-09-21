@@ -15,13 +15,24 @@ Think of AICS as an easy way to create "super prompts" with great control over i
 
 // ❓ HELP FOR AICS AUTHORS
 
-Colons have special meaning:
- • Templates names, show a named template → ::hello_message::
- • AI Values: Let AI fill in → ::user_response::
- • Name of a value: name: author→ Display using ::name::
- • Guide AI and provide comments to author → ::Show in a table::
+Colons (`::`) are special in AICS. 
+Here’s how to use them:
 
-You can use standard Markdown formatting (like **bold **) and much more. 
+• Show a template:  
+  `::hello_message::` → Displays the template named `hello_message`.
+
+• Insert user responses or AI-generated content:  
+  `::user_response::` → Replaced with what the user typed (or what the AI generated).
+
+• Insert a named value: 
+  `author: J. Smith` → Declare a value.  
+  Then use `::author::` anywhere to display it. 
+
+• Guide AI and provide comments to author → ::Show in a table::
+
+
+You can use standard Markdown formatting (like **bold **) and much more.
+  
 
 //  BEHAVIOR AI
 
