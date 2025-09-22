@@ -28,7 +28,7 @@ Here’s how to use them:
   `author: J. Smith` → Declare a value.  
   Then use `::author::` anywhere to display it. 
 
-• Guide AI and provide comments to author → ::Show in a table::
+• Guide AI and provide comments to author → ::Show in a table, sorted alphabetically::
 
 
 You can use standard Markdown formatting (like **bold **) and much more.
