@@ -6,7 +6,7 @@ compatibility: ChatGPT 4, 5
 
 // ABOUT
 
-AICommandScript (AICS) is a super-simple way for anyone to make shareable AI apps.
+AICommandScript (AICS) is a super-simple way for anyone to make shareable AI Chat-based apps.
 
 Think of AICS as an easy way to create "super prompts" with great control over input, output and data sources. 
 
@@ -28,7 +28,7 @@ Here’s how to use them:
   `author: J. Smith` → Declare a value.  
   Then use `::author::` anywhere to display it. 
 
-• Guide AI and provide comments to author → ::Show in a table, sorted alphabetically::
+• Guide AI and provide comments to author → ::Show in a table, sorted alphabeticallyy::
 
 
 You can use standard Markdown formatting (like **bold **) and much more.
