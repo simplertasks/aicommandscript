@@ -40,7 +40,6 @@ This is a simple demonstration app that shows how to:
 Try it out by selecting a fruit below!
 </textarea>
 
-
   <!-- Rendered markdown will appear here -->
   <div id="rendered-description" class="content box"></div>
 
@@ -163,11 +162,10 @@ Try it out by selecting a fruit below!
     }
     renderMarkdown();
 
-    // Load API key from localStorage
-    const apiKeyInput = document.getElementById('api-key');
+    // Load API key from localStorage (get element AFTER replaceAllTokens)
     const savedApiKey = localStorage.getItem('groqApiKey');
     if (savedApiKey) {
-      apiKeyInput.value = savedApiKey;
+      document.getElementById('api-key').value = savedApiKey;
     }
 
     // Demo fact for offline mode
