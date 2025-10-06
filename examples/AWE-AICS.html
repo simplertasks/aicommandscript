@@ -116,7 +116,7 @@ template: result
 <script type="application/json" id="manifest">
 {
   "app_name": "Fruit Quiz",
-  "version": "1.5.0",
+  "version": "1.7.0",
   "providers": {
     "groq": {
       "model": "llama-3.1-8b-instant",
@@ -134,25 +134,44 @@ template: result
 
 <!-- AWE Runtime Script -->
 <script>
-  // Parse AICS (Robust to prevent undefined)
+  // Parse AICS (Enhanced for robustness)
   function parseAICS() {
-    const aicsScript = document.querySelector('script[type="text/aics"]')?.textContent || '';
-    if (!aicsScript) {
+    const aicsScriptElement = document.querySelector('script[type="text/aics"]');
+    if (!aicsScriptElement) {
       console.error('AICS Error: No <script type="text/aics"> found.');
       return [];
     }
-    const lines = aicsScript.split('\n').map(line => line.trim()).filter(line => line);
+    const aicsScript = aicsScriptElement.textContent || '';
+    const lines = aicsScript.split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.match(/^\s*$/)); // Skip empty lines
     let runtime = [];
     let currentTemplate = null;
-    lines.forEach(line => {
+    lines.forEach((line, index) => {
       if (line.startsWith('ai_runtime:')) {
         currentTemplate = 'runtime';
       } else if (line.startsWith('template:')) {
-        currentTemplate = line.split(' ')[1];
+        currentTemplate = line.split(' ')[1]?.trim();
+        if (!currentTemplate) {
+          console.warn(`AICS Warning: Invalid template name at line ${index + 1}: "${line}"`);
+        }
       } else if (currentTemplate) {
         runtime.push({ type: currentTemplate, name: currentTemplate === 'runtime' ? null : currentTemplate, value: line });
+      } else {
+        console.warn(`AICS Warning: Line ignored (no template set) at line ${index + 1}: "${line}"`);
       }
     });
+    if (manifest.debug) console.log('Parsed AICS:', runtime);
+    if (!runtime.some(item => item.type === 'template' && item.name === 'result')) {
+      console.warn('AICS Warning: No "template: result" found; using default template.');
+      runtime.push(
+        { type: 'template', name: 'result', value: '**Fruit**: ::fruit::' },
+        { type: 'template', name: 'result', value: '**Your Fact**: ::user_fact::' },
+        { type: 'template', name: 'result', value: '**Confidence**: ::confidence::/10' },
+        { type: 'template', name: 'result', value: '**Fact-Check**: ::ai_accuracy_response::' },
+        { type: 'template', name: 'result', value: '::if_learn_more::**Bonus Facts**: ::ai_bonus_facts::::/if_learn_more::' }
+      );
+    }
     return runtime;
   }
 
@@ -160,6 +179,7 @@ template: result
   const manifest = JSON.parse(document.querySelector('#manifest').textContent);
   const aics = parseAICS();
   const templateLines = aics.filter(item => item.type === 'template' && item.name === 'result').map(item => item.value);
+  if (manifest.debug) console.log('Template Lines:', templateLines);
 
   // Demo response
   function getDemoAIResponse(fruit, fact, learnMore) {
@@ -209,16 +229,26 @@ template: result
     }
   }
 
-  // Render template
+  // Render template (with fallback)
   function renderTemplate(lines, data) {
+    if (!lines.length) {
+      console.error('Render Error: No template lines provided; using default.');
+      lines = [
+        '**Fruit**: ::fruit::',
+        '**Your Fact**: ::user_fact::',
+        '**Confidence**: ::confidence::/10',
+        '**Fact-Check**: ::ai_accuracy_response::',
+        '::if_learn_more::**Bonus Facts**: ::ai_bonus_facts::::/if_learn_more::'
+      ];
+    }
     let output = '<table class="table is-striped is-fullwidth">';
     lines.forEach(line => {
       let rendered = line
-        .replace(/::fruit::/g, data.fruit)
-        .replace(/::user_fact::/g, data.fact)
-        .replace(/::confidence::/g, data.confidence)
-        .replace(/::ai_accuracy_response::/g, data.aiResponse.accuracy)
-        .replace(/::ai_bonus_facts::/g, data.aiResponse.bonus);
+        .replace(/::fruit::/g, data.fruit || 'Unknown')
+        .replace(/::user_fact::/g, data.fact || 'No fact provided')
+        .replace(/::confidence::/g, data.confidence || 'N/A')
+        .replace(/::ai_accuracy_response::/g, data.aiResponse?.accuracy || 'No AI response')
+        .replace(/::ai_bonus_facts::/g, data.aiResponse?.bonus || '');
       if (line.includes('::if_learn_more::')) {
         if (!data.learnMore) return;
         rendered = rendered.replace('::if_learn_more::', '').replace('::/if_learn_more::', '');
@@ -230,26 +260,36 @@ template: result
       }
     });
     output += '</table>';
+    if (manifest.debug) console.log('Rendered Template:', output);
     return output;
   }
 
-  // Form handler
+  // Form handler (with error display)
   document.querySelector('#quiz-form').addEventListener('submit', async e => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = {
-      fruit: formData.get('fruit'),
-      fact: formData.get('fact'),
-      confidence: formData.get('confidence'),
+      fruit: formData.get('fruit') || 'Unknown',
+      fact: formData.get('fact') || 'No fact provided',
+      confidence: formData.get('confidence') || 'N/A',
       learnMore: formData.get('learn_more') === 'on'
     };
     const apiKey = document.querySelector('#api-key').value.trim();
     const provider = document.querySelector('#api-provider').value;
-    const aiResponse = await getAIResponse(data.fruit, data.fact, data.learnMore, apiKey, provider);
-    document.querySelector('#output').innerHTML = `<h2 class="title is-4">🧠 AI Quiz Results</h2>${renderTemplate(templateLines, { ...data, aiResponse })}`;
+    try {
+      const aiResponse = await getAIResponse(data.fruit, data.fact, data.learnMore, apiKey, provider);
+      const output = renderTemplate(templateLines, { ...data, aiResponse });
+      document.querySelector('#output').innerHTML = `<h2 class="title is-4">🧠 AI Quiz Results</h2>${output}`;
+    } catch (error) {
+      if (manifest.debug) console.error('Form Submission Error:', error);
+      document.querySelector('#output').innerHTML = `
+        <h2 class="title is-4">🧠 AI Quiz Results</h2>
+        <div class="notification is-danger">Error: ${error.message}. Please check console and try again.</div>
+      `;
+    }
   });
 
-  // Chat handler (updated to handle general queries)
+  // Chat handler
   document.querySelector('#chat-submit').addEventListener('click', async () => {
     const input = document.querySelector('#chat-input');
     const query = input.value.trim();
