@@ -117,6 +117,20 @@ Try it out by selecting a fruit below!
           <button class="button is-primary" id="sendChat">Send</button>
         </div>
       </div>
+
+      <!-- Study Guide Feature -->
+      <div class="field" style="margin-top: 2rem;">
+        <label class="label">Study Guide</label>
+        <div class="control">
+          <button class="button is-primary" id="studyGuide">Generate Study Guide</button>
+        </div>
+        <div class="field" style="margin-top: 1rem;">
+          <label class="label">Study Guide Output</label>
+          <div class="control">
+            <textarea id="studyGuideOutput" class="textarea" readonly rows="10" placeholder="The study guide will appear here..."></textarea>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -148,11 +162,12 @@ Try it out by selecting a fruit below!
     // Runtime manifest
     const manifest = {
       app_name: metadata.title,
-      version: "2.2.0",
+      version: "2.3.0",
       provider: {
         model: "llama-3.1-8b-instant",
         api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
       },
+      fruits: ["Apple", "Banana", "Cherry", "Orange"],
       debug: true
     };
 
@@ -191,6 +206,11 @@ Try it out by selecting a fruit below!
     // Demo chat response for offline mode
     function getDemoChatResponse(message) {
       return `Demo: That's an interesting question about ${message}! Try using an API key for a real response.`;
+    }
+
+    // Demo study guide for offline mode
+    function getDemoStudyGuide() {
+      return `| Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |\n|-------|--------|--------|--------|--------|--------|--------|\n${manifest.fruits.map(fruit => `| ${fruit} | Demo: ${fruit} is tasty! | Demo: It's colorful! | Demo: It's sweet! | Demo: It's juicy! | Demo: It's healthy! | Demo: It's fun! |`).join('\n')}`;
     }
 
     // Groq API call for interesting fact
@@ -301,6 +321,47 @@ Return only valid JSON, no other text.`;
       }
     }
 
+    // Groq API call for study guide
+    async function getStudyGuide(apiKey) {
+      const prompt = `Generate a Markdown table listing six interesting facts for each of the following fruits: Apple, Banana, Cherry, Orange. Use this format:
+| Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |
+|-------|--------|--------|--------|--------|--------|--------|
+Each fact should be concise (1-2 sentences), unique, and include emojis. Return only the Markdown table, no other text.`;
+
+      if (!apiKey) return getDemoStudyGuide();
+      if (!apiKey.startsWith('gsk_')) {
+        throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
+      }
+      try {
+        const response = await fetch(manifest.provider.api_endpoint, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: manifest.provider.model,
+            messages: [{ role: 'user', content: prompt }]
+          })
+        });
+        const rawText = await response.text();
+        if (manifest.debug) console.log('Study Guide Raw Response:', rawText);
+        if (!response.ok) {
+          let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
+          try {
+            const errorData = JSON.parse(rawText);
+            errorMsg = errorData.error?.message || errorMsg;
+          } catch {}
+          throw new Error(errorMsg);
+        }
+        const data = JSON.parse(rawText);
+        if (!data.choices?.[0]?.message?.content) {
+          throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
+        }
+        return data.choices[0].message.content;
+      } catch (error) {
+        if (manifest.debug) console.error('Study Guide API Error:', error);
+        return `Error: ${error.message}\n\n${getDemoStudyGuide()}`;
+      }
+    }
+
     // Form handler
     document.getElementById('fruitForm').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -379,6 +440,19 @@ Return only valid JSON, no other text.`;
       if (e.key === 'Enter') {
         e.preventDefault();
         document.getElementById('sendChat').click();
+      }
+    });
+
+    // Study Guide handler
+    document.getElementById('studyGuide').addEventListener('click', async () => {
+      const apiKey = document.getElementById('api-key').value.trim();
+      const studyGuideOutput = document.getElementById('studyGuideOutput');
+      studyGuideOutput.value = 'Generating study guide...';
+      try {
+        const studyGuide = await getStudyGuide(apiKey);
+        studyGuideOutput.value = studyGuide;
+      } catch (error) {
+        studyGuideOutput.value = `Error: ${error.message}\n\n${getDemoStudyGuide()}`;
       }
     });
   </script>
