@@ -4,38 +4,42 @@
   <meta charset="UTF-8">
   <title>🍎 Fruit Quiz (AWE Demo)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bulma CSS via CDN (or inline for offline use) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
   <style>
-    .chat-dock {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-top: 1px solid #ccc;
-      padding: 1rem;
-    }
-    .chat-dock input {
-      width: 100%;
-    }
-    .api-key-field {
-      margin-bottom: 1rem;
-    }
+    .chat-dock { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #ccc; padding: 1rem; }
+    .chat-dock input { width: 100%; }
+    .api-key-field { margin-bottom: 1rem; }
+    .test-button { margin-left: 0.5rem; }
   </style>
 </head>
 <body>
 <section class="section">
   <div class="container">
     <h1 class="title">🍎 Fruit Quiz</h1>
-    <p class="subtitle">An AWE demo powered by AI Command Script</p>
+    <p class="subtitle">An AWE demo powered by AI Command Script (Groq-Optimized)</p>
 
-    <!-- API Key Input for Live AI -->
+    <!-- API Config -->
     <div class="field api-key-field">
-      <label class="label">API Key (Optional for Live AI)</label>
+      <label class="label">API Provider</label>
       <div class="control">
-        <input class="input" type="text" id="api-key" placeholder="Enter OpenAI-compatible API key or leave blank for demo mode">
+        <div class="select">
+          <select id="api-provider">
+            <option value="groq">Groq (Fast & Free Tier)</option>
+            <option value="xai">xAI Grok</option>
+          </select>
+        </div>
       </div>
+    </div>
+
+    <div class="field api-key-field">
+      <label class="label">Groq API Key (Starts with 'gsk_')</label>
+      <div class="control has-icons-right">
+        <input class="input" type="text" id="api-key" placeholder="Enter your Groq API key (gsk_...)">
+        <span class="icon is-small is-right">
+          <button class="button test-button is-small" id="test-key">Test Key</button>
+        </span>
+      </div>
+      <p class="help">Get your key at <a href="https://console.groq.com/keys">console.groq.com/keys</a></p>
     </div>
 
     <!-- Quiz Form -->
@@ -45,45 +49,35 @@
         <div class="control">
           <div class="select">
             <select name="fruit">
-              <option>Apple</option>
-              <option>Banana</option>
-              <option>Orange</option>
-              <option>Pineapple</option>
-              <option>Strawberry</option>
+              <option>Apple</option><option>Banana</option><option>Orange</option><option>Pineapple</option><option>Strawberry</option>
             </select>
           </div>
         </div>
       </div>
-
       <div class="field">
         <label class="label">Tell us a fact about this fruit</label>
         <div class="control">
           <textarea class="textarea" name="fact" placeholder="e.g. Apples float in water because..."></textarea>
         </div>
       </div>
-
       <div class="field">
         <label class="label">Confidence level (1-10)</label>
         <div class="control">
           <input class="input" type="number" name="confidence" min="1" max="10" value="5">
         </div>
       </div>
-
       <div class="field">
         <div class="control">
           <label class="checkbox">
-            <input type="checkbox" name="learn_more">
-            I'd like to learn bonus facts!
+            <input type="checkbox" name="learn_more"> I'd like to learn bonus facts!
           </label>
         </div>
       </div>
-
       <div class="control mt-4">
         <button class="button is-primary">Run AI Check</button>
       </div>
     </form>
 
-    <!-- Output Area -->
     <div id="output" class="content mt-5"></div>
   </div>
 </section>
@@ -92,7 +86,7 @@
 <div class="chat-dock">
   <div class="field has-addons">
     <div class="control is-expanded">
-      <input class="input" id="chat-input" placeholder="Chat with the AI...">
+      <input class="input" id="chat-input" placeholder="Chat with the AI... (e.g., What is the capital of Canada?)">
     </div>
     <div class="control">
       <button class="button is-primary" id="chat-submit">Send</button>
@@ -122,18 +116,31 @@ template: result
 <script type="application/json" id="manifest">
 {
   "app_name": "Fruit Quiz",
-  "version": "1.0.0",
-  "ai_model": "grok-3",
-  "api_endpoint": "https://api.x.ai/v1/chat/completions",
-  "demo_mode": true
+  "version": "1.5.0",
+  "providers": {
+    "groq": {
+      "model": "llama-3.1-8b-instant",
+      "api_endpoint": "https://api.groq.com/openai/v1/chat/completions"
+    },
+    "xai": {
+      "model": "grok-3",
+      "api_endpoint": "https://api.x.ai/v1/chat/completions"
+    }
+  },
+  "demo_mode": true,
+  "debug": true
 }
 </script>
 
 <!-- AWE Runtime Script -->
 <script>
-  // Parse AICS script
+  // Parse AICS (Robust to prevent undefined)
   function parseAICS() {
-    const aicsScript = document.querySelector('script[type="text/aics"]').textContent;
+    const aicsScript = document.querySelector('script[type="text/aics"]')?.textContent || '';
+    if (!aicsScript) {
+      console.error('AICS Error: No <script type="text/aics"> found.');
+      return [];
+    }
     const lines = aicsScript.split('\n').map(line => line.trim()).filter(line => line);
     let runtime = [];
     let currentTemplate = null;
@@ -142,126 +149,181 @@ template: result
         currentTemplate = 'runtime';
       } else if (line.startsWith('template:')) {
         currentTemplate = line.split(' ')[1];
-      } else if (currentTemplate === 'runtime') {
-        runtime.push({ type: 'instruction', value: line });
       } else if (currentTemplate) {
-        runtime.push({ type: 'template', name: currentTemplate, value: line });
+        runtime.push({ type: currentTemplate, name: currentTemplate === 'runtime' ? null : currentTemplate, value: line });
       }
     });
     return runtime;
   }
 
-  // Parse manifest
+  // Load manifest and AICS
   const manifest = JSON.parse(document.querySelector('#manifest').textContent);
+  const aics = parseAICS();
+  const templateLines = aics.filter(item => item.type === 'template' && item.name === 'result').map(item => item.value);
 
-  // Simulated AI response for demo mode
+  // Demo response
   function getDemoAIResponse(fruit, fact, learnMore) {
-    return {
-      accuracy: `In demo mode, assuming your fact about ${fruit} is correct!`,
-      bonus: learnMore ? `Fun fact: ${fruit}s are rich in vitamins!` : ''
-    };
+    return { accuracy: `Demo: Your fact about ${fruit} sounds plausible!`, bonus: learnMore ? `Demo bonus: ${fruit}s grow on trees (usually).` : '' };
   }
 
-  // Real AI API call (placeholder for Grok API)
-  async function getAIResponse(fruit, fact, learnMore, apiKey) {
+  // Groq-optimized AI handler
+  async function getAIResponse(fruit, fact, learnMore, apiKey, provider = 'groq') {
     if (!apiKey) return getDemoAIResponse(fruit, fact, learnMore);
+    const config = manifest.providers[provider];
+    if (!config) throw new Error(`Unknown provider: ${provider}`);
+    if (provider === 'groq' && !apiKey.startsWith('gsk_')) {
+      throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
+    }
     try {
-      const response = await fetch(manifest.api_endpoint, {
+      const response = await fetch(config.api_endpoint, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: manifest.ai_model,
-          messages: [
-            {
-              role: 'user',
-              content: `Fact-check this statement about ${fruit}: "${fact}". Provide a brief accuracy assessment. ${learnMore ? `Also provide a bonus fact about ${fruit}.` : ''}`
-            }
-          ]
+          model: config.model,
+          messages: [{ role: 'user', content: `Fact-check: "${fact}" about ${fruit}. Brief assessment. ${learnMore ? `Bonus fact about ${fruit}.` : ''}` }]
         })
       });
-      const data = await response.json();
+      const rawText = await response.text();
+      if (manifest.debug) console.log('Raw Response:', rawText);
+      if (!response.ok) {
+        let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = JSON.parse(rawText);
+          errorMsg = errorData.error?.message || errorMsg;
+        } catch {}
+        throw new Error(errorMsg);
+      }
+      const data = JSON.parse(rawText);
+      if (!data.choices?.[0]?.message?.content) {
+        throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
+      }
       const content = data.choices[0].message.content;
-      const [accuracy, bonus] = content.split('Bonus fact:').map(s => s.trim());
-      return { accuracy, bonus: bonus || '' };
+      const [accuracy, ...bonusParts] = content.split('Bonus fact:');
+      return { accuracy: accuracy.trim(), bonus: (bonusParts.join('Bonus fact:') || '').trim() };
     } catch (error) {
+      if (manifest.debug) console.error('API Error:', error);
       return {
-        accuracy: `Error connecting to AI: ${error.message}. Using demo mode.`,
+        accuracy: `Groq API Issue: ${error.message}. (Check console for details.) Using demo.`,
         bonus: learnMore ? `Fun fact: ${fruit}s are tasty!` : ''
       };
     }
   }
 
   // Render template
-  function renderTemplate(templateLines, data) {
+  function renderTemplate(lines, data) {
     let output = '<table class="table is-striped is-fullwidth">';
-    templateLines.forEach(line => {
+    lines.forEach(line => {
       let rendered = line
-        .replace('::fruit::', data.fruit)
-        .replace('::user_fact::', data.fact)
-        .replace('::confidence::', data.confidence)
-        .replace('::ai_accuracy_response::', data.aiResponse.accuracy)
-        .replace('::ai_bonus_facts::', data.aiResponse.bonus);
+        .replace(/::fruit::/g, data.fruit)
+        .replace(/::user_fact::/g, data.fact)
+        .replace(/::confidence::/g, data.confidence)
+        .replace(/::ai_accuracy_response::/g, data.aiResponse.accuracy)
+        .replace(/::ai_bonus_facts::/g, data.aiResponse.bonus);
       if (line.includes('::if_learn_more::')) {
         if (!data.learnMore) return;
         rendered = rendered.replace('::if_learn_more::', '').replace('::/if_learn_more::', '');
       }
-      output += `<tr><td>${rendered}</td></tr>`;
+      if (rendered.trim()) {
+        const [key, ...valueParts] = rendered.split(':');
+        const value = valueParts.join(':').trim();
+        output += `<tr><th>${key.trim()}</th><td>${value}</td></tr>`;
+      }
     });
     output += '</table>';
     return output;
   }
 
-  // Form submission handler
-  document.querySelector('#quiz-form').addEventListener('submit', async function(e) {
+  // Form handler
+  document.querySelector('#quiz-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const fruit = e.target.fruit.value;
-    const fact = e.target.fact.value;
-    const confidence = e.target.confidence.value;
-    const learnMore = e.target.learn_more.checked;
-    const apiKey = document.querySelector('#api-key').value;
-
-    const aics = parseAICS();
-    const templateLines = aics.filter(item => item.type === 'template' && item.name === 'result').map(item => item.value);
-
-    const aiResponse = await getAIResponse(fruit, fact, learnMore, apiKey);
-
-    const output = renderTemplate(templateLines, {
-      fruit,
-      fact,
-      confidence,
-      learnMore,
-      aiResponse
-    });
-
-    document.querySelector('#output').innerHTML = `<h2 class="title is-4">🧠 AI Quiz Results</h2>${output}`;
+    const formData = new FormData(e.target);
+    const data = {
+      fruit: formData.get('fruit'),
+      fact: formData.get('fact'),
+      confidence: formData.get('confidence'),
+      learnMore: formData.get('learn_more') === 'on'
+    };
+    const apiKey = document.querySelector('#api-key').value.trim();
+    const provider = document.querySelector('#api-provider').value;
+    const aiResponse = await getAIResponse(data.fruit, data.fact, data.learnMore, apiKey, provider);
+    document.querySelector('#output').innerHTML = `<h2 class="title is-4">🧠 AI Quiz Results</h2>${renderTemplate(templateLines, { ...data, aiResponse })}`;
   });
 
-  // Chat dock handler
-  document.querySelector('#chat-submit').addEventListener('click', async function() {
+  // Chat handler (updated to handle general queries)
+  document.querySelector('#chat-submit').addEventListener('click', async () => {
     const input = document.querySelector('#chat-input');
     const query = input.value.trim();
     if (!query) return;
-    const apiKey = document.querySelector('#api-key').value;
-    const response = apiKey
-      ? await getAIResponse('general', query, false, apiKey).then(res => res.accuracy)
-      : `Demo mode: You asked "${query}". Try entering an API key for live AI!`;
-    document.querySelector('#output').innerHTML += `
-      <div class="notification is-info mt-2">
-        <strong>You:</strong> ${query}<br>
-        <strong>AI:</strong> ${response}
-      </div>
-    `;
+    const apiKey = document.querySelector('#api-key').value.trim();
+    const provider = document.querySelector('#api-provider').value;
+    const config = manifest.providers[provider];
+    try {
+      let response;
+      if (!apiKey) {
+        response = { accuracy: `Demo: For general queries like "${query}", enter a Groq API key.` };
+      } else {
+        const fetchResponse = await fetch(config.api_endpoint, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: config.model,
+            messages: [{ role: 'user', content: query }]
+          })
+        });
+        const rawText = await fetchResponse.text();
+        if (manifest.debug) console.log('Chat Raw Response:', rawText);
+        if (!fetchResponse.ok) {
+          let errorMsg = `Groq API Error ${fetchResponse.status}: ${fetchResponse.statusText}`;
+          try {
+            const errorData = JSON.parse(rawText);
+            errorMsg = errorData.error?.message || errorMsg;
+          } catch {}
+          throw new Error(errorMsg);
+        }
+        const data = JSON.parse(rawText);
+        if (!data.choices?.[0]?.message?.content) {
+          throw new Error(`Invalid chat response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
+        }
+        response = { accuracy: data.choices[0].message.content };
+      }
+      document.querySelector('#output').innerHTML += `
+        <div class="notification is-info mt-2">
+          <strong>You:</strong> ${query}<br><strong>AI:</strong> ${response.accuracy}
+        </div>
+      `;
+    } catch (error) {
+      if (manifest.debug) console.error('Chat API Error:', error);
+      document.querySelector('#output').innerHTML += `
+        <div class="notification is-danger mt-2">
+          <strong>You:</strong> ${query}<br><strong>AI Error:</strong> ${error.message}
+        </div>
+      `;
+    }
     input.value = '';
+  });
+
+  // Test Key Button
+  document.querySelector('#test-key').addEventListener('click', async () => {
+    const apiKey = document.querySelector('#api-key').value.trim();
+    const provider = document.querySelector('#api-provider').value;
+    if (!apiKey) {
+      document.querySelector('#output').innerHTML += '<div class="notification is-warning mt-2">Enter a key first!</div>';
+      return;
+    }
+    const output = document.querySelector('#output');
+    output.innerHTML += '<div class="notification is-info mt-2">Testing key...</div>';
+    try {
+      const aiResponse = await getAIResponse('test', 'Hello from AWE!', false, apiKey, provider);
+      output.innerHTML += `<div class="notification is-success mt-2"><strong>Test OK!</strong> AI says: ${aiResponse.accuracy}</div>`;
+    } catch (error) {
+      output.innerHTML += `<div class="notification is-danger mt-2"><strong>Test Failed:</strong> ${error.message}</div>`;
+    }
   });
 </script>
 
-<!-- Footer for GitHub Pages -->
 <footer class="footer">
   <div class="content has-text-centered">
-    <p>AWE Fruit Quiz Demo | <a href="https://github.com/yourusername/awe-fruit-quiz">GitHub</a></p>
+    <p>AWE Fruit Quiz (Groq-Ready) | <a href="https://github.com/yourusername/awe-fruit-quiz">GitHub</a></p>
   </div>
 </footer>
 </body>
