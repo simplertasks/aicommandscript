@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>🍎 Fruit Quiz (AWE Demo)</title>
+  <title>[[title]]</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
   <style>
@@ -21,9 +21,10 @@
 <body>
   <section class="section">
     <div class="container">
-      <h2 class="title is-2">AWE Demo: Fruit Quiz</h2>
+      <h2 class="title is-2">[[title]]</h2>
+      Author: [[author]]
 
-
+```
   <!-- API Key Input -->
   <div class="field">
     <label class="label">Groq API Key (Starts with 'gsk_')</label>
@@ -78,14 +79,37 @@
     <p id="outputText">You picked [[fruit]] and described it as [[description]].</p>
   </div>
 </div>
-
+```
 
   </section>
 
   <script>
+    // Load and parse AICS metadata
+    const metadataScript = document.getElementById('aics-metadata');
+    const metadata = JSON.parse(metadataScript.textContent);
+
+    // Replace all tokens throughout the entire HTML document
+    function replaceAllTokens() {
+      // Replace in document title
+      let titleHTML = document.title;
+      for (const [key, value] of Object.entries(metadata)) {
+        const regex = new RegExp(`\\[\\[${key}\\]\\]`, 'g');
+        titleHTML = titleHTML.replace(regex, value);
+      }
+      document.title = titleHTML;
+
+      // Replace in body
+      let bodyHTML = document.body.innerHTML;
+      for (const [key, value] of Object.entries(metadata)) {
+        const regex = new RegExp(`\\[\\[${key}\\]\\]`, 'g');
+        bodyHTML = bodyHTML.replace(regex, value);
+      }
+      document.body.innerHTML = bodyHTML;
+    }
+
     // Runtime manifest
     const manifest = {
-      app_name: "Fruit Quiz",
+      app_name: metadata.title,
       version: "2.1.1",
       provider: {
         model: "llama-3.1-8b-instant",
@@ -93,6 +117,9 @@
       },
       debug: true
     };
+
+    // Replace all tokens on page load
+    replaceAllTokens();
 
     // Load API key from localStorage
     const apiKeyInput = document.getElementById('api-key');
@@ -114,7 +141,7 @@
       }
       try {
         const response = await fetch(manifest.provider.api_endpoint, {
-          method: 'POST', // Fixed to POST
+          method: 'POST',
           headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: manifest.provider.model,
