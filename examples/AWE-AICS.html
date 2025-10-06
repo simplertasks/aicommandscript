@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🍎 Fruit Quiz (AWE Demo)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bulma CSS via CDN (or inline for offline use) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+  <style>
+    .chat-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid #ccc;
+      padding: 1rem;
+    }
+    .chat-dock input {
+      width: 100%;
+    }
+    .api-key-field {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+<section class="section">
+  <div class="container">
+    <h1 class="title">🍎 Fruit Quiz</h1>
+    <p class="subtitle">An AWE demo powered by AI Command Script</p>
+
+    <!-- API Key Input for Live AI -->
+    <div class="field api-key-field">
+      <label class="label">API Key (Optional for Live AI)</label>
+      <div class="control">
+        <input class="input" type="text" id="api-key" placeholder="Enter OpenAI-compatible API key or leave blank for demo mode">
+      </div>
+    </div>
+
+    <!-- Quiz Form -->
+    <form id="quiz-form" class="box">
+      <div class="field">
+        <label class="label">Pick a fruit</label>
+        <div class="control">
+          <div class="select">
+            <select name="fruit">
+              <option>Apple</option>
+              <option>Banana</option>
+              <option>Orange</option>
+              <option>Pineapple</option>
+              <option>Strawberry</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Tell us a fact about this fruit</label>
+        <div class="control">
+          <textarea class="textarea" name="fact" placeholder="e.g. Apples float in water because..."></textarea>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">Confidence level (1-10)</label>
+        <div class="control">
+          <input class="input" type="number" name="confidence" min="1" max="10" value="5">
+        </div>
+      </div>
+
+      <div class="field">
+        <div class="control">
+          <label class="checkbox">
+            <input type="checkbox" name="learn_more">
+            I'd like to learn bonus facts!
+          </label>
+        </div>
+      </div>
+
+      <div class="control mt-4">
+        <button class="button is-primary">Run AI Check</button>
+      </div>
+    </form>
+
+    <!-- Output Area -->
+    <div id="output" class="content mt-5"></div>
+  </div>
+</section>
+
+<!-- Chat Dock -->
+<div class="chat-dock">
+  <div class="field has-addons">
+    <div class="control is-expanded">
+      <input class="input" id="chat-input" placeholder="Chat with the AI...">
+    </div>
+    <div class="control">
+      <button class="button is-primary" id="chat-submit">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- AICS Script Block -->
+<script type="text/aics">
+ai_runtime:
+- Prompt user to select a fruit from a list
+- Ask user to provide a fact about the selected fruit
+- Request confidence level (1-10)
+- If user checks "learn more", provide bonus facts about the fruit
+- Fact-check user's statement using AI
+- Display results in a table with emoji and feedback
+
+template: result
+**Fruit**: ::fruit::
+**Your Fact**: ::user_fact::
+**Confidence**: ::confidence::/10
+**Fact-Check**: ::ai_accuracy_response::
+::if_learn_more::**Bonus Facts**: ::ai_bonus_facts::::/if_learn_more::
+</script>
+
+<!-- Runtime Manifest -->
+<script type="application/json" id="manifest">
+{
+  "app_name": "Fruit Quiz",
+  "version": "1.0.0",
+  "ai_model": "grok-3",
+  "api_endpoint": "https://api.x.ai/v1/chat/completions",
+  "demo_mode": true
+}
+</script>
+
+<!-- AWE Runtime Script -->
+<script>
+  // Parse AICS script
+  function parseAICS() {
+    const aicsScript = document.querySelector('script[type="text/aics"]').textContent;
+    const lines = aicsScript.split('\n').map(line => line.trim()).filter(line => line);
+    let runtime = [];
+    let currentTemplate = null;
+    lines.forEach(line => {
+      if (line.startsWith('ai_runtime:')) {
+        currentTemplate = 'runtime';
+      } else if (line.startsWith('template:')) {
+        currentTemplate = line.split(' ')[1];
+      } else if (currentTemplate === 'runtime') {
+        runtime.push({ type: 'instruction', value: line });
+      } else if (currentTemplate) {
+        runtime.push({ type: 'template', name: currentTemplate, value: line });
+      }
+    });
+    return runtime;
+  }
+
+  // Parse manifest
+  const manifest = JSON.parse(document.querySelector('#manifest').textContent);
+
+  // Simulated AI response for demo mode
+  function getDemoAIResponse(fruit, fact, learnMore) {
+    return {
+      accuracy: `In demo mode, assuming your fact about ${fruit} is correct!`,
+      bonus: learnMore ? `Fun fact: ${fruit}s are rich in vitamins!` : ''
+    };
+  }
+
+  // Real AI API call (placeholder for Grok API)
+  async function getAIResponse(fruit, fact, learnMore, apiKey) {
+    if (!apiKey) return getDemoAIResponse(fruit, fact, learnMore);
+    try {
+      const response = await fetch(manifest.api_endpoint, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: manifest.ai_model,
+          messages: [
+            {
+              role: 'user',
+              content: `Fact-check this statement about ${fruit}: "${fact}". Provide a brief accuracy assessment. ${learnMore ? `Also provide a bonus fact about ${fruit}.` : ''}`
+            }
+          ]
+        })
+      });
+      const data = await response.json();
+      const content = data.choices[0].message.content;
+      const [accuracy, bonus] = content.split('Bonus fact:').map(s => s.trim());
+      return { accuracy, bonus: bonus || '' };
+    } catch (error) {
+      return {
+        accuracy: `Error connecting to AI: ${error.message}. Using demo mode.`,
+        bonus: learnMore ? `Fun fact: ${fruit}s are tasty!` : ''
+      };
+    }
+  }
+
+  // Render template
+  function renderTemplate(templateLines, data) {
+    let output = '<table class="table is-striped is-fullwidth">';
+    templateLines.forEach(line => {
+      let rendered = line
+        .replace('::fruit::', data.fruit)
+        .replace('::user_fact::', data.fact)
+        .replace('::confidence::', data.confidence)
+        .replace('::ai_accuracy_response::', data.aiResponse.accuracy)
+        .replace('::ai_bonus_facts::', data.aiResponse.bonus);
+      if (line.includes('::if_learn_more::')) {
+        if (!data.learnMore) return;
+        rendered = rendered.replace('::if_learn_more::', '').replace('::/if_learn_more::', '');
+      }
+      output += `<tr><td>${rendered}</td></tr>`;
+    });
+    output += '</table>';
+    return output;
+  }
+
+  // Form submission handler
+  document.querySelector('#quiz-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fruit = e.target.fruit.value;
+    const fact = e.target.fact.value;
+    const confidence = e.target.confidence.value;
+    const learnMore = e.target.learn_more.checked;
+    const apiKey = document.querySelector('#api-key').value;
+
+    const aics = parseAICS();
+    const templateLines = aics.filter(item => item.type === 'template' && item.name === 'result').map(item => item.value);
+
+    const aiResponse = await getAIResponse(fruit, fact, learnMore, apiKey);
+
+    const output = renderTemplate(templateLines, {
+      fruit,
+      fact,
+      confidence,
+      learnMore,
+      aiResponse
+    });
+
+    document.querySelector('#output').innerHTML = `<h2 class="title is-4">🧠 AI Quiz Results</h2>${output}`;
+  });
+
+  // Chat dock handler
+  document.querySelector('#chat-submit').addEventListener('click', async function() {
+    const input = document.querySelector('#chat-input');
+    const query = input.value.trim();
+    if (!query) return;
+    const apiKey = document.querySelector('#api-key').value;
+    const response = apiKey
+      ? await getAIResponse('general', query, false, apiKey).then(res => res.accuracy)
+      : `Demo mode: You asked "${query}". Try entering an API key for live AI!`;
+    document.querySelector('#output').innerHTML += `
+      <div class="notification is-info mt-2">
+        <strong>You:</strong> ${query}<br>
+        <strong>AI:</strong> ${response}
+      </div>
+    `;
+    input.value = '';
+  });
+</script>
+
+<!-- Footer for GitHub Pages -->
+<footer class="footer">
+  <div class="content has-text-centered">
+    <p>AWE Fruit Quiz Demo | <a href="https://github.com/yourusername/awe-fruit-quiz">GitHub</a></p>
+  </div>
+</footer>
+</body>
+</html>
