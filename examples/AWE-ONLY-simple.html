@@ -24,10 +24,12 @@
       <h2 class="title is-2">[[title]]</h2>
       Author: [[author]]
 
+
   <!-- Hidden markdown content -->
   <textarea id="app-description" style="display: none;">
 
-# Welcome to the [[title]]!
+
+# Welcome to the Fruit Quiz!
 
 This is a simple demonstration app that shows how to:
 
@@ -37,6 +39,7 @@ This is a simple demonstration app that shows how to:
 
 Try it out by selecting a fruit below!
 </textarea>
+
 
   <!-- Rendered markdown will appear here -->
   <div id="rendered-description" class="content box"></div>
@@ -71,9 +74,9 @@ Try it out by selecting a fruit below!
     </div>
 
     <div class="field">
-      <label class="label">Describe the Fruit</label>
+      <label class="label">List Four Things You Know About This Fruit</label>
       <div class="control">
-        <textarea id="fruitDescription" class="textarea" placeholder="Type something about your selected fruit..." rows="4"></textarea>
+        <textarea id="fruitDescription" class="textarea" placeholder="List four things you know about your selected fruit (one per line or separated by commas)..." rows="4"></textarea>
       </div>
     </div>
 
@@ -171,15 +174,24 @@ Try it out by selecting a fruit below!
     function getDemoFact(fruit) {
       return {
         fun_fact: `Demo: ${fruit} is tasty!`,
-        average_weight: "150"
+        average_weight: "150",
+        grade: "B",
+        feedback: "Demo mode - no grading available without API key."
       };
     }
 
     // Groq API call for interesting fact
-    async function getInterestingFact(fruit, apiKey) {
-      const prompt = `Provide information about ${fruit} in JSON format with these fields:
-- fun_fact: one interesting fact (keep it concise)
+    async function getInterestingFact(fruit, userStatements, apiKey) {
+      const prompt = `The user selected "${fruit}" and provided these statements about it:
+
+${userStatements}
+
+Please evaluate their knowledge and provide a response in JSON format with these fields:
+- fun_fact: one interesting fact about ${fruit} (keep it concise)
 - average_weight: typical weight in grams (just the number)
+- grade: assign a single letter grade (A, B, C, D, or F) based on the overall accuracy and quality of their statements. Use your judgment.
+- feedback: a brief explanation of why you gave that grade, mentioning what was correct or incorrect
+
 Return only valid JSON, no other text.`;
       
       // Display the prompt in the API prompt textarea
@@ -225,14 +237,18 @@ Return only valid JSON, no other text.`;
           if (manifest.debug) console.error('JSON Parse Error:', parseError, 'Content:', content);
           return {
             fun_fact: content,
-            average_weight: "unknown"
+            average_weight: "unknown",
+            grade: "N/A",
+            feedback: "Unable to parse AI response"
           };
         }
       } catch (error) {
         if (manifest.debug) console.error('API Error:', error);
         return {
           fun_fact: `Error: ${error.message}`,
-          average_weight: "unknown"
+          average_weight: "unknown",
+          grade: "N/A",
+          feedback: "Error occurred during grading"
         };
       }
     }
@@ -247,19 +263,19 @@ Return only valid JSON, no other text.`;
       const outputText = document.getElementById('outputText');
 
       if (!fruit || !description) {
-        resultArea.value = 'Please select a fruit and provide a description.';
+        resultArea.value = 'Please select a fruit and provide four statements about it.';
         outputText.textContent = 'You picked [[fruit]] and described it as [[description]].';
         return;
       }
 
       try {
-        const fruitData = await getInterestingFact(fruit, apiKey);
-        resultArea.value = `fruit: ${fruit.toLowerCase()}\ndescription: ${description}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
-        outputText.textContent = `You picked ${fruit.toLowerCase()} and described it as ${description}. ${fruitData.fun_fact} It typically weighs around ${fruitData.average_weight}g.`;
+        const fruitData = await getInterestingFact(fruit, description, apiKey);
+        resultArea.value = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: ${fruitData.grade}\nfeedback: ${fruitData.feedback}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
+        outputText.textContent = `You picked ${fruit.toLowerCase()}. Grade: ${fruitData.grade}. ${fruitData.feedback} ${fruitData.fun_fact} It typically weighs around ${fruitData.average_weight}g.`;
       } catch (error) {
         if (manifest.debug) console.error('Form Error:', error);
-        resultArea.value = `fruit: ${fruit.toLowerCase()}\ndescription: ${description}\nfun_fact: Error: ${error.message}\naverage_weight: unknown`;
-        outputText.textContent = `You picked ${fruit.toLowerCase()} and described it as ${description}. Error: ${error.message}`;
+        resultArea.value = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: N/A\nfeedback: Error: ${error.message}`;
+        outputText.textContent = `You picked ${fruit.toLowerCase()}. Error: ${error.message}`;
       }
     });
 
@@ -273,8 +289,8 @@ Return only valid JSON, no other text.`;
       }
       outputText.textContent = 'Testing key...';
       try {
-        const fruitData = await getInterestingFact('apple', apiKey);
-        outputText.textContent = `Test OK! AI says: ${fruitData.fun_fact} (Weight: ${fruitData.average_weight}g)`;
+        const fruitData = await getInterestingFact('apple', 'Apples are red, grow on trees, are sweet, have seeds', apiKey);
+        outputText.textContent = `Test OK! Grade: ${fruitData.grade}. ${fruitData.feedback}`;
       } catch (error) {
         outputText.textContent = `Test Failed: ${error.message}`;
       }
