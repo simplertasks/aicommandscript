@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
   <style>
-    .test-button { margin-left: 0.5rem; }
+    .test-button, .clear-button { margin-left: 0.5rem; }
   </style>
 </head>
 <body>
@@ -32,6 +32,7 @@ compatibility: ChatGPT 4, 5
           <input class="input" type="text" id="api-key" placeholder="Enter your Groq API key (gsk_...)">
           <span class="icon is-small is-right">
             <button class="button test-button is-small" id="test-key">Test Key</button>
+            <button class="button clear-button is-small" id="clear-key">Clear Key</button>
           </span>
         </div>
         <p class="help">Get your key at <a href="https://console.groq.com/keys">console.groq.com/keys</a></p>
@@ -84,13 +85,20 @@ compatibility: ChatGPT 4, 5
     // Runtime manifest
     const manifest = {
       app_name: "Fruit Quiz",
-      version: "2.0.0",
+      version: "2.1.0",
       provider: {
         model: "llama-3.1-8b-instant",
         api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
       },
       debug: true
     };
+
+    // Load API key from localStorage
+    const apiKeyInput = document.getElementById('api-key');
+    const savedApiKey = localStorage.getItem('groqApiKey');
+    if (savedApiKey) {
+      apiKeyInput.value = savedApiKey;
+    }
 
     // Demo fact for offline mode
     function getDemoFact(fruit) {
@@ -126,6 +134,8 @@ compatibility: ChatGPT 4, 5
         if (!data.choices?.[0]?.message?.content) {
           throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
         }
+        // Save API key on successful response
+        localStorage.setItem('groqApiKey', apiKey);
         return data.choices[0].message.content;
       } catch (error) {
         if (manifest.debug) console.error('API Error:', error);
@@ -174,6 +184,13 @@ compatibility: ChatGPT 4, 5
       } catch (error) {
         outputText.textContent = `Test Failed: ${error.message}`;
       }
+    });
+
+    // Clear Key Button
+    document.getElementById('clear-key').addEventListener('click', () => {
+      localStorage.removeItem('groqApiKey');
+      apiKeyInput.value = '';
+      document.getElementById('outputText').textContent = 'API key cleared.';
     });
   </script>
 </body>
