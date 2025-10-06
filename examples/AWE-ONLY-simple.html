@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>[[title]]</title>
+  <title>${title}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
   <style>
@@ -21,8 +21,8 @@
 <body>
   <section class="section">
     <div class="container">
-      <h2 class="title is-2">[[title]]</h2>
-      Author: [[author]]
+      <h2 class="title is-2">${title}</h2>
+      Author: ${author}
 
 
   <!-- Hidden markdown content -->
@@ -39,6 +39,7 @@ This is a simple demonstration app that shows how to:
 
 Try it out by selecting a fruit below!
 </textarea>
+
 
   <!-- Rendered markdown will appear here -->
   <div id="rendered-description" class="content box"></div>
@@ -94,7 +95,7 @@ Try it out by selecting a fruit below!
   </div>
 
   <div class="box" style="margin-top: 2rem;">
-    <p id="outputText">You picked [[fruit]] and described it as [[description]].</p>
+    <p id="outputText">You picked ${fruit} and described it as ${description}.</p>
   </div>
 
   <div class="field" style="margin-top: 2rem;">
@@ -120,18 +121,16 @@ Try it out by selecting a fruit below!
     function replaceAllTokens() {
       // Replace in document title
       let titleHTML = document.title;
-      for (const [key, value] of Object.entries(metadata)) {
-        const regex = new RegExp(`\\[\\[${key}\\]\\]`, 'g');
-        titleHTML = titleHTML.replace(regex, value);
-      }
+      titleHTML = titleHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
+        return metadata[key] || match;
+      });
       document.title = titleHTML;
 
       // Replace in body
       let bodyHTML = document.body.innerHTML;
-      for (const [key, value] of Object.entries(metadata)) {
-        const regex = new RegExp(`\\[\\[${key}\\]\\]`, 'g');
-        bodyHTML = bodyHTML.replace(regex, value);
-      }
+      bodyHTML = bodyHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
+        return metadata[key] || match;
+      });
       document.body.innerHTML = bodyHTML;
     }
 
@@ -262,7 +261,7 @@ Return only valid JSON, no other text.`;
 
       if (!fruit || !description) {
         resultArea.value = 'Please select a fruit and provide four statements about it.';
-        outputText.textContent = 'You picked [[fruit]] and described it as [[description]].';
+        outputText.textContent = 'You picked ${fruit} and described it as ${description}.';
         return;
       }
 
