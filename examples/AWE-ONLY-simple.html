@@ -78,6 +78,13 @@
   <div class="box" style="margin-top: 2rem;">
     <p id="outputText">You picked [[fruit]] and described it as [[description]].</p>
   </div>
+
+  <div class="field" style="margin-top: 2rem;">
+    <label class="label">API Request Prompt</label>
+    <div class="control">
+      <textarea id="apiPrompt" class="textarea" readonly rows="3" placeholder="The prompt sent to the API will appear here..."></textarea>
+    </div>
+  </div>
 </div>
 ```
 
@@ -130,11 +137,23 @@
 
     // Demo fact for offline mode
     function getDemoFact(fruit) {
-      return `Demo: ${fruit} is tasty!`;
+      return {
+        fun_fact: `Demo: ${fruit} is tasty!`,
+        average_weight: "150"
+      };
     }
 
     // Groq API call for interesting fact
     async function getInterestingFact(fruit, apiKey) {
+      const prompt = `Provide information about ${fruit} in JSON format with these fields:
+- fun_fact: one interesting fact (keep it concise)
+- average_weight: typical weight in grams (just the number)
+Return only valid JSON, no other text.`;
+      
+      // Display the prompt in the API prompt textarea
+      const apiPromptArea = document.getElementById('apiPrompt');
+      apiPromptArea.value = prompt;
+      
       if (!apiKey) return getDemoFact(fruit);
       if (!apiKey.startsWith('gsk_')) {
         throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
@@ -145,7 +164,7 @@
           headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
             model: manifest.provider.model,
-            messages: [{ role: 'user', content: `Provide one interesting fact about ${fruit}. Start with "Fun fact:".` }]
+            messages: [{ role: 'user', content: prompt }]
           })
         });
         const rawText = await response.text();
@@ -163,10 +182,26 @@
           throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
         }
         localStorage.setItem('groqApiKey', apiKey);
-        return data.choices[0].message.content;
+        
+        // Parse the JSON response from the AI
+        const content = data.choices[0].message.content;
+        try {
+          const fruitData = JSON.parse(content);
+          return fruitData;
+        } catch (parseError) {
+          // If AI didn't return valid JSON, extract what we can
+          if (manifest.debug) console.error('JSON Parse Error:', parseError, 'Content:', content);
+          return {
+            fun_fact: content,
+            average_weight: "unknown"
+          };
+        }
       } catch (error) {
         if (manifest.debug) console.error('API Error:', error);
-        return `Error: ${error.message}. Using demo: ${getDemoFact(fruit)}`;
+        return {
+          fun_fact: `Error: ${error.message}`,
+          average_weight: "unknown"
+        };
       }
     }
 
@@ -186,12 +221,12 @@
       }
 
       try {
-        const fact = await getInterestingFact(fruit, apiKey);
-        resultArea.value = `fruit: ${fruit.toLowerCase()}\ndescription: ${description}\nfun fact: ${fact}`;
-        outputText.textContent = `You picked ${fruit.toLowerCase()} and described it as ${description}. ${fact}`;
+        const fruitData = await getInterestingFact(fruit, apiKey);
+        resultArea.value = `fruit: ${fruit.toLowerCase()}\ndescription: ${description}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
+        outputText.textContent = `You picked ${fruit.toLowerCase()} and described it as ${description}. ${fruitData.fun_fact} It typically weighs around ${fruitData.average_weight}g.`;
       } catch (error) {
         if (manifest.debug) console.error('Form Error:', error);
-        resultArea.value = `fruit: ${fruit.toLowerCase()}\ndescription: ${description}\nfun fact: Error: ${error.message}`;
+        resultArea.value = `fruit: ${fruit.toLowerCase()}\ndescription: ${description}\nfun_fact: Error: ${error.message}\naverage_weight: unknown`;
         outputText.textContent = `You picked ${fruit.toLowerCase()} and described it as ${description}. Error: ${error.message}`;
       }
     });
@@ -206,8 +241,8 @@
       }
       outputText.textContent = 'Testing key...';
       try {
-        const fact = await getInterestingFact('test', apiKey);
-        outputText.textContent = `Test OK! AI says: ${fact}`;
+        const fruitData = await getInterestingFact('apple', apiKey);
+        outputText.textContent = `Test OK! AI says: ${fruitData.fun_fact} (Weight: ${fruitData.average_weight}g)`;
       } catch (error) {
         outputText.textContent = `Test Failed: ${error.message}`;
       }
