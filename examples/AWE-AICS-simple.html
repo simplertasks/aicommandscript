@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🍎 Fruit Quiz (AWE Demo)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+  <style>
+    .test-button { margin-left: 0.5rem; }
+  </style>
+</head>
+<body>
+  <section class="section">
+    <div class="container">
+      <h2 class="title is-2">AWE /AICS DEMO</h2>
+
+      <div class="field">
+        <div class="control">
+          <textarea class="textarea" readonly rows="5">
+// 🐝 AICommandScript APP
+title: Fruit Quiz
+author: J. Smith
+compatibility: ChatGPT 4, 5
+          </textarea>
+        </div>
+      </div>
+
+      <!-- API Key Input -->
+      <div class="field">
+        <label class="label">Groq API Key (Starts with 'gsk_')</label>
+        <div class="control has-icons-right">
+          <input class="input" type="text" id="api-key" placeholder="Enter your Groq API key (gsk_...)">
+          <span class="icon is-small is-right">
+            <button class="button test-button is-small" id="test-key">Test Key</button>
+          </span>
+        </div>
+        <p class="help">Get your key at <a href="https://console.groq.com/keys">console.groq.com/keys</a></p>
+      </div>
+
+      <form id="fruitForm">
+        <div class="field">
+          <label class="label">Select a Fruit</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="fruitSelect">
+                <option value="">Choose a fruit...</option>
+                <option value="Apple">Apple</option>
+                <option value="Banana">Banana</option>
+                <option value="Cherry">Cherry</option>
+                <option value="Orange">Orange</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">Describe the Fruit</label>
+          <div class="control">
+            <textarea id="fruitDescription" class="textarea" placeholder="Type something about your selected fruit..." rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="control">
+            <button type="submit" class="button is-primary">Submit</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="field" style="margin-top: 2rem;">
+        <label class="label">Result</label>
+        <div class="control">
+          <textarea id="resultArea" class="textarea" readonly rows="4" placeholder="Your selection will appear here..."></textarea>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top: 2rem;">
+        <p id="outputText">You picked [[fruit]] and described it as [[description]].</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Runtime manifest
+    const manifest = {
+      app_name: "Fruit Quiz",
+      version: "2.0.0",
+      provider: {
+        model: "llama-3.1-8b-instant",
+        api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
+      },
+      debug: true
+    };
+
+    // Demo fact for offline mode
+    function getDemoFact(fruit) {
+      return `Demo: ${fruit} is tasty!`;
+    }
+
+    // Groq API call for interesting fact
+    async function getInterestingFact(fruit, apiKey) {
+      if (!apiKey) return getDemoFact(fruit);
+      if (!apiKey.startsWith('gsk_')) {
+        throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
+      }
+      try {
+        const response = await fetch(manifest.provider.api_endpoint, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: manifest.provider.model,
+            messages: [{ role: 'user', content: `Provide one interesting fact about ${fruit}. Start with "Fun fact:".` }]
+          })
+        });
+        const rawText = await response.text();
+        if (manifest.debug) console.log('Raw Response:', rawText);
+        if (!response.ok) {
+          let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
+          try {
+            const errorData = JSON.parse(rawText);
+            errorMsg = errorData.error?.message || errorMsg;
+          } catch {}
+          throw new Error(errorMsg);
+        }
+        const data = JSON.parse(rawText);
+        if (!data.choices?.[0]?.message?.content) {
+          throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
+        }
+        return data.choices[0].message.content;
+      } catch (error) {
+        if (manifest.debug) console.error('API Error:', error);
+        return `Error: ${error.message}. Using demo: ${getDemoFact(fruit)}`;
+      }
+    }
+
+    // Form handler
+    document.getElementById('fruitForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const fruit = document.getElementById('fruitSelect').value;
+      const description = document.getElementById('fruitDescription').value;
+      const apiKey = document.getElementById('api-key').value.trim();
+      const resultArea = document.getElementById('resultArea');
+      const outputText = document.getElementById('outputText');
+
+      if (!fruit || !description) {
+        resultArea.value = 'Please select a fruit and provide a description.';
+        outputText.textContent = 'You picked [[fruit]] and described it as [[description]].';
+        return;
+      }
+
+      try {
+        const fact = await getInterestingFact(fruit, apiKey);
+        resultArea.value = `fruit: ${fruit.toLowerCase()}\ndescription: ${description}\nfun fact: ${fact}`;
+        outputText.textContent = `You picked ${fruit.toLowerCase()} and described it as ${description}. ${fact}`;
+      } catch (error) {
+        if (manifest.debug) console.error('Form Error:', error);
+        resultArea.value = `fruit: ${fruit.toLowerCase()}\ndescription: ${description}\nfun fact: Error: ${error.message}`;
+        outputText.textContent = `You picked ${fruit.toLowerCase()} and described it as ${description}. Error: ${error.message}`;
+      }
+    });
+
+    // Test Key Button
+    document.getElementById('test-key').addEventListener('click', async () => {
+      const apiKey = document.getElementById('api-key').value.trim();
+      const outputText = document.getElementById('outputText');
+      if (!apiKey) {
+        outputText.textContent = 'Please enter an API key.';
+        return;
+      }
+      outputText.textContent = 'Testing key...';
+      try {
+        const fact = await getInterestingFact('test', apiKey);
+        outputText.textContent = `Test OK! AI says: ${fact}`;
+      } catch (error) {
+        outputText.textContent = `Test Failed: ${error.message}`;
+      }
+    });
+  </script>
+</body>
+</html>
