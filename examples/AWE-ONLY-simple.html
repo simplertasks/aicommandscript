@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -8,6 +7,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
   <style>
     .test-button, .clear-button { margin-left: 0.5rem; }
+    .chat-container { max-height: 200px; overflow-y: auto; border: 1px solid #dbdbdb; padding: 1rem; margin-bottom: 1rem; }
+    .chat-message { margin-bottom: 0.5rem; }
+    .chat-user { font-weight: bold; color: #3273dc; }
+    .chat-ai { color: #4a4a4a; }
   </style>
   <!-- AICS Metadata -->
   <script type="application/json" id="aics-metadata">
@@ -24,13 +27,10 @@
       <h2 class="title is-2">${title}</h2>
       Author: ${author}
 
+      <!-- Hidden markdown content -->
+      <textarea id="app-description" style="display: none;">
+# Welcome to the ${title}
 
-  <!-- Hidden markdown content -->
-  <textarea id="app-description" style="display: none;">
-
-
-# Welcome to the ${title}</h2>
-   
 > Author: ${author}
 
 This is a simple demonstration app that shows how to:
@@ -40,78 +40,87 @@ This is a simple demonstration app that shows how to:
 - Get **interesting facts** from an AI
 
 Try it out by selecting a fruit below!
-</textarea>
+      </textarea>
 
+      <!-- Rendered markdown -->
+      <div id="rendered-description" class="content box"></div>
 
-  <!-- Rendered markdown will appear here -->
-  <div id="rendered-description" class="content box"></div>
+      <!-- API Key Input -->
+      <div class="field">
+        <label class="label">Groq API Key (Starts with 'gsk_')</label>
+        <div class="control has-icons-right">
+          <input class="input" type="text" id="api-key" placeholder="Enter your Groq API key (gsk_...)">
+          <span class="icon is-small is-right">
+            <button class="button test-button is-small" id="test-key">Test Key</button>
+            <button class="button clear-button is-small" id="clear-key">Clear Key</button>
+          </span>
+        </div>
+        <p class="help">Get your key at <a href="https://console.groq.com/keys">console.groq.com/keys</a></p>
+      </div>
 
-  <!-- API Key Input -->
-  <div class="field">
-    <label class="label">Groq API Key (Starts with 'gsk_')</label>
-    <div class="control has-icons-right">
-      <input class="input" type="text" id="api-key" placeholder="Enter your Groq API key (gsk_...)">
-      <span class="icon is-small is-right">
-        <button class="button test-button is-small" id="test-key">Test Key</button>
-        <button class="button clear-button is-small" id="clear-key">Clear Key</button>
-      </span>
-    </div>
-    <p class="help">Get your key at <a href="https://console.groq.com/keys">console.groq.com/keys</a></p>
-  </div>
+      <form id="fruitForm">
+        <div class="field">
+          <label class="label">Select a Fruit</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select id="fruitSelect">
+                <option value="">Choose a fruit...</option>
+                <option value="Apple">Apple</option>
+                <option value="Banana">Banana</option>
+                <option value="Cherry">Cherry</option>
+                <option value="Orange">Orange</option>
+              </select>
+            </div>
+          </div>
+        </div>
 
-  <form id="fruitForm">
-    <div class="field">
-      <label class="label">Select a Fruit</label>
-      <div class="control">
-        <div class="select is-fullwidth">
-          <select id="fruitSelect">
-            <option value="">Choose a fruit...</option>
-            <option value="Apple">Apple</option>
-            <option value="Banana">Banana</option>
-            <option value="Cherry">Cherry</option>
-            <option value="Orange">Orange</option>
-          </select>
+        <div class="field">
+          <label class="label">List Four Things You Know About This Fruit</label>
+          <div class="control">
+            <textarea id="fruitDescription" class="textarea" placeholder="List four things you know about your selected fruit (one per line or separated by commas)..." rows="4"></textarea>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="control">
+            <button type="submit" class="button is-primary">Submit</button>
+          </div>
+        </div>
+      </form>
+
+      <div class="field" style="margin-top: 2rem;">
+        <label class="label">Result</label>
+        <div class="control">
+          <textarea id="resultArea" class="textarea" readonly rows="4" placeholder="Your selection will appear here..."></textarea>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top: 2rem;">
+        <p id="outputText">You picked ${fruit} and described it as ${description}.</p>
+      </div>
+
+      <div class="field" style="margin-top: 2rem;">
+        <label class="label">API Request Prompt</label>
+        <div class="control">
+          <textarea id="apiPrompt" class="textarea" readonly rows="3" placeholder="The prompt sent to the API will appear here..."></textarea>
+        </div>
+      </div>
+
+      <!-- Chat Feature -->
+      <div class="field" style="margin-top: 2rem;">
+        <label class="label">Chat with AI</label>
+        <div class="chat-container" id="chatHistory"></div>
+        <div class="control">
+          <input class="input" type="text" id="chatInput" placeholder="Ask about fruits or anything else...">
+        </div>
+        <div class="control" style="margin-top: 0.5rem;">
+          <button class="button is-primary" id="sendChat">Send</button>
         </div>
       </div>
     </div>
-
-    <div class="field">
-      <label class="label">List Four Things You Know About This Fruit</label>
-      <div class="control">
-        <textarea id="fruitDescription" class="textarea" placeholder="List four things you know about your selected fruit (one per line or separated by commas)..." rows="4"></textarea>
-      </div>
-    </div>
-
-    <div class="field">
-      <div class="control">
-        <button type="submit" class="button is-primary">Submit</button>
-      </div>
-    </div>
-  </form>
-
-  <div class="field" style="margin-top: 2rem;">
-    <label class="label">Result</label>
-    <div class="control">
-      <textarea id="resultArea" class="textarea" readonly rows="4" placeholder="Your selection will appear here..."></textarea>
-    </div>
-  </div>
-
-  <div class="box" style="margin-top: 2rem;">
-    <p id="outputText">You picked ${fruit} and described it as ${description}.</p>
-  </div>
-
-  <div class="field" style="margin-top: 2rem;">
-    <label class="label">API Request Prompt</label>
-    <div class="control">
-      <textarea id="apiPrompt" class="textarea" readonly rows="3" placeholder="The prompt sent to the API will appear here..."></textarea>
-    </div>
-  </div>
-</div>
-
   </section>
 
   <!-- Load marked.js from CDN -->
-
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
 
   <script>
@@ -139,7 +148,7 @@ Try it out by selecting a fruit below!
     // Runtime manifest
     const manifest = {
       app_name: metadata.title,
-      version: "2.1.1",
+      version: "2.2.0",
       provider: {
         model: "llama-3.1-8b-instant",
         api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
@@ -179,6 +188,11 @@ Try it out by selecting a fruit below!
       };
     }
 
+    // Demo chat response for offline mode
+    function getDemoChatResponse(message) {
+      return `Demo: That's an interesting question about ${message}! Try using an API key for a real response.`;
+    }
+
     // Groq API call for interesting fact
     async function getInterestingFact(fruit, userStatements, apiKey) {
       const prompt = `The user selected "${fruit}" and provided these statements about it:
@@ -192,11 +206,11 @@ Please evaluate their knowledge and provide a response in JSON format with these
 - feedback: a brief explanation of why you gave that grade, mentioning what was correct or incorrect
 
 Return only valid JSON, no other text.`;
-      
+
       // Display the prompt in the API prompt textarea
       const apiPromptArea = document.getElementById('apiPrompt');
       apiPromptArea.value = prompt;
-      
+
       if (!apiKey) return getDemoFact(fruit);
       if (!apiKey.startsWith('gsk_')) {
         throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
@@ -225,14 +239,13 @@ Return only valid JSON, no other text.`;
           throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
         }
         localStorage.setItem('groqApiKey', apiKey);
-        
+
         // Parse the JSON response from the AI
         const content = data.choices[0].message.content;
         try {
           const fruitData = JSON.parse(content);
           return fruitData;
         } catch (parseError) {
-          // If AI didn't return valid JSON, extract what we can
           if (manifest.debug) console.error('JSON Parse Error:', parseError, 'Content:', content);
           return {
             fun_fact: content,
@@ -249,6 +262,42 @@ Return only valid JSON, no other text.`;
           grade: "N/A",
           feedback: "Error occurred during grading"
         };
+      }
+    }
+
+    // Groq API call for chat
+    async function getChatResponse(message, apiKey) {
+      if (!apiKey) return getDemoChatResponse(message);
+      if (!apiKey.startsWith('gsk_')) {
+        throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
+      }
+      try {
+        const response = await fetch(manifest.provider.api_endpoint, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: manifest.provider.model,
+            messages: [{ role: 'user', content: `Answer in a friendly, concise manner with emojis: ${message}` }]
+          })
+        });
+        const rawText = await response.text();
+        if (manifest.debug) console.log('Chat Raw Response:', rawText);
+        if (!response.ok) {
+          let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
+          try {
+            const errorData = JSON.parse(rawText);
+            errorMsg = errorData.error?.message || errorMsg;
+          } catch {}
+          throw new Error(errorMsg);
+        }
+        const data = JSON.parse(rawText);
+        if (!data.choices?.[0]?.message?.content) {
+          throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
+        }
+        return data.choices[0].message.content;
+      } catch (error) {
+        if (manifest.debug) console.error('Chat API Error:', error);
+        return `Error: ${error.message}. Try again!`;
       }
     }
 
@@ -298,10 +347,40 @@ Return only valid JSON, no other text.`;
     // Clear Key Button
     document.getElementById('clear-key').addEventListener('click', () => {
       localStorage.removeItem('groqApiKey');
-      apiKeyInput.value = '';
+      document.getElementById('api-key').value = '';
       document.getElementById('outputText').textContent = 'API key cleared.';
     });
-  </script>
 
+    // Chat handler
+    document.getElementById('sendChat').addEventListener('click', async () => {
+      const chatInput = document.getElementById('chatInput');
+      const message = chatInput.value.trim();
+      const chatHistory = document.getElementById('chatHistory');
+      const apiKey = document.getElementById('api-key').value.trim();
+
+      if (!message) {
+        chatHistory.innerHTML += `<div class="chat-message chat-user">You: Please type a message.</div>`;
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+        return;
+      }
+
+      // Add user message to history
+      chatHistory.innerHTML += `<div class="chat-message chat-user">You: ${message}</div>`;
+      chatInput.value = '';
+
+      // Get AI response
+      const response = await getChatResponse(message, apiKey);
+      chatHistory.innerHTML += `<div class="chat-message chat-ai">AI: ${response}</div>`;
+      chatHistory.scrollTop = chatHistory.scrollHeight;
+    });
+
+    // Allow Enter key to send chat
+    document.getElementById('chatInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.getElementById('sendChat').click();
+      }
+    });
+  </script>
 </body>
 </html>
