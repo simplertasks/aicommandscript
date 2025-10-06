@@ -24,7 +24,24 @@
       <h2 class="title is-2">[[title]]</h2>
       Author: [[author]]
 
+  <!-- Hidden markdown content -->
+  <textarea id="app-description" style="display: none;">
+
+# Welcome to the [[title]]!
+
+This is a simple demonstration app that shows how to:
+
+- Select from a list of fruits
+- Describe your selection
+- Get **interesting facts** from an AI
+
+Try it out by selecting a fruit below!
+</textarea>
+
 ```
+  <!-- Rendered markdown will appear here -->
+  <div id="rendered-description" class="content box"></div>
+
   <!-- API Key Input -->
   <div class="field">
     <label class="label">Groq API Key (Starts with 'gsk_')</label>
@@ -90,6 +107,10 @@
 
   </section>
 
+  <!-- Load marked.js from CDN -->
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+
   <script>
     // Load and parse AICS metadata
     const metadataScript = document.getElementById('aics-metadata');
@@ -127,6 +148,19 @@
 
     // Replace all tokens on page load
     replaceAllTokens();
+
+    // Render markdown description (wait for marked.js to load)
+    function renderMarkdown() {
+      if (typeof marked === 'undefined') {
+        console.error('marked.js not loaded yet');
+        setTimeout(renderMarkdown, 100);
+        return;
+      }
+      const markdownSource = document.getElementById('app-description').value;
+      const renderedContainer = document.getElementById('rendered-description');
+      renderedContainer.innerHTML = marked.parse(markdownSource);
+    }
+    renderMarkdown();
 
     // Load API key from localStorage
     const apiKeyInput = document.getElementById('api-key');
