@@ -316,11 +316,11 @@ Try it out by selecting a fruit below!
                         if (align === "center") style += "margin:auto; display:block;";
                         if (align === "right") style += "margin-left:auto;";
 
-                        // Output - Pico.css will handle responsive images automatically
+                        // Output - Always use figure for better semantic structure and Pico.css spacing
                         if (caption) {
                             return `<figure style="${style}"><img src="${url.trim()}" alt="${alt}"><figcaption>${caption}</figcaption></figure>`;
                         } else {
-                            return `<img src="${url.trim()}" alt="${alt}" style="${style}">`;
+                            return `<figure style="${style}"><img src="${url.trim()}" alt="${alt}"></figure>`;
                         }
                     }
                 );
