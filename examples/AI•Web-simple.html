@@ -12,13 +12,16 @@
   <title>${title}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
-  <style>
-    .test-button, .clear-button { margin-left: 0.5rem; }
-    .chat-container { max-height: 200px; overflow-y: auto; border: 1px solid #dbdbdb; padding: 1rem; margin-bottom: 1rem; }
-    .chat-message { margin-bottom: 0.5rem; }
-    .chat-user { font-weight: bold; color: #3273dc; }
-    .chat-ai { color: #4a4a4a; }
-  </style>
+	
+	<style>
+  .chat-container { 
+    max-height: 200px; 
+    overflow-y: auto; 
+    border: 1px solid #dbdbdb; 
+    padding: 1rem; 
+    margin-bottom: 1rem; 
+  }
+</style>
   <!-- AI•Web Metadata -->
   <script type="application/json" id="aiweb-metadata">
     {
@@ -34,8 +37,7 @@
 <body>
   <section class="section">
     <div class="container">
-      <h2 class="title is-2">${title}</h2>
-      Author: ${author}
+ 
 
 
   <!-- Hidden markdown content -->
@@ -345,7 +347,8 @@ Return only valid JSON, no other text.`;
 
     // Groq API call for study guide
     async function getStudyGuide(apiKey) {
-      const prompt = `Generate a Markdown table listing six interesting facts for each of the following fruits: Apple, Banana, Cherry, Orange. Use this format:
+			
+			const prompt = `${metadata.description}\n\nGenerate a Markdown table listing six interesting facts for each of the following fruits: Apple, Banana, Cherry, Orange. Use this format:
 | Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |
 |-------|--------|--------|--------|--------|--------|--------|
 Each fact should be concise (1-2 sentences), unique, and include emojis. Return only the Markdown table, no other text.`;
