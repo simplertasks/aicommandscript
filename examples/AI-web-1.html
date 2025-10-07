@@ -57,10 +57,10 @@
 <body>
     <main class="container">
         <!-- Hidden markdown content -->
-        <textarea id="app-description" style="display: none;">
-# Welcome to the ${title}
+        <textarea class="markdown" style="display: none;">
+  # Welcome to the ${title}
 
-> Author: ${author}
+   > Author: ${author}
 
 This is a simple demonstration app that shows how to:
 
@@ -70,9 +70,19 @@ This is a simple demonstration app that shows how to:
 
 Try it out by selecting a fruit below!
     </textarea>
-
         <!-- Rendered markdown -->
-        <div id="rendered-description"></div>
+        <div class="markdown"></div>
+
+        <textarea class="markdown" style="display: none;">
+        # TWO  to the ${title}
+      
+   > Author: ${author}
+   - one 
+   - TWO 
+   
+          </textarea>
+        <!-- Rendered markdown -->
+        <div class="markdown"></div>
 
         <!-- API Key Input -->
         <article>
@@ -292,11 +302,49 @@ Try it out by selecting a fruit below!
                     setTimeout(() => this.renderMarkdown(), 100);
                     return;
                 }
-                const markdownSource = DOM.getValue('app-description');
-                const renderedContainer = DOM.getElement('rendered-description');
-                if (renderedContainer) {
-                    renderedContainer.innerHTML = marked.parse(markdownSource);
-                }
+
+                console.log('Rendering markdown...');
+
+                // Find all textareas with class="markdown" first
+                const textareas = document.querySelectorAll('textarea.markdown');
+                console.log('Found textareas:', textareas.length);
+
+                textareas.forEach((textarea, index) => {
+                    let markdownSource = textarea.value || '';
+                    console.log(`Textarea ${index} content:`, markdownSource);
+
+                    if (markdownSource.trim()) {
+                        // Clean up the markdown source - remove leading/trailing whitespace and normalize indentation
+                        markdownSource = markdownSource.trim();
+
+                        // Find the next div with class="markdown" to render into
+                        let nextSibling = textarea.nextElementSibling;
+                        while (nextSibling && (!nextSibling.classList.contains('markdown') || nextSibling.tagName !== 'DIV')) {
+                            nextSibling = nextSibling.nextElementSibling;
+                        }
+                        if (nextSibling) {
+                            console.log(`Rendering into div:`, nextSibling);
+                            const renderedHTML = marked.parse(markdownSource);
+                            console.log('Rendered HTML:', renderedHTML);
+                            nextSibling.innerHTML = renderedHTML;
+                        } else {
+                            console.log('No target div found for textarea', index);
+                        }
+                    }
+                });
+
+                // Then handle other elements with class="markdown" that aren't textareas
+                const otherElements = document.querySelectorAll('.markdown:not(textarea)');
+                console.log('Found other markdown elements:', otherElements.length);
+
+                otherElements.forEach(element => {
+                    const markdownSource = element.textContent || '';
+                    // Only render if there's content and it's not already rendered HTML
+                    if (markdownSource.trim() && !element.innerHTML.includes('<')) {
+                        console.log('Rendering other element:', element, markdownSource);
+                        element.innerHTML = marked.parse(markdownSource);
+                    }
+                });
             }
         };
 
