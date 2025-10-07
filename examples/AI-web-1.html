@@ -149,8 +149,20 @@ Try it out by selecting a fruit below!
             </label>
         </article>
 
+        <!-- Output Template Control -->
         <article>
-            <p id="outputText">You picked ${fruit} and described it as ${description}.</p>
+            <header>Output Template</header>
+            <label>
+                Markdown Output Template
+                <textarea id="outputTemplate" rows="3" placeholder="Enter your markdown template here...">
+                    You picked YYY ${fruit} Grade: ${grade}. ${feedback} ${fun_fact} It typically weighs around ${average_weight}g.</textarea>
+            </label>
+            <small>Use variables: ${fruit}, ${grade}, ${feedback}, ${fun_fact}, ${average_weight},
+                ${description}</small>
+        </article>
+
+        <article>
+            <p id="outputText">You picked XXX ${fruit} and described it as ${description}.</p>
         </article>
 
         <!-- API Prompt Display -->
@@ -275,6 +287,11 @@ Try it out by selecting a fruit below!
                 if (element) element.textContent = text;
             },
 
+            setHTML(id, html) {
+                const element = this.getElement(id);
+                if (element) element.innerHTML = html;
+            },
+
             addHTML(id, html) {
                 const element = this.getElement(id);
                 if (element) element.innerHTML += html;
@@ -283,6 +300,15 @@ Try it out by selecting a fruit below!
             scrollToBottom(id) {
                 const element = this.getElement(id);
                 if (element) element.scrollTop = element.scrollHeight;
+            },
+
+            renderMarkdownOutput(id, markdownText) {
+                const element = this.getElement(id);
+                if (element && typeof marked !== 'undefined') {
+                    element.innerHTML = marked.parse(markdownText);
+                } else if (element) {
+                    element.textContent = markdownText;
+                }
             }
         };
 
@@ -704,10 +730,19 @@ Each fact should be concise (1-2 sentences), unique, and include emojis. Return 
                 try {
                     const fruitData = await AIPrompts.getInterestingFact(fruit, description, apiKey);
                     const resultText = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: ${fruitData.grade}\nfeedback: ${fruitData.feedback}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
-                    const outputText = `You picked ${fruit.toLowerCase()}. Grade: ${fruitData.grade}. ${fruitData.feedback} ${fruitData.fun_fact} It typically weighs around ${fruitData.average_weight}g.`;
+
+                    // Get the markdown template and replace variables
+                    const template = DOM.getValue('outputTemplate') || 'You picked ${fruit} Grade: ${grade}. ${feedback} ${fun_fact} It typically weighs around ${average_weight}g.';
+                    const outputText = template
+                        .replace(/\$\{fruit\}/g, fruit.toLowerCase())
+                        .replace(/\$\{grade\}/g, fruitData.grade)
+                        .replace(/\$\{feedback\}/g, fruitData.feedback)
+                        .replace(/\$\{fun_fact\}/g, fruitData.fun_fact)
+                        .replace(/\$\{average_weight\}/g, fruitData.average_weight)
+                        .replace(/\$\{description\}/g, description);
 
                     DOM.setValue('resultArea', resultText);
-                    DOM.setText('outputText', outputText);
+                    DOM.renderMarkdownOutput('outputText', outputText);
                 } catch (error) {
                     const errorMessage = ErrorHandler.handleAPIError(error);
                     DOM.setValue('resultArea', `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: N/A\nfeedback: Error: ${errorMessage}`);
