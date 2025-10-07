@@ -25,6 +25,7 @@
       "format": "AI•Web",
       "version": "1.0",
       "title": "Fruit Quiz",
+			"description": "Quiz app about edible fruits. AI grades user knowledge.",
       "author": "J. Smith",
       "compatibility": "ChatGPT 4, 5"
     }
@@ -145,7 +146,7 @@ Try it out by selecting a fruit below!
     </div>
   </div>
 </div>
-```
+
 
   </section>
 
@@ -233,7 +234,10 @@ Try it out by selecting a fruit below!
 
     // Groq API call for interesting fact
     async function getInterestingFact(fruit, userStatements, apiKey) {
-      const prompt = `The user selected "${fruit}" and provided these statements about it:
+     
+	const prompt = `${metadata.description}
+
+    The user selected "${fruit}" and provided these statements about it:
 
 ${userStatements}
 
