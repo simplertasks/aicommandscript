@@ -50,6 +50,11 @@
         article {
             margin-bottom: 2rem;
         }
+
+        /* Minimal custom styles - let Pico.css handle most styling */
+        figure {
+            margin: var(--pico-spacing) 0;
+        }
     </style>
 
 </head>
@@ -67,6 +72,21 @@ This is a simple demonstration app that shows how to:
 - Select from a list of fruits
 - Describe your selection
 - Get **interesting facts** from an AI
+
+## Enhanced Image Examples
+
+Here are examples of the new enhanced markdown image syntax:
+
+![Bee|200|center|Our friendly bee mascot](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
+
+
+![Bee|50%|left](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
+
+
+![Bee](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
+
+---
+
 
 Try it out by selecting a fruit below!
     </textarea>
@@ -277,6 +297,37 @@ Try it out by selecting a fruit below!
         };
 
         /**
+         * Enhanced Markdown Image Converter
+         */
+        const MarkdownImageConverter = {
+            convertMarkdownFigures(md) {
+                return md.replace(
+                    /!\[([^|\]]+)(?:\|([^|\]]*))?(?:\|([^|\]]*))?(?:\|([^\]]*))?\]\(([^)]+)\)/g,
+                    (match, alt, width, align, caption, url) => {
+                        // Clean up parameters
+                        alt = alt?.trim() || "";
+                        width = width?.trim() || "";
+                        align = align?.trim().toLowerCase() || "";
+                        caption = caption?.trim() || "";
+
+                        // Build minimal style string - let Pico.css handle most styling
+                        let style = "";
+                        if (width) style += `max-width:${width}${width.endsWith("%") ? "" : "px"};`;
+                        if (align === "center") style += "margin:auto; display:block;";
+                        if (align === "right") style += "margin-left:auto;";
+
+                        // Output - Pico.css will handle responsive images automatically
+                        if (caption) {
+                            return `<figure style="${style}"><img src="${url.trim()}" alt="${alt}"><figcaption>${caption}</figcaption></figure>`;
+                        } else {
+                            return `<img src="${url.trim()}" alt="${alt}" style="${style}">`;
+                        }
+                    }
+                );
+            }
+        };
+
+        /**
          * AI•Web Core Functions
          */
         const AIWebCore = {
@@ -317,6 +368,9 @@ Try it out by selecting a fruit below!
                         // Clean up the markdown source - remove leading/trailing whitespace and normalize indentation
                         markdownSource = markdownSource.trim();
 
+                        // Apply enhanced image syntax conversion
+                        markdownSource = MarkdownImageConverter.convertMarkdownFigures(markdownSource);
+
                         // Find the next div with class="markdown" to render into
                         let nextSibling = textarea.nextElementSibling;
                         while (nextSibling && (!nextSibling.classList.contains('markdown') || nextSibling.tagName !== 'DIV')) {
@@ -342,7 +396,9 @@ Try it out by selecting a fruit below!
                     // Only render if there's content and it's not already rendered HTML
                     if (markdownSource.trim() && !element.innerHTML.includes('<')) {
                         console.log('Rendering other element:', element, markdownSource);
-                        element.innerHTML = marked.parse(markdownSource);
+                        // Apply enhanced image syntax conversion
+                        const processedMarkdown = MarkdownImageConverter.convertMarkdownFigures(markdownSource);
+                        element.innerHTML = marked.parse(processedMarkdown);
                     }
                 });
             }
