@@ -139,12 +139,14 @@ Try it out by selecting a fruit below!
                 Select a Fruit
                 <select id="fruitSelect" required>
                     <option value="">Choose a fruit...</option>
-                    <option value="Apple">Apple</option>
-                    <option value="Banana">Banana</option>
-                    <option value="Cherry">Cherry</option>
-                    <option value="Orange">Orange</option>
                 </select>
             </label>
+
+            <!-- Fruit Image Display -->
+            <div id="fruitImageContainer" style="text-align: center; margin: 1rem 0; display: none;">
+                <img id="fruitImage" src="" alt="Selected fruit"
+                    style="max-width: 200px; height: auto; border-radius: 8px;">
+            </div>
 
             <label>
                 List Four Things You Know About This Fruit
@@ -242,6 +244,86 @@ Try it out by selecting a fruit below!
         };
 
         /**
+         * Fruit Data Source
+         */
+        const FruitDataSource = {
+            fruits: [
+                {
+                    name: "Apple",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Red_Apple.jpg/640px-Red_Apple.jpg"
+                },
+                {
+                    name: "Banana",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/640px-Banana-Single.jpg"
+                },
+                {
+                    name: "Cherry",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Cherry_Stella444.jpg/640px-Cherry_Stella444.jpg"
+                },
+                {
+                    name: "Orange",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Orange-Whole-%26-Split.jpg/640px-Orange-Whole-%26-Split.jpg"
+                },
+                {
+                    name: "Grape",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Table_grapes_on_white.jpg/640px-Table_grapes_on_white.jpg"
+                },
+                {
+                    name: "Strawberry",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Strawberry_BNC.jpg/640px-Strawberry_BNC.jpg"
+                },
+                {
+                    name: "Pineapple",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Pineapple_and_cross_section.jpg/640px-Pineapple_and_cross_section.jpg"
+                },
+                {
+                    name: "Mango",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Mango_and_cross_section_edit.jpg/640px-Mango_and_cross_section_edit.jpg"
+                },
+                {
+                    name: "Peach",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Autumn_Red_peaches.jpg/640px-Autumn_Red_peaches.jpg"
+                },
+                {
+                    name: "Pear",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Pear_DS.jpg/640px-Pear_DS.jpg"
+                },
+                {
+                    name: "Watermelon",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Watermelon.jpg/640px-Watermelon.jpg"
+                },
+                {
+                    name: "Blueberry",
+                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Blueberries.jpg/640px-Blueberries.jpg"
+                }
+            ],
+
+            getFruitNames() {
+                return this.fruits.map(fruit => fruit.name);
+            },
+
+            getFruitByName(name) {
+                return this.fruits.find(fruit => fruit.name.toLowerCase() === name.toLowerCase());
+            },
+
+            populateDropdown(selectElementId) {
+                const selectElement = document.getElementById(selectElementId);
+                if (!selectElement) return;
+
+                // Clear existing options except the first one
+                selectElement.innerHTML = '<option value="">Choose a fruit...</option>';
+
+                // Add options from data source
+                this.fruits.forEach(fruit => {
+                    const option = document.createElement('option');
+                    option.value = fruit.name;
+                    option.textContent = fruit.name;
+                    selectElement.appendChild(option);
+                });
+            }
+        };
+
+        /**
          * Application State Management
          */
         const AppState = {
@@ -265,7 +347,7 @@ Try it out by selecting a fruit below!
                         model: "llama-3.1-8b-instant",
                         api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
                     },
-                    fruits: ["Apple", "Banana", "Cherry", "Orange"],
+                    fruits: FruitDataSource.getFruitNames(),
                     debug: true
                 };
             },
@@ -735,6 +817,23 @@ Each fact should be concise (1-2 sentences), unique, and include emojis. Return 
          * UI Controllers
          */
         const UIControllers = {
+            handleFruitSelection(e) {
+                const selectedFruit = e.target.value;
+                const imageContainer = DOM.getElement('fruitImageContainer');
+                const fruitImage = DOM.getElement('fruitImage');
+
+                if (selectedFruit) {
+                    const fruitData = FruitDataSource.getFruitByName(selectedFruit);
+                    if (fruitData) {
+                        fruitImage.src = fruitData.image;
+                        fruitImage.alt = selectedFruit;
+                        imageContainer.style.display = 'block';
+                    }
+                } else {
+                    imageContainer.style.display = 'none';
+                }
+            },
+
             async handleFormSubmit(e) {
                 e.preventDefault();
                 const fruit = DOM.getValue('fruitSelect');
@@ -914,6 +1013,9 @@ Each fact should be concise (1-2 sentences), unique, and include emojis. Return 
                 // Form submission
                 DOM.getElement('fruitForm')?.addEventListener('submit', UIControllers.handleFormSubmit);
 
+                // Fruit selection change
+                DOM.getElement('fruitSelect')?.addEventListener('change', UIControllers.handleFruitSelection);
+
                 // API key management
                 DOM.getElement('test-key')?.addEventListener('click', UIControllers.handleTestKey);
                 DOM.getElement('clear-key')?.addEventListener('click', UIControllers.handleClearKey);
@@ -946,6 +1048,9 @@ Each fact should be concise (1-2 sentences), unique, and include emojis. Return 
             // Initialize AI•Web core
             AIWebCore.replaceAllTokens();
             AIWebCore.renderMarkdown();
+
+            // Populate fruit dropdown from data source
+            FruitDataSource.populateDropdown('fruitSelect');
 
             // Load saved API key
             if (AppState.apiKey) {
