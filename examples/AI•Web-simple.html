@@ -155,89 +155,95 @@ Try it out by selecting a fruit below!
 
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
 
-  <script>
+<script>
+// ---
+// AI•WEB CORE (Don't modify unless you know what you're doing)
+// ---
 
-    const metadataScript = document.getElementById('aiweb-metadata');
-    const metadata = JSON.parse(metadataScript.textContent);
+const metadataScript = document.getElementById('aiweb-metadata');
+const metadata = JSON.parse(metadataScript.textContent);
 
+function replaceAllTokens() {
+  let titleHTML = document.title;
+  titleHTML = titleHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
+    return metadata[key] || match;
+  });
+  document.title = titleHTML;
 
-    function replaceAllTokens() {
-      // Replace in document title
-      let titleHTML = document.title;
-      titleHTML = titleHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
-        return metadata[key] || match;
-      });
-      document.title = titleHTML;
+  let bodyHTML = document.body.innerHTML;
+  bodyHTML = bodyHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
+    return metadata[key] || match;
+  });
+  document.body.innerHTML = bodyHTML;
+}
 
-      // Replace in body
-      let bodyHTML = document.body.innerHTML;
-      bodyHTML = bodyHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
-        return metadata[key] || match;
-      });
-      document.body.innerHTML = bodyHTML;
-    }
+function renderMarkdown() {
+  if (typeof marked === 'undefined') {
+    console.error('marked.js not loaded yet');
+    setTimeout(renderMarkdown, 100);
+    return;
+  }
+  const markdownSource = document.getElementById('app-description').value;
+  const renderedContainer = document.getElementById('rendered-description');
+  renderedContainer.innerHTML = marked.parse(markdownSource);
+}
 
-    // Runtime manifest
-    const manifest = {
-      format: metadata.format,
-      format_version: metadata.version,
-      app_name: metadata.title,
-      version: "2.3.0",
-      provider: {
-        model: "llama-3.1-8b-instant",
-        api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
-      },
-      fruits: ["Apple", "Banana", "Cherry", "Orange"],
-      debug: true
-    };
+// Initialize AI•Web
+replaceAllTokens();
+renderMarkdown();
 
+// Load API key from localStorage
+const savedApiKey = localStorage.getItem('groqApiKey');
+if (savedApiKey) {
+  document.getElementById('api-key').value = savedApiKey;
+}
 
-    replaceAllTokens();
+// ---
+// APP CONFIGURATION (Customize this for your app)
+// ---
 
-    function renderMarkdown() {
-      if (typeof marked === 'undefined') {
-        console.error('marked.js not loaded yet');
-        setTimeout(renderMarkdown, 100);
-        return;
-      }
-      const markdownSource = document.getElementById('app-description').value;
-      const renderedContainer = document.getElementById('rendered-description');
-      renderedContainer.innerHTML = marked.parse(markdownSource);
-    }
-    renderMarkdown();
+const manifest = {
+  format: metadata.format,
+  format_version: metadata.version,
+  app_name: metadata.title,
+  version: "2.3.0",
+  provider: {
+    model: "llama-3.1-8b-instant",
+    api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
+  },
+  fruits: ["Apple", "Banana", "Cherry", "Orange"],
+  debug: true
+};
 
-    // Load API key from localStorage (get element AFTER replaceAllTokens)
-    const savedApiKey = localStorage.getItem('groqApiKey');
-    if (savedApiKey) {
-      document.getElementById('api-key').value = savedApiKey;
-    }
+// ---
+// DEMO/FALLBACK RESPONSES (Customize these for offline mode)
+// ---
 
-    // Demo fact for offline mode
-    function getDemoFact(fruit) {
-      return {
-        fun_fact: `Demo: ${fruit} is tasty!`,
-        average_weight: "150",
-        grade: "B",
-        feedback: "Demo mode - no grading available without API key."
-      };
-    }
+function getDemoFact(fruit) {
+  return {
+    fun_fact: `Demo: ${fruit} is tasty!`,
+    average_weight: "150",
+    grade: "B",
+    feedback: "Demo mode - no grading available without API key."
+  };
+}
 
-    // Demo chat response for offline mode
-    function getDemoChatResponse(message) {
-      return `Demo: That's an interesting question about ${message}! Try using an API key for a real response.`;
-    }
+function getDemoChatResponse(message) {
+  return `Demo: That's an interesting question about ${message}! Try using an API key for a real response.`;
+}
 
-    // Demo study guide for offline mode
-    function getDemoStudyGuide() {
-      return `| Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |\n|-------|--------|--------|--------|--------|--------|--------|\n${manifest.fruits.map(fruit => `| ${fruit} | Demo: ${fruit} is tasty! | Demo: It's colorful! | Demo: It's sweet! | Demo: It's juicy! | Demo: It's healthy! | Demo: It's fun! |`).join('\n')}`;
-    }
+function getDemoStudyGuide() {
+  return `| Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |\n|-------|--------|--------|--------|--------|--------|--------|\n${manifest.fruits.map(fruit => `| ${fruit} | Demo: ${fruit} is tasty! | Demo: It's colorful! | Demo: It's sweet! | Demo: It's juicy! | Demo: It's healthy! | Demo: It's fun! |`).join('\n')}`;
+}
 
-    // Groq API call for interesting fact
-    async function getInterestingFact(fruit, userStatements, apiKey) {
-     
-	const prompt = `${metadata.description}
+// ---
+// AI PROMPTS (Customize these to change AI behavior)
+// ---
 
-    The user selected "${fruit}" and provided these statements about it:
+async function getInterestingFact(fruit, userStatements, apiKey) {
+  const prompt = `${metadata.description}
+
+The user selected "${fruit}" and provided these statements about it:
 
 ${userStatements}
 
@@ -249,236 +255,184 @@ Please evaluate their knowledge and provide a response in JSON format with these
 
 Return only valid JSON, no other text.`;
 
-      // Display the prompt in the API prompt textarea
-      const apiPromptArea = document.getElementById('apiPrompt');
-      apiPromptArea.value = prompt;
+  const apiPromptArea = document.getElementById('apiPrompt');
+  apiPromptArea.value = prompt;
 
-      if (!apiKey) return getDemoFact(fruit);
-      if (!apiKey.startsWith('gsk_')) {
-        throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
-      }
-      try {
-        const response = await fetch(manifest.provider.api_endpoint, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: manifest.provider.model,
-            messages: [{ role: 'user', content: prompt }]
-          })
-        });
-        const rawText = await response.text();
-        if (manifest.debug) console.log('Raw Response:', rawText);
-        if (!response.ok) {
-          let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
-          try {
-            const errorData = JSON.parse(rawText);
-            errorMsg = errorData.error?.message || errorMsg;
-          } catch {}
-          throw new Error(errorMsg);
-        }
-        const data = JSON.parse(rawText);
-        if (!data.choices?.[0]?.message?.content) {
-          throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
-        }
-        localStorage.setItem('groqApiKey', apiKey);
+  if (!apiKey) return getDemoFact(fruit);
+  return await callGroqAPI(prompt, apiKey, getDemoFact(fruit));
+}
 
-        // Parse the JSON response from the AI
-        const content = data.choices[0].message.content;
-        try {
-          const fruitData = JSON.parse(content);
-          return fruitData;
-        } catch (parseError) {
-          if (manifest.debug) console.error('JSON Parse Error:', parseError, 'Content:', content);
-          return {
-            fun_fact: content,
-            average_weight: "unknown",
-            grade: "N/A",
-            feedback: "Unable to parse AI response"
-          };
-        }
-      } catch (error) {
-        if (manifest.debug) console.error('API Error:', error);
-        return {
-          fun_fact: `Error: ${error.message}`,
-          average_weight: "unknown",
-          grade: "N/A",
-          feedback: "Error occurred during grading"
-        };
-      }
-    }
+async function getChatResponse(message, apiKey) {
+  const prompt = `${metadata.description}\n\nAnswer in a friendly, concise manner with emojis: ${message}`;
+  
+  if (!apiKey) return getDemoChatResponse(message);
+  const result = await callGroqAPI(prompt, apiKey);
+  return typeof result === 'string' ? result : result.content;
+}
 
-    // Groq API call for chat
-    async function getChatResponse(message, apiKey) {
-      if (!apiKey) return getDemoChatResponse(message);
-      if (!apiKey.startsWith('gsk_')) {
-        throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
-      }
-      try {
-        const response = await fetch(manifest.provider.api_endpoint, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: manifest.provider.model,
-            messages: [{ role: 'user', content: `Answer in a friendly, concise manner with emojis: ${message}` }]
-          })
-        });
-        const rawText = await response.text();
-        if (manifest.debug) console.log('Chat Raw Response:', rawText);
-        if (!response.ok) {
-          let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
-          try {
-            const errorData = JSON.parse(rawText);
-            errorMsg = errorData.error?.message || errorMsg;
-          } catch {}
-          throw new Error(errorMsg);
-        }
-        const data = JSON.parse(rawText);
-        if (!data.choices?.[0]?.message?.content) {
-          throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
-        }
-        return data.choices[0].message.content;
-      } catch (error) {
-        if (manifest.debug) console.error('Chat API Error:', error);
-        return `Error: ${error.message}. Try again!`;
-      }
-    }
-
-    // Groq API call for study guide
-    async function getStudyGuide(apiKey) {
-			
-			const prompt = `${metadata.description}\n\nGenerate a Markdown table listing six interesting facts for each of the following fruits: Apple, Banana, Cherry, Orange. Use this format:
+async function getStudyGuide(apiKey) {
+  const prompt = `${metadata.description}\n\nGenerate a Markdown table listing six interesting facts for each of the following fruits: Apple, Banana, Cherry, Orange. Use this format:
 | Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |
 |-------|--------|--------|--------|--------|--------|--------|
 Each fact should be concise (1-2 sentences), unique, and include emojis. Return only the Markdown table, no other text.`;
 
-      if (!apiKey) return getDemoStudyGuide();
-      if (!apiKey.startsWith('gsk_')) {
-        throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
-      }
+  if (!apiKey) return getDemoStudyGuide();
+  const result = await callGroqAPI(prompt, apiKey);
+  return typeof result === 'string' ? result : result.content;
+}
+
+// ---
+// API INFRASTRUCTURE (Don't modify - handles all API calls)
+// ---
+
+async function callGroqAPI(prompt, apiKey, fallback = null) {
+  if (!apiKey.startsWith('gsk_')) {
+    throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
+  }
+  
+  try {
+    const response = await fetch(manifest.provider.api_endpoint, {
+      method: 'POST',
+      headers: { 
+        'Authorization': `Bearer ${apiKey}`, 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify({
+        model: manifest.provider.model,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    
+    const rawText = await response.text();
+    if (manifest.debug) console.log('Raw Response:', rawText);
+    
+    if (!response.ok) {
+      let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
       try {
-        const response = await fetch(manifest.provider.api_endpoint, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: manifest.provider.model,
-            messages: [{ role: 'user', content: prompt }]
-          })
-        });
-        const rawText = await response.text();
-        if (manifest.debug) console.log('Study Guide Raw Response:', rawText);
-        if (!response.ok) {
-          let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
-          try {
-            const errorData = JSON.parse(rawText);
-            errorMsg = errorData.error?.message || errorMsg;
-          } catch {}
-          throw new Error(errorMsg);
-        }
-        const data = JSON.parse(rawText);
-        if (!data.choices?.[0]?.message?.content) {
-          throw new Error(`Invalid response: Missing choices. Raw: ${rawText.substring(0, 200)}...`);
-        }
-        return data.choices[0].message.content;
-      } catch (error) {
-        if (manifest.debug) console.error('Study Guide API Error:', error);
-        return `Error: ${error.message}\n\n${getDemoStudyGuide()}`;
-      }
+        const errorData = JSON.parse(rawText);
+        errorMsg = errorData.error?.message || errorMsg;
+      } catch {}
+      throw new Error(errorMsg);
     }
+    
+    const data = JSON.parse(rawText);
+    if (!data.choices?.[0]?.message?.content) {
+      throw new Error(`Invalid response: Missing choices.`);
+    }
+    
+    localStorage.setItem('groqApiKey', apiKey);
+    const content = data.choices[0].message.content;
+    
+    // Try to parse as JSON first
+    try {
+      return JSON.parse(content);
+    } catch {
+      return content;
+    }
+  } catch (error) {
+    if (manifest.debug) console.error('API Error:', error);
+    if (fallback) return fallback;
+    throw error;
+  }
+}
 
-    // Form handler
-    document.getElementById('fruitForm').addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const fruit = document.getElementById('fruitSelect').value;
-      const description = document.getElementById('fruitDescription').value;
-      const apiKey = document.getElementById('api-key').value.trim();
-      const resultArea = document.getElementById('resultArea');
-      const outputText = document.getElementById('outputText');
+// ---
+// EVENT HANDLERS (Customize these for your app's behavior)
+// ---
 
-      if (!fruit || !description) {
-        resultArea.value = 'Please select a fruit and provide four statements about it.';
-        outputText.textContent = 'You picked ${fruit} and described it as ${description}.';
-        return;
-      }
+// Form handler
+document.getElementById('fruitForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const fruit = document.getElementById('fruitSelect').value;
+  const description = document.getElementById('fruitDescription').value;
+  const apiKey = document.getElementById('api-key').value.trim();
+  const resultArea = document.getElementById('resultArea');
+  const outputText = document.getElementById('outputText');
 
-      try {
-        const fruitData = await getInterestingFact(fruit, description, apiKey);
-        resultArea.value = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: ${fruitData.grade}\nfeedback: ${fruitData.feedback}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
-        outputText.textContent = `You picked ${fruit.toLowerCase()}. Grade: ${fruitData.grade}. ${fruitData.feedback} ${fruitData.fun_fact} It typically weighs around ${fruitData.average_weight}g.`;
-      } catch (error) {
-        if (manifest.debug) console.error('Form Error:', error);
-        resultArea.value = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: N/A\nfeedback: Error: ${error.message}`;
-        outputText.textContent = `You picked ${fruit.toLowerCase()}. Error: ${error.message}`;
-      }
-    });
+  if (!fruit || !description) {
+    resultArea.value = 'Please select a fruit and provide four statements about it.';
+    outputText.textContent = 'You picked ${fruit} and described it as ${description}.';
+    return;
+  }
 
-    // Test Key Button
-    document.getElementById('test-key').addEventListener('click', async () => {
-      const apiKey = document.getElementById('api-key').value.trim();
-      const outputText = document.getElementById('outputText');
-      if (!apiKey) {
-        outputText.textContent = 'Please enter an API key.';
-        return;
-      }
-      outputText.textContent = 'Testing key...';
-      try {
-        const fruitData = await getInterestingFact('apple', 'Apples are red, grow on trees, are sweet, have seeds', apiKey);
-        outputText.textContent = `Test OK! Grade: ${fruitData.grade}. ${fruitData.feedback}`;
-      } catch (error) {
-        outputText.textContent = `Test Failed: ${error.message}`;
-      }
-    });
+  try {
+    const fruitData = await getInterestingFact(fruit, description, apiKey);
+    resultArea.value = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: ${fruitData.grade}\nfeedback: ${fruitData.feedback}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
+    outputText.textContent = `You picked ${fruit.toLowerCase()}. Grade: ${fruitData.grade}. ${fruitData.feedback} ${fruitData.fun_fact} It typically weighs around ${fruitData.average_weight}g.`;
+  } catch (error) {
+    if (manifest.debug) console.error('Form Error:', error);
+    resultArea.value = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: N/A\nfeedback: Error: ${error.message}`;
+    outputText.textContent = `You picked ${fruit.toLowerCase()}. Error: ${error.message}`;
+  }
+});
 
-    // Clear Key Button
-    document.getElementById('clear-key').addEventListener('click', () => {
-      localStorage.removeItem('groqApiKey');
-      document.getElementById('api-key').value = '';
-      document.getElementById('outputText').textContent = 'API key cleared.';
-    });
+// Test Key Button
+document.getElementById('test-key').addEventListener('click', async () => {
+  const apiKey = document.getElementById('api-key').value.trim();
+  const outputText = document.getElementById('outputText');
+  if (!apiKey) {
+    outputText.textContent = 'Please enter an API key.';
+    return;
+  }
+  outputText.textContent = 'Testing key...';
+  try {
+    const fruitData = await getInterestingFact('apple', 'Apples are red, grow on trees, are sweet, have seeds', apiKey);
+    outputText.textContent = `Test OK! Grade: ${fruitData.grade}. ${fruitData.feedback}`;
+  } catch (error) {
+    outputText.textContent = `Test Failed: ${error.message}`;
+  }
+});
 
-    // Chat handler
-    document.getElementById('sendChat').addEventListener('click', async () => {
-      const chatInput = document.getElementById('chatInput');
-      const message = chatInput.value.trim();
-      const chatHistory = document.getElementById('chatHistory');
-      const apiKey = document.getElementById('api-key').value.trim();
+// Clear Key Button
+document.getElementById('clear-key').addEventListener('click', () => {
+  localStorage.removeItem('groqApiKey');
+  document.getElementById('api-key').value = '';
+  document.getElementById('outputText').textContent = 'API key cleared.';
+});
 
-      if (!message) {
-        chatHistory.innerHTML += `<div class="chat-message chat-user">You: Please type a message.</div>`;
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-        return;
-      }
+// Chat handler
+document.getElementById('sendChat').addEventListener('click', async () => {
+  const chatInput = document.getElementById('chatInput');
+  const message = chatInput.value.trim();
+  const chatHistory = document.getElementById('chatHistory');
+  const apiKey = document.getElementById('api-key').value.trim();
 
-      // Add user message to history
-      chatHistory.innerHTML += `<div class="chat-message chat-user">You: ${message}</div>`;
-      chatInput.value = '';
+  if (!message) {
+    chatHistory.innerHTML += `<div class="mb-2 has-text-weight-bold has-text-link">You: Please type a message.</div>`;
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+    return;
+  }
 
-      // Get AI response
-      const response = await getChatResponse(message, apiKey);
-      chatHistory.innerHTML += `<div class="chat-message chat-ai">AI: ${response}</div>`;
-      chatHistory.scrollTop = chatHistory.scrollHeight;
-    });
+  chatHistory.innerHTML += `<div class="mb-2 has-text-weight-bold has-text-link">You: ${message}</div>`;
+  chatInput.value = '';
 
-    // Allow Enter key to send chat
-    document.getElementById('chatInput').addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('sendChat').click();
-      }
-    });
+  const response = await getChatResponse(message, apiKey);
+  chatHistory.innerHTML += `<div class="mb-2 has-text-grey-dark">AI: ${response}</div>`;
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+});
 
-    // Study Guide handler
-    document.getElementById('studyGuide').addEventListener('click', async () => {
-      const apiKey = document.getElementById('api-key').value.trim();
-      const studyGuideOutput = document.getElementById('studyGuideOutput');
-      studyGuideOutput.value = 'Generating study guide...';
-      try {
-        const studyGuide = await getStudyGuide(apiKey);
-        studyGuideOutput.value = studyGuide;
-      } catch (error) {
-        studyGuideOutput.value = `Error: ${error.message}\n\n${getDemoStudyGuide()}`;
-      }
-    });
-  </script>
+// Allow Enter key to send chat
+document.getElementById('chatInput').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    document.getElementById('sendChat').click();
+  }
+});
+
+// Study Guide handler
+document.getElementById('studyGuide').addEventListener('click', async () => {
+  const apiKey = document.getElementById('api-key').value.trim();
+  const studyGuideOutput = document.getElementById('studyGuideOutput');
+  studyGuideOutput.value = 'Generating study guide...';
+  try {
+    const studyGuide = await getStudyGuide(apiKey);
+    studyGuideOutput.value = studyGuide;
+  } catch (error) {
+    studyGuideOutput.value = `Error: ${error.message}\n\n${getDemoStudyGuide()}`;
+  }
+});
+</script>
+
 
 </body>
 </html>
