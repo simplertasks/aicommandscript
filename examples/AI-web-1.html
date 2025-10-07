@@ -55,16 +55,6 @@
         figure {
             margin: var(--pico-spacing) 0;
         }
-
-        /* Minimal table styling - let Pico.css handle everything */
-        .fruit-table-container {
-            overflow-x: auto;
-            margin-top: 1rem;
-        }
-
-        .fruit-table {
-            min-width: 800px;
-        }
     </style>
 
 </head>
@@ -830,12 +820,7 @@ Each fact should be concise (1-2 sentences), unique, and include emojis. Return 
             createSimpleTable(fruits) {
                 const headers = ['Name', 'Family', 'Genus', 'Order', 'Calories', 'Sugar (g)', 'Carbs (g)', 'Protein (g)', 'Fat (g)'];
 
-                let html = `
-                    <div class="fruit-table-container">
-                        <table class="fruit-table">
-                            <thead>
-                                <tr>
-                `;
+                let html = '<div class="overflow-auto"><table><thead><tr>';
 
                 headers.forEach(header => {
                     html += `<th>${header}</th>`;
