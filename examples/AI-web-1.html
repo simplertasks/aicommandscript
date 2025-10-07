@@ -56,48 +56,14 @@
             margin: var(--pico-spacing) 0;
         }
 
-        /* Simple Table Styling */
+        /* Minimal table styling - let Pico.css handle everything */
         .fruit-table-container {
             overflow-x: auto;
-            border: 1px solid var(--pico-border-color);
-            border-radius: var(--pico-border-radius);
             margin-top: 1rem;
         }
 
         .fruit-table {
-            width: 100%;
             min-width: 800px;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-        }
-
-        .fruit-table th {
-            background: var(--pico-card-background-color);
-            color: var(--pico-color);
-            font-weight: 600;
-            padding: 1rem 0.75rem;
-            text-align: left;
-            border-bottom: 2px solid var(--pico-border-color);
-            white-space: nowrap;
-        }
-
-        .fruit-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--pico-border-color);
-            color: var(--pico-color);
-        }
-
-        .fruit-table tbody tr:hover {
-            background: var(--pico-card-background-color);
-        }
-
-        .fruit-table .fruit-name {
-            font-weight: 600;
-        }
-
-        .fruit-table .calories {
-            color: var(--pico-primary);
-            font-weight: 600;
         }
     </style>
 
@@ -879,11 +845,11 @@ Each fact should be concise (1-2 sentences), unique, and include emojis. Return 
 
                 fruits.forEach(fruit => {
                     html += '<tr>';
-                    html += `<td class="fruit-name">${fruit.name || 'N/A'}</td>`;
+                    html += `<td><strong>${fruit.name || 'N/A'}</strong></td>`;
                     html += `<td>${fruit.family || 'N/A'}</td>`;
                     html += `<td>${fruit.genus || 'N/A'}</td>`;
                     html += `<td>${fruit.order || 'N/A'}</td>`;
-                    html += `<td class="calories">${fruit.nutritions?.calories || 'N/A'}</td>`;
+                    html += `<td><strong>${fruit.nutritions?.calories || 'N/A'}</strong></td>`;
                     html += `<td>${fruit.nutritions?.sugar || 'N/A'}</td>`;
                     html += `<td>${fruit.nutritions?.carbohydrates || 'N/A'}</td>`;
                     html += `<td>${fruit.nutritions?.protein || 'N/A'}</td>`;
