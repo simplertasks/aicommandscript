@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<!-- 
+  AI•Web Format v1.0
+  A portable, single-file format for interactive AI experiences
+-->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="format" content="AI•Web v1.0">
+    <title>${title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+    <style>
+        .chat-container {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--pico-border-color);
+            border-radius: var(--pico-border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: var(--pico-card-background-color);
+        }
+
+        .chat-message {
+            margin-bottom: 0.5rem;
+        }
+
+        .chat-user {
+            font-weight: bold;
+            color: var(--pico-primary);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        #rendered-description {
+            background: var(--pico-card-background-color);
+            padding: 1rem;
+            border-radius: var(--pico-border-radius);
+            margin-bottom: 2rem;
+        }
+
+        article {
+            margin-bottom: 2rem;
+        }
+    </style>
+
+    <!-- AI•Web Metadata -->
+    <script type="application/json" id="aiweb-metadata">
+    {
+      "format": "AI•Web",
+      "version": "1.0",
+      "title": "Fruit Quiz",
+      "description": "Quiz app about edible fruits. AI grades user knowledge.",
+      "author": "J. Smith",
+      "compatibility": "ChatGPT 4, 5"
+    }
+  </script>
+</head>
+
+<body>
+    <main class="container">
+        <!-- Hidden markdown content -->
+        <textarea id="app-description" style="display: none;">
+# Welcome to the ${title}
+
+> Author: ${author}
+
+This is a simple demonstration app that shows how to:
+
+- Select from a list of fruits
+- Describe your selection
+- Get **interesting facts** from an AI
+
+Try it out by selecting a fruit below!
+    </textarea>
+
+        <!-- Rendered markdown -->
+        <div id="rendered-description"></div>
+
+        <!-- API Key Input -->
+        <article>
+            <label>
+                Groq API Key (Starts with 'gsk_')
+                <input type="text" id="api-key" placeholder="Enter your Groq API key (gsk_...)">
+            </label>
+            <div class="button-group">
+                <button id="test-key" class="secondary">Test Key</button>
+                <button id="clear-key" class="secondary outline">Clear Key</button>
+            </div>
+            <small>Get your key at <a href="https://console.groq.com/keys"
+                    target="_blank">console.groq.com/keys</a></small>
+        </article>
+
+        <!-- Main Form -->
+        <form id="fruitForm">
+            <label>
+                Select a Fruit
+                <select id="fruitSelect" required>
+                    <option value="">Choose a fruit...</option>
+                    <option value="Apple">Apple</option>
+                    <option value="Banana">Banana</option>
+                    <option value="Cherry">Cherry</option>
+                    <option value="Orange">Orange</option>
+                </select>
+            </label>
+
+            <label>
+                List Four Things You Know About This Fruit
+                <textarea id="fruitDescription"
+                    placeholder="List four things you know about your selected fruit (one per line or separated by commas)..."
+                    rows="4" required></textarea>
+            </label>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        <!-- Results -->
+        <article>
+            <label>
+                Result
+                <textarea id="resultArea" readonly rows="4" placeholder="Your selection will appear here..."></textarea>
+            </label>
+        </article>
+
+        <article>
+            <p id="outputText">You picked ${fruit} and described it as ${description}.</p>
+        </article>
+
+        <!-- API Prompt Display -->
+        <article>
+            <label>
+                API Request Prompt
+                <textarea id="apiPrompt" readonly rows="3"
+                    placeholder="The prompt sent to the API will appear here..."></textarea>
+            </label>
+        </article>
+
+        <!-- Chat Feature -->
+        <article>
+            <header>Chat with AI</header>
+            <div class="chat-container" id="chatHistory"></div>
+            <input type="text" id="chatInput" placeholder="Ask about fruits or anything else...">
+            <button id="sendChat">Send</button>
+        </article>
+
+        <!-- Study Guide Feature -->
+        <article>
+            <header>Study Guide</header>
+            <button id="studyGuide">Generate Study Guide</button>
+            <label style="margin-top: 1rem;">
+                Study Guide Output
+                <textarea id="studyGuideOutput" readonly rows="10"
+                    placeholder="The study guide will appear here..."></textarea>
+            </label>
+        </article>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+
+    <script>
+        // ---
+        // AI•WEB CORE (Don't modify unless you know what you're doing)
+        // ---
+
+        const metadataScript = document.getElementById('aiweb-metadata');
+        const metadata = JSON.parse(metadataScript.textContent);
+
+        function replaceAllTokens() {
+            let titleHTML = document.title;
+            titleHTML = titleHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
+                return metadata[key] || match;
+            });
+            document.title = titleHTML;
+
+            let bodyHTML = document.body.innerHTML;
+            bodyHTML = bodyHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
+                return metadata[key] || match;
+            });
+            document.body.innerHTML = bodyHTML;
+        }
+
+        function renderMarkdown() {
+            if (typeof marked === 'undefined') {
+                console.error('marked.js not loaded yet');
+                setTimeout(renderMarkdown, 100);
+                return;
+            }
+            const markdownSource = document.getElementById('app-description').value;
+            const renderedContainer = document.getElementById('rendered-description');
+            renderedContainer.innerHTML = marked.parse(markdownSource);
+        }
+
+        // Initialize AI•Web
+        replaceAllTokens();
+        renderMarkdown();
+
+        // Load API key from localStorage
+        const savedApiKey = localStorage.getItem('groqApiKey');
+        if (savedApiKey) {
+            document.getElementById('api-key').value = savedApiKey;
+        }
+
+        // ---
+        // APP CONFIGURATION (Customize this for your app)
+        // ---
+
+        const manifest = {
+            format: metadata.format,
+            format_version: metadata.version,
+            app_name: metadata.title,
+            version: "2.4.0",
+            provider: {
+                model: "llama-3.1-8b-instant",
+                api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
+            },
+            fruits: ["Apple", "Banana", "Cherry", "Orange"],
+            debug: true
+        };
+
+        // ---
+        // DEMO/FALLBACK RESPONSES (Customize these for offline mode)
+        // ---
+
+        function getDemoFact(fruit) {
+            return {
+                fun_fact: `Demo: ${fruit} is tasty!`,
+                average_weight: "150",
+                grade: "B",
+                feedback: "Demo mode - no grading available without API key."
+            };
+        }
+
+        function getDemoChatResponse(message) {
+            return `Demo: That's an interesting question about ${message}! Try using an API key for a real response.`;
+        }
+
+        function getDemoStudyGuide() {
+            return `| Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |\n|-------|--------|--------|--------|--------|--------|--------|\n${manifest.fruits.map(fruit => `| ${fruit} | Demo: ${fruit} is tasty! | Demo: It's colorful! | Demo: It's sweet! | Demo: It's juicy! | Demo: It's healthy! | Demo: It's fun! |`).join('\n')}`;
+        }
+
+        // ---
+        // AI PROMPTS (Customize these to change AI behavior)
+        // ---
+
+        async function getInterestingFact(fruit, userStatements, apiKey) {
+            const prompt = `${metadata.description}
+
+The user selected "${fruit}" and provided these statements about it:
+
+${userStatements}
+
+Please evaluate their knowledge and provide a response in JSON format with these fields:
+- fun_fact: one interesting fact about ${fruit} (keep it concise)
+- average_weight: typical weight in grams (just the number)
+- grade: assign a single letter grade (A, B, C, D, or F) based on the overall accuracy and quality of their statements. Use your judgment.
+- feedback: a brief explanation of why you gave that grade, mentioning what was correct or incorrect
+
+Return only valid JSON, no other text.`;
+
+            const apiPromptArea = document.getElementById('apiPrompt');
+            apiPromptArea.value = prompt;
+
+            if (!apiKey) return getDemoFact(fruit);
+            return await callGroqAPI(prompt, apiKey, getDemoFact(fruit));
+        }
+
+        async function getChatResponse(message, apiKey) {
+            const prompt = `${metadata.description}\n\nAnswer in a friendly, concise manner with emojis: ${message}`;
+
+            if (!apiKey) return getDemoChatResponse(message);
+            const result = await callGroqAPI(prompt, apiKey);
+            return typeof result === 'string' ? result : result.content;
+        }
+
+        async function getStudyGuide(apiKey) {
+            const prompt = `${metadata.description}\n\nGenerate a Markdown table listing six interesting facts for each of the following fruits: Apple, Banana, Cherry, Orange. Use this format:
+| Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |
+|-------|--------|--------|--------|--------|--------|--------|
+Each fact should be concise (1-2 sentences), unique, and include emojis. Return only the Markdown table, no other text.`;
+
+            if (!apiKey) return getDemoStudyGuide();
+            const result = await callGroqAPI(prompt, apiKey);
+            return typeof result === 'string' ? result : result.content;
+        }
+
+        // ---
+        // API INFRASTRUCTURE (Don't modify - handles all API calls)
+        // ---
+
+        async function callGroqAPI(prompt, apiKey, fallback = null) {
+            if (!apiKey.startsWith('gsk_')) {
+                throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
+            }
+
+            try {
+                const response = await fetch(manifest.provider.api_endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: manifest.provider.model,
+                        messages: [{ role: 'user', content: prompt }]
+                    })
+                });
+
+                const rawText = await response.text();
+                if (manifest.debug) console.log('Raw Response:', rawText);
+
+                if (!response.ok) {
+                    let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
+                    try {
+                        const errorData = JSON.parse(rawText);
+                        errorMsg = errorData.error?.message || errorMsg;
+                    } catch { }
+                    throw new Error(errorMsg);
+                }
+
+                const data = JSON.parse(rawText);
+                if (!data.choices?.[0]?.message?.content) {
+                    throw new Error(`Invalid response: Missing choices.`);
+                }
+
+                localStorage.setItem('groqApiKey', apiKey);
+                const content = data.choices[0].message.content;
+
+                // Try to parse as JSON first
+                try {
+                    return JSON.parse(content);
+                } catch {
+                    return content;
+                }
+            } catch (error) {
+                if (manifest.debug) console.error('API Error:', error);
+                if (fallback) return fallback;
+                throw error;
+            }
+        }
+
+        // ---
+        // EVENT HANDLERS (Customize these for your app's behavior)
+        // ---
+
+        // Form handler
+        document.getElementById('fruitForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const fruit = document.getElementById('fruitSelect').value;
+            const description = document.getElementById('fruitDescription').value;
+            const apiKey = document.getElementById('api-key').value.trim();
+            const resultArea = document.getElementById('resultArea');
+            const outputText = document.getElementById('outputText');
+
+            if (!fruit || !description) {
+                resultArea.value = 'Please select a fruit and provide four statements about it.';
+                outputText.textContent = 'You picked ${fruit} and described it as ${description}.';
+                return;
+            }
+
+            try {
+                const fruitData = await getInterestingFact(fruit, description, apiKey);
+                resultArea.value = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: ${fruitData.grade}\nfeedback: ${fruitData.feedback}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
+                outputText.textContent = `You picked ${fruit.toLowerCase()}. Grade: ${fruitData.grade}. ${fruitData.feedback} ${fruitData.fun_fact} It typically weighs around ${fruitData.average_weight}g.`;
+            } catch (error) {
+                if (manifest.debug) console.error('Form Error:', error);
+                resultArea.value = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: N/A\nfeedback: Error: ${error.message}`;
+                outputText.textContent = `You picked ${fruit.toLowerCase()}. Error: ${error.message}`;
+            }
+        });
+
+        // Test Key Button
+        document.getElementById('test-key').addEventListener('click', async () => {
+            const apiKey = document.getElementById('api-key').value.trim();
+            const outputText = document.getElementById('outputText');
+            if (!apiKey) {
+                outputText.textContent = 'Please enter an API key.';
+                return;
+            }
+            outputText.textContent = 'Testing key...';
+            try {
+                const fruitData = await getInterestingFact('apple', 'Apples are red, grow on trees, are sweet, have seeds', apiKey);
+                outputText.textContent = `Test OK! Grade: ${fruitData.grade}. ${fruitData.feedback}`;
+            } catch (error) {
+                outputText.textContent = `Test Failed: ${error.message}`;
+            }
+        });
+
+        // Clear Key Button
+        document.getElementById('clear-key').addEventListener('click', () => {
+            localStorage.removeItem('groqApiKey');
+            document.getElementById('api-key').value = '';
+            document.getElementById('outputText').textContent = 'API key cleared.';
+        });
+
+        // Chat handler
+        document.getElementById('sendChat').addEventListener('click', async () => {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            const chatHistory = document.getElementById('chatHistory');
+            const apiKey = document.getElementById('api-key').value.trim();
+
+            if (!message) {
+                chatHistory.innerHTML += `<div class="chat-message chat-user">You: Please type a message.</div>`;
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+                return;
+            }
+
+            chatHistory.innerHTML += `<div class="chat-message chat-user">You: ${message}</div>`;
+            chatInput.value = '';
+
+            const response = await getChatResponse(message, apiKey);
+            chatHistory.innerHTML += `<div class="chat-message">AI: ${response}</div>`;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        });
+
+        // Allow Enter key to send chat
+        document.getElementById('chatInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('sendChat').click();
+            }
+        });
+
+        // Study Guide handler
+        document.getElementById('studyGuide').addEventListener('click', async () => {
+            const apiKey = document.getElementById('api-key').value.trim();
+            const studyGuideOutput = document.getElementById('studyGuideOutput');
+            studyGuideOutput.value = 'Generating study guide...';
+            try {
+                const studyGuide = await getStudyGuide(apiKey);
+                studyGuideOutput.value = studyGuide;
+            } catch (error) {
+                studyGuideOutput.value = `Error: ${error.message}\n\n${getDemoStudyGuide()}`;
+            }
+        });
+    </script>
+</body>
+
+</html>
