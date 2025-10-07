@@ -55,6 +55,21 @@
         figure {
             margin: var(--pico-spacing) 0;
         }
+
+        /* Prevent layout shift by pre-styling markdown images */
+        .markdown img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Hide markdown content until it's processed to prevent flash */
+        .markdown:not(.processed) {
+            visibility: hidden;
+        }
+
+        .markdown.processed {
+            visibility: visible;
+        }
     </style>
 
 </head>
@@ -439,6 +454,11 @@ Try it out by selecting a fruit below!
                         const processedMarkdown = MarkdownImageConverter.convertMarkdownFigures(markdownSource);
                         element.innerHTML = marked.parse(processedMarkdown);
                     }
+                });
+
+                // Mark all markdown elements as processed to make them visible
+                document.querySelectorAll('.markdown').forEach(element => {
+                    element.classList.add('processed');
                 });
             }
         };
