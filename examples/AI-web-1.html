@@ -14,6 +14,7 @@
     <title>${title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css">
 
     <style>
         .chat-container {
@@ -54,6 +55,111 @@
         /* Minimal custom styles - let Pico.css handle most styling */
         figure {
             margin: var(--pico-spacing) 0;
+        }
+
+        /* Grid.js Table Styling */
+        .gridjs-container {
+            border-radius: var(--pico-border-radius);
+            border: 1px solid var(--pico-border-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .gridjs-wrapper {
+            border: none !important;
+        }
+
+        .gridjs-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .gridjs-th {
+            background: var(--pico-card-background-color) !important;
+            color: var(--pico-color) !important;
+            font-weight: 600 !important;
+            border-bottom: 2px solid var(--pico-border-color) !important;
+            padding: 1rem 0.75rem !important;
+        }
+
+        .gridjs-td {
+            border-bottom: 1px solid var(--pico-border-color) !important;
+            padding: 0.75rem !important;
+            color: var(--pico-color) !important;
+        }
+
+        .gridjs-tr:hover .gridjs-td {
+            background: var(--pico-card-background-color) !important;
+        }
+
+        .gridjs-search {
+            margin-bottom: 1rem;
+        }
+
+        .gridjs-search input {
+            border: 1px solid var(--pico-border-color) !important;
+            border-radius: var(--pico-border-radius) !important;
+            padding: 0.5rem 0.75rem !important;
+            background: var(--pico-background-color) !important;
+            color: var(--pico-color) !important;
+            font-size: 0.9rem !important;
+        }
+
+        .gridjs-search input:focus {
+            border-color: var(--pico-primary) !important;
+            box-shadow: 0 0 0 2px rgba(var(--pico-primary-rgb), 0.2) !important;
+            outline: none !important;
+        }
+
+        .gridjs-pagination {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gridjs-pagination button {
+            background: var(--pico-secondary-background) !important;
+            color: var(--pico-secondary) !important;
+            border: 1px solid var(--pico-border-color) !important;
+            border-radius: var(--pico-border-radius) !important;
+            padding: 0.5rem 0.75rem !important;
+            cursor: pointer !important;
+            font-size: 0.9rem !important;
+        }
+
+        .gridjs-pagination button:hover {
+            background: var(--pico-secondary-hover-background) !important;
+        }
+
+        .gridjs-pagination button:disabled {
+            opacity: 0.5 !important;
+            cursor: not-allowed !important;
+        }
+
+        .gridjs-pagination .gridjs-currentPage {
+            background: var(--pico-primary) !important;
+            color: var(--pico-primary-inverse) !important;
+        }
+
+        /* Custom scrollbar for table */
+        .gridjs-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .gridjs-container::-webkit-scrollbar-track {
+            background: var(--pico-background-color);
+        }
+
+        .gridjs-container::-webkit-scrollbar-thumb {
+            background: var(--pico-border-color);
+            border-radius: 4px;
+        }
+
+        .gridjs-container::-webkit-scrollbar-thumb:hover {
+            background: var(--pico-muted-border-color);
         }
     </style>
 
@@ -180,9 +286,23 @@ Try it out by selecting a fruit below!
                     placeholder="The study guide will appear here..."></textarea>
             </label>
         </article>
+
+        <!-- Fruit Data Table -->
+        <article>
+            <header>Fruit Database</header>
+            <p>Comprehensive nutritional and botanical data for various fruits from <a href="https://www.fruityvice.com"
+                    target="_blank">Fruityvice API</a>.</p>
+            <div class="button-group">
+                <button id="loadFruitData">Load Fruit Data</button>
+                <button id="refreshFruitData" class="secondary">Refresh</button>
+            </div>
+            <p id="fruitTableStatus">Click "Load Fruit Data" to display the fruit database.</p>
+            <div id="fruitTableContainer" style="margin-top: 1rem;"></div>
+        </article>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
 
     <script>
         // =============================================================================
@@ -487,6 +607,147 @@ ${AppState.manifest.fruits.map(fruit =>
         };
 
         /**
+         * Fruit Data API Client
+         */
+        const FruitDataAPI = {
+            // Fallback fruit data for when API is not accessible
+            fallbackFruits: [
+                {
+                    name: "Apple",
+                    family: "Rosaceae",
+                    genus: "Malus",
+                    order: "Rosales",
+                    nutritions: { calories: 52, sugar: 10.4, carbohydrates: 13.8, protein: 0.3, fat: 0.2 }
+                },
+                {
+                    name: "Banana",
+                    family: "Musaceae",
+                    genus: "Musa",
+                    order: "Zingiberales",
+                    nutritions: { calories: 89, sugar: 12.2, carbohydrates: 22.8, protein: 1.1, fat: 0.3 }
+                },
+                {
+                    name: "Orange",
+                    family: "Rutaceae",
+                    genus: "Citrus",
+                    order: "Sapindales",
+                    nutritions: { calories: 47, sugar: 9.4, carbohydrates: 11.8, protein: 0.9, fat: 0.1 }
+                },
+                {
+                    name: "Cherry",
+                    family: "Rosaceae",
+                    genus: "Prunus",
+                    order: "Rosales",
+                    nutritions: { calories: 50, sugar: 8.5, carbohydrates: 12.2, protein: 1.0, fat: 0.3 }
+                },
+                {
+                    name: "Grape",
+                    family: "Vitaceae",
+                    genus: "Vitis",
+                    order: "Vitales",
+                    nutritions: { calories: 67, sugar: 16.0, carbohydrates: 17.0, protein: 0.6, fat: 0.4 }
+                },
+                {
+                    name: "Strawberry",
+                    family: "Rosaceae",
+                    genus: "Fragaria",
+                    order: "Rosales",
+                    nutritions: { calories: 32, sugar: 4.9, carbohydrates: 7.7, protein: 0.7, fat: 0.3 }
+                },
+                {
+                    name: "Pineapple",
+                    family: "Bromeliaceae",
+                    genus: "Ananas",
+                    order: "Poales",
+                    nutritions: { calories: 50, sugar: 9.9, carbohydrates: 13.1, protein: 0.5, fat: 0.1 }
+                },
+                {
+                    name: "Mango",
+                    family: "Anacardiaceae",
+                    genus: "Mangifera",
+                    order: "Sapindales",
+                    nutritions: { calories: 60, sugar: 13.7, carbohydrates: 15.0, protein: 0.8, fat: 0.4 }
+                }
+            ],
+
+            async fetchAllFruits() {
+                // Try multiple CORS proxy options
+                const corsProxies = [
+                    'https://api.allorigins.win/raw?url=',
+                    'https://cors-anywhere.herokuapp.com/',
+                    'https://thingproxy.freeboard.io/fetch/'
+                ];
+
+                const apiUrl = 'https://www.fruityvice.com/api/fruit/all';
+
+                for (let i = 0; i < corsProxies.length; i++) {
+                    try {
+                        const proxyUrl = corsProxies[i] + encodeURIComponent(apiUrl);
+                        console.log(`Trying CORS proxy ${i + 1}: ${corsProxies[i]}`);
+
+                        const response = await fetch(proxyUrl);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const data = await response.json();
+                        console.log('Successfully fetched fruit data via CORS proxy');
+                        return data;
+                    } catch (error) {
+                        console.log(`CORS proxy ${i + 1} failed:`, error.message);
+                        if (i === corsProxies.length - 1) {
+                            // All proxies failed, use fallback data
+                            console.log('All CORS proxies failed, using fallback data');
+                            return this.fallbackFruits;
+                        }
+                    }
+                }
+            },
+
+            async fetchFruitByName(name) {
+                const corsProxies = [
+                    'https://api.allorigins.win/raw?url=',
+                    'https://cors-anywhere.herokuapp.com/',
+                    'https://thingproxy.freeboard.io/fetch/'
+                ];
+
+                const apiUrl = `https://www.fruityvice.com/api/fruit/${encodeURIComponent(name)}`;
+
+                for (let i = 0; i < corsProxies.length; i++) {
+                    try {
+                        const proxyUrl = corsProxies[i] + encodeURIComponent(apiUrl);
+                        const response = await fetch(proxyUrl);
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        const data = await response.json();
+                        return data;
+                    } catch (error) {
+                        if (i === corsProxies.length - 1) {
+                            // Find in fallback data
+                            return this.fallbackFruits.find(fruit =>
+                                fruit.name.toLowerCase() === name.toLowerCase()
+                            ) || null;
+                        }
+                    }
+                }
+            },
+
+            formatFruitData(fruits) {
+                return fruits.map(fruit => [
+                    fruit.name || 'N/A',
+                    fruit.family || 'N/A',
+                    fruit.genus || 'N/A',
+                    fruit.order || 'N/A',
+                    fruit.nutritions?.calories || 'N/A',
+                    fruit.nutritions?.sugar || 'N/A',
+                    fruit.nutritions?.carbohydrates || 'N/A',
+                    fruit.nutritions?.protein || 'N/A',
+                    fruit.nutritions?.fat || 'N/A'
+                ]);
+            }
+        };
+
+        /**
          * AI Prompt Generators
          */
         const AIPrompts = {
@@ -625,6 +886,211 @@ Each fact should be concise (1-2 sentences), unique, and include emojis. Return 
         };
 
         /**
+         * Fruit Table Controller
+         */
+        const FruitTableController = {
+            grid: null,
+
+            async loadFruitData() {
+                const statusElement = DOM.getElement('fruitTableStatus');
+                const containerElement = DOM.getElement('fruitTableContainer');
+
+                console.log('Starting loadFruitData...');
+                console.log('Status element:', statusElement);
+                console.log('Container element:', containerElement);
+                console.log('Grid.js available:', typeof gridjs !== 'undefined');
+
+                try {
+                    // Show loading state
+                    statusElement.textContent = 'Loading fruit data from Fruityvice API...';
+
+                    // Clear any existing table
+                    if (this.grid) {
+                        console.log('Destroying existing grid...');
+                        this.grid.destroy();
+                        this.grid = null;
+                    }
+
+                    // Clear container
+                    containerElement.innerHTML = '';
+
+                    // Fetch fruit data
+                    console.log('Fetching fruit data...');
+                    const fruits = await FruitDataAPI.fetchAllFruits();
+                    console.log('Fruits fetched:', fruits.length, fruits);
+
+                    const formattedData = FruitDataAPI.formatFruitData(fruits);
+                    console.log('Formatted data:', formattedData);
+
+                    // Check if we're using fallback data
+                    const isFallbackData = fruits === FruitDataAPI.fallbackFruits;
+                    console.log('Using fallback data:', isFallbackData);
+
+                    // Check if Grid.js is available
+                    if (typeof gridjs === 'undefined') {
+                        throw new Error('Grid.js is not loaded. Please check the CDN link.');
+                    }
+
+                    // Create Grid.js table
+                    console.log('Creating Grid.js table...');
+                    this.grid = new gridjs.Grid({
+                        columns: [
+                            {
+                                name: 'Name',
+                                width: '140px',
+                                formatter: (cell) => gridjs.html(`<strong>${cell}</strong>`)
+                            },
+                            { name: 'Family', width: '130px' },
+                            { name: 'Genus', width: '120px' },
+                            { name: 'Order', width: '130px' },
+                            {
+                                name: 'Calories',
+                                width: '90px',
+                                formatter: (cell) => gridjs.html(`<span style="color: var(--pico-primary); font-weight: 600;">${cell}</span>`)
+                            },
+                            { name: 'Sugar (g)', width: '90px' },
+                            { name: 'Carbs (g)', width: '90px' },
+                            { name: 'Protein (g)', width: '90px' },
+                            { name: 'Fat (g)', width: '80px' }
+                        ],
+                        data: formattedData,
+                        search: {
+                            enabled: true,
+                            placeholder: 'Search fruits...'
+                        },
+                        pagination: {
+                            enabled: true,
+                            limit: 15,
+                            summary: true
+                        },
+                        sort: true,
+                        resizable: true,
+                        fixedHeader: true,
+                        height: '450px',
+                        width: '100%',
+                        style: {
+                            table: {
+                                'font-size': '0.9rem'
+                            }
+                        }
+                    });
+
+                    console.log('Grid created, rendering...');
+                    // Render the table
+                    this.grid.render(containerElement);
+                    console.log('Grid rendered successfully');
+
+                    // Update status with appropriate message
+                    if (isFallbackData) {
+                        statusElement.innerHTML = `⚠️ <strong>Using fallback data</strong> - ${fruits.length} fruits loaded (CORS restrictions prevent live API access). <br><small>For live data, try running this from a server or use a browser extension to disable CORS.</small>`;
+                    } else {
+                        statusElement.textContent = `✅ Loaded ${fruits.length} fruits from Fruityvice API. Use search and pagination to explore the data.`;
+                    }
+
+                } catch (error) {
+                    console.error('Error loading fruit data:', error);
+                    statusElement.innerHTML = `❌ Error loading fruit data: ${error.message}<br><small>This is likely due to CORS restrictions. The table will show fallback data instead.</small>`;
+
+                    // Try to load fallback data on error
+                    try {
+                        console.log('Attempting fallback data...');
+                        const fallbackData = FruitDataAPI.formatFruitData(FruitDataAPI.fallbackFruits);
+                        console.log('Fallback data formatted:', fallbackData);
+
+                        if (typeof gridjs !== 'undefined') {
+                            this.grid = new gridjs.Grid({
+                                columns: [
+                                    {
+                                        name: 'Name',
+                                        width: '140px',
+                                        formatter: (cell) => gridjs.html(`<strong>${cell}</strong>`)
+                                    },
+                                    { name: 'Family', width: '130px' },
+                                    { name: 'Genus', width: '120px' },
+                                    { name: 'Order', width: '130px' },
+                                    {
+                                        name: 'Calories',
+                                        width: '90px',
+                                        formatter: (cell) => gridjs.html(`<span style="color: var(--pico-primary); font-weight: 600;">${cell}</span>`)
+                                    },
+                                    { name: 'Sugar (g)', width: '90px' },
+                                    { name: 'Carbs (g)', width: '90px' },
+                                    { name: 'Protein (g)', width: '90px' },
+                                    { name: 'Fat (g)', width: '80px' }
+                                ],
+                                data: fallbackData,
+                                search: {
+                                    enabled: true,
+                                    placeholder: 'Search fruits...'
+                                },
+                                pagination: {
+                                    enabled: true,
+                                    limit: 15,
+                                    summary: true
+                                },
+                                sort: true,
+                                resizable: true,
+                                fixedHeader: true,
+                                height: '450px',
+                                width: '100%',
+                                style: {
+                                    table: {
+                                        'font-size': '0.9rem'
+                                    }
+                                }
+                            });
+                            this.grid.render(containerElement);
+                            statusElement.innerHTML = `⚠️ <strong>Using fallback data</strong> - ${FruitDataAPI.fallbackFruits.length} fruits loaded due to API access issues.`;
+                        } else {
+                            // Create a simple HTML table as fallback
+                            console.log('Grid.js not available, creating HTML table...');
+                            const tableHTML = this.createHTMLTable(fallbackData);
+                            containerElement.innerHTML = tableHTML;
+                            statusElement.innerHTML = `⚠️ <strong>Using fallback data</strong> - ${FruitDataAPI.fallbackFruits.length} fruits loaded (Grid.js not available, using HTML table).`;
+                        }
+                    } catch (fallbackError) {
+                        console.error('Fallback data also failed:', fallbackError);
+                        containerElement.innerHTML = `<p>Error: Unable to display fruit data. ${fallbackError.message}</p>`;
+                    }
+                }
+            },
+
+            createHTMLTable(data) {
+                const headers = ['Name', 'Family', 'Genus', 'Order', 'Calories', 'Sugar (g)', 'Carbs (g)', 'Protein (g)', 'Fat (g)'];
+                let html = `
+                    <div style="border-radius: var(--pico-border-radius); border: 1px solid var(--pico-border-color); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow: hidden; margin-top: 1rem;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="background: var(--pico-card-background-color);">
+                `;
+                headers.forEach(header => {
+                    html += `<th style="border-bottom: 2px solid var(--pico-border-color); padding: 1rem 0.75rem; font-weight: 600; color: var(--pico-color); text-align: left;">${header}</th>`;
+                });
+                html += '</tr></thead><tbody>';
+                data.forEach((row, index) => {
+                    const bgColor = index % 2 === 0 ? 'var(--pico-background-color)' : 'var(--pico-card-background-color)';
+                    html += `<tr style="background: ${bgColor};" onmouseover="this.style.background='var(--pico-card-background-color)'" onmouseout="this.style.background='${bgColor}'">`;
+                    row.forEach((cell, cellIndex) => {
+                        let cellContent = cell;
+                        if (cellIndex === 0) {
+                            cellContent = `<strong>${cell}</strong>`;
+                        } else if (cellIndex === 4) {
+                            cellContent = `<span style="color: var(--pico-primary); font-weight: 600;">${cell}</span>`;
+                        }
+                        html += `<td style="border-bottom: 1px solid var(--pico-border-color); padding: 0.75rem; color: var(--pico-color);">${cellContent}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                html += '</tbody></table></div>';
+                return html;
+            },
+
+            async refreshFruitData() {
+                await this.loadFruitData();
+            }
+        };
+
+        /**
          * Event Handlers Setup
          */
         const EventHandlers = {
@@ -647,6 +1113,10 @@ Each fact should be concise (1-2 sentences), unique, and include emojis. Return 
 
                 // Study guide
                 DOM.getElement('studyGuide')?.addEventListener('click', UIControllers.handleStudyGuide);
+
+                // Fruit table
+                DOM.getElement('loadFruitData')?.addEventListener('click', () => FruitTableController.loadFruitData());
+                DOM.getElement('refreshFruitData')?.addEventListener('click', () => FruitTableController.refreshFruitData());
             }
         };
 
