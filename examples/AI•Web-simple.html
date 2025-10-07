@@ -152,16 +152,15 @@ Try it out by selecting a fruit below!
 
   </section>
 
-  <!-- Load marked.js from CDN -->
 
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
 
   <script>
-    // Load and parse AI•Web metadata
+
     const metadataScript = document.getElementById('aiweb-metadata');
     const metadata = JSON.parse(metadataScript.textContent);
 
-    // Replace all tokens throughout the entire HTML document
+
     function replaceAllTokens() {
       // Replace in document title
       let titleHTML = document.title;
@@ -192,10 +191,9 @@ Try it out by selecting a fruit below!
       debug: true
     };
 
-    // Replace all tokens on page load
+
     replaceAllTokens();
 
-    // Render markdown description (wait for marked.js to load)
     function renderMarkdown() {
       if (typeof marked === 'undefined') {
         console.error('marked.js not loaded yet');
