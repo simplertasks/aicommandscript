@@ -6,78 +6,78 @@
 <html lang="en" data-aiweb-format="AI•Web" data-aiweb-version="1.0">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="aiweb-format" content="AI•Web">
-    <meta name="aiweb-version" content="1.0">
-    <meta name="aiweb-description" content="A portable, single-file format for interactive AI experiences">
-    <meta name="format" content="AI•Web v1.0">
-    <title>${title}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+	<meta charset="UTF-8">
+	<meta name="aiweb-format" content="AI•Web">
+	<meta name="aiweb-version" content="1.0">
+	<meta name="aiweb-description" content="A portable, single-file format for interactive AI experiences">
+	<meta name="format" content="AI•Web v1.0">
+	<title>${title}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
 
-    <style>
-        .chat-container {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid var(--pico-border-color);
-            border-radius: var(--pico-border-radius);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background: var(--pico-card-background-color);
-        }
+	<style>
+		.chat-container {
+			max-height: 200px;
+			overflow-y: auto;
+			border: 1px solid var(--pico-border-color);
+			border-radius: var(--pico-border-radius);
+			padding: 1rem;
+			margin-bottom: 1rem;
+			background: var(--pico-card-background-color);
+		}
 
-        .chat-message {
-            margin-bottom: 0.5rem;
-        }
+		.chat-message {
+			margin-bottom: 0.5rem;
+		}
 
-        .chat-user {
-            font-weight: bold;
-            color: var(--pico-primary);
-        }
+		.chat-user {
+			font-weight: bold;
+			color: var(--pico-primary);
+		}
 
-        .button-group {
-            display: flex;
-            gap: 0.5rem;
-        }
+		.button-group {
+			display: flex;
+			gap: 0.5rem;
+		}
 
-        #rendered-description {
-            background: var(--pico-card-background-color);
-            padding: 1rem;
-            border-radius: var(--pico-border-radius);
-            margin-bottom: 2rem;
-        }
+		#rendered-description {
+			background: var(--pico-card-background-color);
+			padding: 1rem;
+			border-radius: var(--pico-border-radius);
+			margin-bottom: 2rem;
+		}
 
-        article {
-            margin-bottom: 2rem;
-        }
+		article {
+			margin-bottom: 2rem;
+		}
 
-        /* Minimal custom styles - let Pico.css handle most styling */
-        figure {
-            margin: var(--pico-spacing) 0;
-        }
+		/* Minimal custom styles - let Pico.css handle most styling */
+		figure {
+			margin: var(--pico-spacing) 0;
+		}
 
-        /* Prevent layout shift by pre-styling markdown images */
-        .markdown img {
-            max-width: 100%;
-            height: auto;
-        }
+		/* Prevent layout shift by pre-styling markdown images */
+		.markdown img {
+			max-width: 100%;
+			height: auto;
+		}
 
-        /* Hide markdown content until it's processed to prevent flash */
-        .markdown:not(.processed) {
-            visibility: hidden;
-        }
+		/* Hide markdown content until it's processed to prevent flash */
+		.markdown:not(.processed) {
+			visibility: hidden;
+		}
 
-        .markdown.processed {
-            visibility: visible;
-        }
-    </style>
+		.markdown.processed {
+			visibility: visible;
+		}
+	</style>
 
 </head>
 
 <body>
-    <main class="container">
-        <!-- Hidden markdown content -->
-        <textarea class="markdown" style="display: none;">
+	<main class="container">
+		<!-- Hidden markdown content -->
+		<textarea class="markdown" style="display: none;">
   # Welcome to the ${title}
 
    > Author: ${author}
@@ -105,10 +105,10 @@ Here are examples of the new enhanced markdown image syntax:
 
 Try it out by selecting a fruit below!
     </textarea>
-        <!-- Rendered markdown -->
-        <div class="markdown"></div>
+		<!-- Rendered markdown -->
+		<div class="markdown"></div>
 
-        <textarea class="markdown" style="display: none;">
+		<textarea class="markdown" style="display: none;">
         # TWO  to the ${title}
       
    > Author: ${author}
@@ -116,664 +116,655 @@ Try it out by selecting a fruit below!
    - TWO 
    
           </textarea>
-        <!-- Rendered markdown -->
-        <div class="markdown"></div>
+		<!-- Rendered markdown -->
+		<div class="markdown"></div>
 
-        <!-- API Key Input -->
-        <article>
-            <label>
-                Groq API Key (Starts with 'gsk_')
-                <input type="text" id="api-key" placeholder="Enter your Groq API key (gsk_...)">
-            </label>
-            <div class="button-group">
-                <button id="test-key" class="secondary">Test Key</button>
-                <button id="clear-key" class="secondary outline">Clear Key</button>
-            </div>
-            <small>Get your key at <a href="https://console.groq.com/keys"
-                    target="_blank">console.groq.com/keys</a></small>
-        </article>
+		<!-- API Key Input -->
+		<article>
+			<label>
+				Groq API Key (Starts with 'gsk_')
+				<input type="text" id="api-key" placeholder="Enter your Groq API key (gsk_...)">
+			</label>
+			<div class="button-group">
+				<button id="test-key" class="secondary">Test Key</button>
+				<button id="clear-key" class="secondary outline">Clear Key</button>
+			</div>
+			<small>Get your key at <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a></small>
+		</article>
 
-        <!-- Main Form -->
-        <form id="fruitForm">
-            <label>
-                Select a Fruit
-                <select id="fruitSelect" required>
-                    <option value="">Choose a fruit...</option>
-                </select>
-            </label>
+		<!-- Main Form -->
+		<form id="fruitForm">
+			<label>
+				Select a Fruit
+				<select id="fruitSelect" required>
+					<option value="">Choose a fruit...</option>
+				</select>
+			</label>
 
-            <!-- Fruit Image Display -->
-            <div id="fruitImageContainer" style="text-align: center; margin: 1rem 0; display: none;">
-                <img id="fruitImage" src="" alt="Selected fruit"
-                    style="max-width: 200px; height: auto; border-radius: 8px;">
-            </div>
+			<!-- Fruit Image Display -->
+			<div id="fruitImageContainer" style="text-align: center; margin: 1rem 0; display: none;">
+				<img id="fruitImage" src="" alt="Selected fruit" style="max-width: 200px; height: auto; border-radius: 8px;">
+			</div>
 
-            <label>
-                List Four Things You Know About This Fruit
-                <textarea id="fruitDescription"
-                    placeholder="List four things you know about your selected fruit (one per line or separated by commas)..."
-                    rows="4" required></textarea>
-            </label>
+			<label>
+				List Four Things You Know About This Fruit
+				<textarea id="fruitDescription" placeholder="List four things you know about your selected fruit (one per line or separated by commas)..." rows="4" required></textarea>
+			</label>
 
-            <button type="submit">Submit</button>
-        </form>
+			<button type="submit">Submit</button>
+		</form>
 
-        <!-- Results -->
-        <article>
-            <label>
-                Result
-                <textarea id="resultArea" readonly rows="4" placeholder="Your selection will appear here..."></textarea>
-            </label>
-        </article>
+		<!-- Results -->
+		<article>
+			<label>
+				Result
+				<textarea id="resultArea" readonly rows="4" placeholder="Your selection will appear here..."></textarea>
+			</label>
+		</article>
 
-        <!-- Output Template Control -->
-        <article>
-            <header>Output Template</header>
-            <label>
-                Markdown Output Template
-                <textarea id="outputTemplate" rows="3" placeholder="Enter your markdown template here...">
+		<!-- Output Template Control -->
+		<article>
+			<header>Output Template</header>
+			<label>
+				Markdown Output Template
+				<textarea id="outputTemplate" rows="3" placeholder="Enter your markdown template here...">
                     You picked YYY ${fruit} Grade: ${grade}. ${feedback} ${fun_fact} It typically weighs around ${average_weight}g.</textarea>
-            </label>
-            <small>Use variables: ${fruit}, ${grade}, ${feedback}, ${fun_fact}, ${average_weight},
-                ${description}</small>
-        </article>
+			</label>
+			<small>Use variables: ${fruit}, ${grade}, ${feedback}, ${fun_fact}, ${average_weight},
+				${description}</small>
+		</article>
 
-        <article>
-            <p id="outputText">You picked XXX ${fruit} and described it as ${description}.</p>
-        </article>
+		<article>
+			<p id="outputText">You picked XXX ${fruit} and described it as ${description}.</p>
+		</article>
 
-        <!-- API Prompt Display -->
-        <article>
-            <label>
-                API Request Prompt
-                <textarea id="apiPrompt" readonly rows="3"
-                    placeholder="The prompt sent to the API will appear here..."></textarea>
-            </label>
-        </article>
+		<!-- API Prompt Display -->
+		<article>
+			<label>
+				API Request Prompt
+				<textarea id="apiPrompt" readonly rows="3" placeholder="The prompt sent to the API will appear here..."></textarea>
+			</label>
+		</article>
 
-        <!-- Chat Feature -->
-        <article>
-            <header>Chat with AI</header>
-            <div class="chat-container" id="chatHistory"></div>
-            <input type="text" id="chatInput" placeholder="Ask about fruits or anything else...">
-            <button id="sendChat">Send</button>
-        </article>
+		<!-- Chat Feature -->
+		<article>
+			<header>Chat with AI</header>
+			<div class="chat-container" id="chatHistory"></div>
+			<input type="text" id="chatInput" placeholder="Ask about fruits or anything else...">
+			<button id="sendChat">Send</button>
+		</article>
 
-        <!-- Study Guide Feature -->
-        <article>
-            <header>Study Guide</header>
-            <button id="studyGuide">Generate Study Guide</button>
-            <label style="margin-top: 1rem;">
-                Study Guide Output
-                <textarea id="studyGuideOutput" readonly rows="10"
-                    placeholder="The study guide will appear here..."></textarea>
-            </label>
-        </article>
+		<!-- Study Guide Feature -->
+		<article>
+			<header>Study Guide</header>
+			<button id="studyGuide">Generate Study Guide</button>
+			<label style="margin-top: 1rem;">
+				Study Guide Output
+				<textarea id="studyGuideOutput" readonly rows="10" placeholder="The study guide will appear here..."></textarea>
+			</label>
+		</article>
 
-        <!-- Fruit Data Table -->
-        <article>
-            <header>Fruit Database</header>
-            <p>Comprehensive nutritional and botanical data for various fruits from <a href="https://www.fruityvice.com"
-                    target="_blank">Fruityvice API</a>.</p>
-            <div class="button-group">
-                <button id="loadFruitData">Load Fruit Data</button>
-                <button id="refreshFruitData" class="secondary">Refresh</button>
-            </div>
-            <p id="fruitTableStatus">Click "Load Fruit Data" to display the fruit database.</p>
-            <div id="fruitTableContainer" style="margin-top: 1rem;"></div>
-        </article>
-    </main>
+		<!-- Fruit Data Table -->
+		<article>
+			<header>Fruit Database</header>
+			<p>Comprehensive nutritional and botanical data for various fruits from <a href="https://www.fruityvice.com" target="_blank">Fruityvice API</a>.</p>
+			<div class="button-group">
+				<button id="loadFruitData">Load Fruit Data</button>
+				<button id="refreshFruitData" class="secondary">Refresh</button>
+			</div>
+			<p id="fruitTableStatus">Click "Load Fruit Data" to display the fruit database.</p>
+			<div id="fruitTableContainer" style="margin-top: 1rem;"></div>
+		</article>
+	</main>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
 
-    <script>
-        // =============================================================================
-        // AI•WEB APPLICATION - FRUIT QUIZ
-        // =============================================================================
+	<script>
+		// =============================================================================
+		// AI•WEB APPLICATION - FRUIT QUIZ
+		// =============================================================================
 
-        /**
-         * AI•Web Metadata
-         */
-        const AIWEB_METADATA = {
-            format: "AI•Web",
-            version: "1.0",
-            title: "Fruit Quiz",
-            description: "Quiz app about edible fruits. AI grades user knowledge.",
-            author: "J. Smith",
-            compatibility: "ChatGPT 4, 5"
-        };
+		/**
+		 * AI•Web Metadata
+		 */
+		const AIWEB_METADATA = {
+			format: "AI•Web",
+			version: "1.0",
+			title: "Fruit Quiz",
+			description: "Quiz app about edible fruits. AI grades user knowledge.",
+			author: "J. Smith",
+			compatibility: "ChatGPT 4, 5"
+		};
 
-        /**
-         * Fruit Data Source
-         */
-        const FruitDataSource = {
-            fruits: [
-                {
-                    name: "Apple",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Red_Apple.jpg/640px-Red_Apple.jpg"
-                },
-                {
-                    name: "Banana",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/640px-Banana-Single.jpg"
-                },
-                {
-                    name: "Cherry",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Cherry_Stella444.jpg/640px-Cherry_Stella444.jpg"
-                },
-                {
-                    name: "Orange",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Orange-Whole-%26-Split.jpg/640px-Orange-Whole-%26-Split.jpg"
-                },
-                {
-                    name: "Grape",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Table_grapes_on_white.jpg/640px-Table_grapes_on_white.jpg"
-                },
-                {
-                    name: "Strawberry",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Strawberry_BNC.jpg/640px-Strawberry_BNC.jpg"
-                },
-                {
-                    name: "Pineapple",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Pineapple_and_cross_section.jpg/640px-Pineapple_and_cross_section.jpg"
-                },
-                {
-                    name: "Mango",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Mango_and_cross_section_edit.jpg/640px-Mango_and_cross_section_edit.jpg"
-                },
-                {
-                    name: "Peach",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Autumn_Red_peaches.jpg/640px-Autumn_Red_peaches.jpg"
-                },
-                {
-                    name: "Pear",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Pear_DS.jpg/640px-Pear_DS.jpg"
-                },
-                {
-                    name: "Watermelon",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Watermelon.jpg/640px-Watermelon.jpg"
-                },
-                {
-                    name: "Blueberry",
-                    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Blueberries.jpg/640px-Blueberries.jpg"
-                }
-            ],
+		/**
+		 * Fruit Data Source
+		 */
+		const FruitDataSource = {
+			fruits: [{
+					name: "Apple",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Red_Apple.jpg/640px-Red_Apple.jpg"
+				},
+				{
+					name: "Banana",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Banana-Single.jpg/640px-Banana-Single.jpg"
+				},
+				{
+					name: "Cherry",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Cherry_Stella444.jpg/640px-Cherry_Stella444.jpg"
+				},
+				{
+					name: "Orange",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Orange-Whole-%26-Split.jpg/640px-Orange-Whole-%26-Split.jpg"
+				},
+				{
+					name: "Grape",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Table_grapes_on_white.jpg/640px-Table_grapes_on_white.jpg"
+				},
+				{
+					name: "Strawberry",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Strawberry_BNC.jpg/640px-Strawberry_BNC.jpg"
+				},
+				{
+					name: "Pineapple",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Pineapple_and_cross_section.jpg/640px-Pineapple_and_cross_section.jpg"
+				},
+				{
+					name: "Mango",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Mango_and_cross_section_edit.jpg/640px-Mango_and_cross_section_edit.jpg"
+				},
+				{
+					name: "Peach",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Autumn_Red_peaches.jpg/640px-Autumn_Red_peaches.jpg"
+				},
+				{
+					name: "Pear",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Pear_DS.jpg/640px-Pear_DS.jpg"
+				},
+				{
+					name: "Watermelon",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Watermelon.jpg/640px-Watermelon.jpg"
+				},
+				{
+					name: "Blueberry",
+					image: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Blueberries.jpg/640px-Blueberries.jpg"
+				}
+			],
 
-            getFruitNames() {
-                return this.fruits.map(fruit => fruit.name);
-            },
+			getFruitNames() {
+				return this.fruits.map(fruit => fruit.name);
+			},
 
-            getFruitByName(name) {
-                return this.fruits.find(fruit => fruit.name.toLowerCase() === name.toLowerCase());
-            },
+			getFruitByName(name) {
+				return this.fruits.find(fruit => fruit.name.toLowerCase() === name.toLowerCase());
+			},
 
-            populateDropdown(selectElementId) {
-                const selectElement = document.getElementById(selectElementId);
-                if (!selectElement) return;
+			populateDropdown(selectElementId) {
+				const selectElement = document.getElementById(selectElementId);
+				if (!selectElement) return;
 
-                // Clear existing options except the first one
-                selectElement.innerHTML = '<option value="">Choose a fruit...</option>';
+				// Clear existing options except the first one
+				selectElement.innerHTML = '<option value="">Choose a fruit...</option>';
 
-                // Add options from data source
-                this.fruits.forEach(fruit => {
-                    const option = document.createElement('option');
-                    option.value = fruit.name;
-                    option.textContent = fruit.name;
-                    selectElement.appendChild(option);
-                });
-            }
-        };
+				// Add options from data source
+				this.fruits.forEach(fruit => {
+					const option = document.createElement('option');
+					option.value = fruit.name;
+					option.textContent = fruit.name;
+					selectElement.appendChild(option);
+				});
+			}
+		};
 
-        /**
-         * Application State Management
-         */
-        const AppState = {
-            metadata: null,
-            manifest: null,
-            apiKey: null,
+		/**
+		 * Application State Management
+		 */
+		const AppState = {
+			metadata: null,
+			manifest: null,
+			apiKey: null,
 
-            init() {
-                this.metadata = AIWEB_METADATA;
-                this.apiKey = localStorage.getItem('groqApiKey') || '';
-                this.manifest = this.createManifest();
-            },
+			init() {
+				this.metadata = AIWEB_METADATA;
+				this.apiKey = localStorage.getItem('groqApiKey') || '';
+				this.manifest = this.createManifest();
+			},
 
-            createManifest() {
-                return {
-                    format: this.metadata.format,
-                    format_version: this.metadata.version,
-                    app_name: this.metadata.title,
-                    version: "2.4.0",
-                    provider: {
-                        model: "llama-3.1-8b-instant",
-                        api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
-                    },
-                    fruits: FruitDataSource.getFruitNames(),
-                    debug: true
-                };
-            },
+			createManifest() {
+				return {
+					format: this.metadata.format,
+					format_version: this.metadata.version,
+					app_name: this.metadata.title,
+					version: "2.4.0",
+					provider: {
+						model: "llama-3.1-8b-instant",
+						api_endpoint: "https://api.groq.com/openai/v1/chat/completions"
+					},
+					fruits: FruitDataSource.getFruitNames(),
+					debug: true
+				};
+			},
 
-            setApiKey(key) {
-                this.apiKey = key;
-                if (key) {
-                    localStorage.setItem('groqApiKey', key);
-                } else {
-                    localStorage.removeItem('groqApiKey');
-                }
-            }
-        };
+			setApiKey(key) {
+				this.apiKey = key;
+				if (key) {
+					localStorage.setItem('groqApiKey', key);
+				} else {
+					localStorage.removeItem('groqApiKey');
+				}
+			}
+		};
 
-        /**
-         * DOM Utilities
-         */
-        const DOM = {
-            getElement(id) {
-                return document.getElementById(id);
-            },
+		/**
+		 * DOM Utilities
+		 */
+		const DOM = {
+			getElement(id) {
+				return document.getElementById(id);
+			},
 
-            getValue(id) {
-                return this.getElement(id)?.value?.trim() || '';
-            },
+			getValue(id) {
+				return this.getElement(id)?.value?.trim() || '';
+			},
 
-            setValue(id, value) {
-                const element = this.getElement(id);
-                if (element) element.value = value;
-            },
+			setValue(id, value) {
+				const element = this.getElement(id);
+				if (element) element.value = value;
+			},
 
-            setText(id, text) {
-                const element = this.getElement(id);
-                if (element) element.textContent = text;
-            },
+			setText(id, text) {
+				const element = this.getElement(id);
+				if (element) element.textContent = text;
+			},
 
-            setHTML(id, html) {
-                const element = this.getElement(id);
-                if (element) element.innerHTML = html;
-            },
+			setHTML(id, html) {
+				const element = this.getElement(id);
+				if (element) element.innerHTML = html;
+			},
 
-            addHTML(id, html) {
-                const element = this.getElement(id);
-                if (element) element.innerHTML += html;
-            },
+			addHTML(id, html) {
+				const element = this.getElement(id);
+				if (element) element.innerHTML += html;
+			},
 
-            scrollToBottom(id) {
-                const element = this.getElement(id);
-                if (element) element.scrollTop = element.scrollHeight;
-            },
+			scrollToBottom(id) {
+				const element = this.getElement(id);
+				if (element) element.scrollTop = element.scrollHeight;
+			},
 
-            renderMarkdownOutput(id, markdownText) {
-                const element = this.getElement(id);
-                if (element && typeof marked !== 'undefined') {
-                    element.innerHTML = marked.parse(markdownText);
-                } else if (element) {
-                    element.textContent = markdownText;
-                }
-            }
-        };
+			renderMarkdownOutput(id, markdownText) {
+				const element = this.getElement(id);
+				if (element && typeof marked !== 'undefined') {
+					element.innerHTML = marked.parse(markdownText);
+				} else if (element) {
+					element.textContent = markdownText;
+				}
+			}
+		};
 
-        /**
-         * Error Handling Utilities
-         */
-        const ErrorHandler = {
-            display(elementId, message, isError = false) {
-                const element = DOM.getElement(elementId);
-                if (element) {
-                    element.textContent = message;
-                    if (isError && AppState.manifest.debug) {
-                        console.error('Error:', message);
-                    }
-                }
-            },
+		/**
+		 * Error Handling Utilities
+		 */
+		const ErrorHandler = {
+			display(elementId, message, isError = false) {
+				const element = DOM.getElement(elementId);
+				if (element) {
+					element.textContent = message;
+					if (isError && AppState.manifest.debug) {
+						console.error('Error:', message);
+					}
+				}
+			},
 
-            handleAPIError(error, fallbackMessage = 'An error occurred') {
-                const message = error.message || fallbackMessage;
-                if (AppState.manifest.debug) {
-                    console.error('API Error:', error);
-                }
-                return message;
-            }
-        };
+			handleAPIError(error, fallbackMessage = 'An error occurred') {
+				const message = error.message || fallbackMessage;
+				if (AppState.manifest.debug) {
+					console.error('API Error:', error);
+				}
+				return message;
+			}
+		};
 
-        /**
-         * Enhanced Markdown Image Converter
-         */
-        const MarkdownImageConverter = {
-            convertMarkdownFigures(md) {
-                return md.replace(
-                    /!\[([^|\]]+)(?:\|([^|\]]*))?(?:\|([^|\]]*))?(?:\|([^\]]*))?\]\(([^)]+)\)/g,
-                    (match, alt, width, align, caption, url) => {
-                        // Clean up parameters
-                        alt = alt?.trim() || "";
-                        width = width?.trim() || "";
-                        align = align?.trim().toLowerCase() || "";
-                        caption = caption?.trim() || "";
+		/**
+		 * Enhanced Markdown Image Converter
+		 */
+		const MarkdownImageConverter = {
+			convertMarkdownFigures(md) {
+				return md.replace(
+					/!\[([^|\]]+)(?:\|([^|\]]*))?(?:\|([^|\]]*))?(?:\|([^\]]*))?\]\(([^)]+)\)/g,
+					(match, alt, width, align, caption, url) => {
+						// Clean up parameters
+						alt = alt?.trim() || "";
+						width = width?.trim() || "";
+						align = align?.trim().toLowerCase() || "";
+						caption = caption?.trim() || "";
 
-                        // Build minimal style string - let Pico.css handle most styling
-                        let style = "";
-                        if (width) style += `max-width:${width}${width.endsWith("%") ? "" : "px"};`;
-                        if (align === "center") style += "margin:auto; display:block;";
-                        if (align === "right") style += "margin-left:auto;";
+						// Build minimal style string - let Pico.css handle most styling
+						let style = "";
+						if (width) style += `max-width:${width}${width.endsWith("%") ? "" : "px"};`;
+						if (align === "center") style += "margin:auto; display:block;";
+						if (align === "right") style += "margin-left:auto;";
 
-                        // Output - Always use figure for better semantic structure and Pico.css spacing
-                        if (caption) {
-                            return `<figure style="${style}"><img src="${url.trim()}" alt="${alt}"><figcaption>${caption}</figcaption></figure>`;
-                        } else {
-                            return `<figure style="${style}"><img src="${url.trim()}" alt="${alt}"></figure>`;
-                        }
-                    }
-                );
-            }
-        };
+						// Output - Always use figure for better semantic structure and Pico.css spacing
+						if (caption) {
+							return `<figure style="${style}"><img src="${url.trim()}" alt="${alt}"><figcaption>${caption}</figcaption></figure>`;
+						} else {
+							return `<figure style="${style}"><img src="${url.trim()}" alt="${alt}"></figure>`;
+						}
+					}
+				);
+			}
+		};
 
-        /**
-         * AI•Web Core Functions
-         */
-        const AIWebCore = {
-            replaceAllTokens() {
-                // Replace title tokens
-                let titleHTML = document.title;
-                titleHTML = titleHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
-                    return AppState.metadata[key] || match;
-                });
-                document.title = titleHTML;
+		/**
+		 * AI•Web Core Functions
+		 */
+		const AIWebCore = {
+			replaceAllTokens() {
+				// Replace title tokens
+				let titleHTML = document.title;
+				titleHTML = titleHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
+					return AppState.metadata[key] || match;
+				});
+				document.title = titleHTML;
 
-                // Replace body tokens
-                let bodyHTML = document.body.innerHTML;
-                bodyHTML = bodyHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
-                    return AppState.metadata[key] || match;
-                });
-                document.body.innerHTML = bodyHTML;
-            },
+				// Replace body tokens
+				let bodyHTML = document.body.innerHTML;
+				bodyHTML = bodyHTML.replace(/\$\{(\w+)\}/g, (match, key) => {
+					return AppState.metadata[key] || match;
+				});
+				document.body.innerHTML = bodyHTML;
+			},
 
-            renderMarkdown() {
-                if (typeof marked === 'undefined') {
-                    console.error('marked.js not loaded yet');
-                    setTimeout(() => this.renderMarkdown(), 100);
-                    return;
-                }
+			renderMarkdown() {
+				if (typeof marked === 'undefined') {
+					console.error('marked.js not loaded yet');
+					setTimeout(() => this.renderMarkdown(), 100);
+					return;
+				}
 
-                console.log('Rendering markdown...');
+				console.log('Rendering markdown...');
 
-                // Find all textareas with class="markdown" first
-                const textareas = document.querySelectorAll('textarea.markdown');
-                console.log('Found textareas:', textareas.length);
+				// Find all textareas with class="markdown" first
+				const textareas = document.querySelectorAll('textarea.markdown');
+				console.log('Found textareas:', textareas.length);
 
-                textareas.forEach((textarea, index) => {
-                    let markdownSource = textarea.value || '';
-                    console.log(`Textarea ${index} content:`, markdownSource);
+				textareas.forEach((textarea, index) => {
+					let markdownSource = textarea.value || '';
+					console.log(`Textarea ${index} content:`, markdownSource);
 
-                    if (markdownSource.trim()) {
-                        // Clean up the markdown source - remove leading/trailing whitespace and normalize indentation
-                        markdownSource = markdownSource.trim();
+					if (markdownSource.trim()) {
+						// Clean up the markdown source - remove leading/trailing whitespace and normalize indentation
+						markdownSource = markdownSource.trim();
 
-                        // Apply enhanced image syntax conversion
-                        markdownSource = MarkdownImageConverter.convertMarkdownFigures(markdownSource);
+						// Apply enhanced image syntax conversion
+						markdownSource = MarkdownImageConverter.convertMarkdownFigures(markdownSource);
 
-                        // Find the next div with class="markdown" to render into
-                        let nextSibling = textarea.nextElementSibling;
-                        while (nextSibling && (!nextSibling.classList.contains('markdown') || nextSibling.tagName !== 'DIV')) {
-                            nextSibling = nextSibling.nextElementSibling;
-                        }
-                        if (nextSibling) {
-                            console.log(`Rendering into div:`, nextSibling);
-                            const renderedHTML = marked.parse(markdownSource);
-                            console.log('Rendered HTML:', renderedHTML);
-                            nextSibling.innerHTML = renderedHTML;
-                        } else {
-                            console.log('No target div found for textarea', index);
-                        }
-                    }
-                });
+						// Find the next div with class="markdown" to render into
+						let nextSibling = textarea.nextElementSibling;
+						while (nextSibling && (!nextSibling.classList.contains('markdown') || nextSibling.tagName !== 'DIV')) {
+							nextSibling = nextSibling.nextElementSibling;
+						}
+						if (nextSibling) {
+							console.log(`Rendering into div:`, nextSibling);
+							const renderedHTML = marked.parse(markdownSource);
+							console.log('Rendered HTML:', renderedHTML);
+							nextSibling.innerHTML = renderedHTML;
+						} else {
+							console.log('No target div found for textarea', index);
+						}
+					}
+				});
 
-                // Then handle other elements with class="markdown" that aren't textareas
-                const otherElements = document.querySelectorAll('.markdown:not(textarea)');
-                console.log('Found other markdown elements:', otherElements.length);
+				// Then handle other elements with class="markdown" that aren't textareas
+				const otherElements = document.querySelectorAll('.markdown:not(textarea)');
+				console.log('Found other markdown elements:', otherElements.length);
 
-                otherElements.forEach(element => {
-                    const markdownSource = element.textContent || '';
-                    // Only render if there's content and it's not already rendered HTML
-                    if (markdownSource.trim() && !element.innerHTML.includes('<')) {
-                        console.log('Rendering other element:', element, markdownSource);
-                        // Apply enhanced image syntax conversion
-                        const processedMarkdown = MarkdownImageConverter.convertMarkdownFigures(markdownSource);
-                        element.innerHTML = marked.parse(processedMarkdown);
-                    }
-                });
+				otherElements.forEach(element => {
+					const markdownSource = element.textContent || '';
+					// Only render if there's content and it's not already rendered HTML
+					if (markdownSource.trim() && !element.innerHTML.includes('<')) {
+						console.log('Rendering other element:', element, markdownSource);
+						// Apply enhanced image syntax conversion
+						const processedMarkdown = MarkdownImageConverter.convertMarkdownFigures(markdownSource);
+						element.innerHTML = marked.parse(processedMarkdown);
+					}
+				});
 
-                // Mark all markdown elements as processed to make them visible
-                document.querySelectorAll('.markdown').forEach(element => {
-                    element.classList.add('processed');
-                });
-            }
-        };
+				// Mark all markdown elements as processed to make them visible
+				document.querySelectorAll('.markdown').forEach(element => {
+					element.classList.add('processed');
+				});
+			}
+		};
 
-        /**
-         * Demo/Fallback Responses
-         */
-        const DemoResponses = {
-            getFact(fruit) {
-                return {
-                    fun_fact: `Demo: ${fruit} is tasty!`,
-                    average_weight: "150",
-                    grade: "B",
-                    feedback: "Demo mode - no grading available without API key."
-                };
-            },
+		/**
+		 * Demo/Fallback Responses
+		 */
+		const DemoResponses = {
+			getFact(fruit) {
+				return {
+					fun_fact: `Demo: ${fruit} is tasty!`,
+					average_weight: "150",
+					grade: "B",
+					feedback: "Demo mode - no grading available without API key."
+				};
+			},
 
-            getChatResponse(message) {
-                return `Demo: That's an interesting question about ${message}! Try using an API key for a real response.`;
-            },
+			getChatResponse(message) {
+				return `Demo: That's an interesting question about ${message}! Try using an API key for a real response.`;
+			},
 
-            getStudyGuide() {
-                return `| Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |
+			getStudyGuide() {
+				return `| Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |
 |-------|--------|--------|--------|--------|--------|--------|
 ${AppState.manifest.fruits.map(fruit =>
                     `| ${fruit} | Demo: ${fruit} is tasty! | Demo: It's colorful! | Demo: It's sweet! | Demo: It's juicy! | Demo: It's healthy! | Demo: It's fun! |`
                 ).join('\n')}`;
-            }
-        };
+			}
+		};
 
-        /**
-         * API Client
-         */
-        const APIClient = {
-            async callGroqAPI(prompt, apiKey, fallback = null) {
-                if (!apiKey.startsWith('gsk_')) {
-                    throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
-                }
+		/**
+		 * API Client
+		 */
+		const APIClient = {
+			async callGroqAPI(prompt, apiKey, fallback = null) {
+				if (!apiKey.startsWith('gsk_')) {
+					throw new Error("Groq keys must start with 'gsk_'. Regenerate at console.groq.com/keys.");
+				}
 
-                try {
-                    const response = await fetch(AppState.manifest.provider.api_endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${apiKey}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            model: AppState.manifest.provider.model,
-                            messages: [{ role: 'user', content: prompt }]
-                        })
-                    });
+				try {
+					const response = await fetch(AppState.manifest.provider.api_endpoint, {
+						method: 'POST',
+						headers: {
+							'Authorization': `Bearer ${apiKey}`,
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							model: AppState.manifest.provider.model,
+							messages: [{ role: 'user', content: prompt }]
+						})
+					});
 
-                    const rawText = await response.text();
-                    if (AppState.manifest.debug) console.log('Raw Response:', rawText);
+					const rawText = await response.text();
+					if (AppState.manifest.debug) console.log('Raw Response:', rawText);
 
-                    if (!response.ok) {
-                        let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
-                        try {
-                            const errorData = JSON.parse(rawText);
-                            errorMsg = errorData.error?.message || errorMsg;
-                        } catch { }
-                        throw new Error(errorMsg);
-                    }
+					if (!response.ok) {
+						let errorMsg = `Groq API Error ${response.status}: ${response.statusText}`;
+						try {
+							const errorData = JSON.parse(rawText);
+							errorMsg = errorData.error?.message || errorMsg;
+						} catch {}
+						throw new Error(errorMsg);
+					}
 
-                    const data = JSON.parse(rawText);
-                    if (!data.choices?.[0]?.message?.content) {
-                        throw new Error(`Invalid response: Missing choices.`);
-                    }
+					const data = JSON.parse(rawText);
+					if (!data.choices?.[0]?.message?.content) {
+						throw new Error(`Invalid response: Missing choices.`);
+					}
 
-                    AppState.setApiKey(apiKey);
-                    const content = data.choices[0].message.content;
+					AppState.setApiKey(apiKey);
+					const content = data.choices[0].message.content;
 
-                    // Try to parse as JSON first
-                    try {
-                        return JSON.parse(content);
-                    } catch {
-                        return content;
-                    }
-                } catch (error) {
-                    if (AppState.manifest.debug) console.error('API Error:', error);
-                    if (fallback) return fallback;
-                    throw error;
-                }
-            }
-        };
+					// Try to parse as JSON first
+					try {
+						return JSON.parse(content);
+					} catch {
+						return content;
+					}
+				} catch (error) {
+					if (AppState.manifest.debug) console.error('API Error:', error);
+					if (fallback) return fallback;
+					throw error;
+				}
+			}
+		};
 
-        /**
-         * Fruit Data API Client
-         */
-        const FruitDataAPI = {
-            // Fallback fruit data for when API is not accessible
-            fallbackFruits: [
-                {
-                    name: "Apple",
-                    family: "Rosaceae",
-                    genus: "Malus",
-                    order: "Rosales",
-                    nutritions: { calories: 52, sugar: 10.4, carbohydrates: 13.8, protein: 0.3, fat: 0.2 }
-                },
-                {
-                    name: "Banana",
-                    family: "Musaceae",
-                    genus: "Musa",
-                    order: "Zingiberales",
-                    nutritions: { calories: 89, sugar: 12.2, carbohydrates: 22.8, protein: 1.1, fat: 0.3 }
-                },
-                {
-                    name: "Orange",
-                    family: "Rutaceae",
-                    genus: "Citrus",
-                    order: "Sapindales",
-                    nutritions: { calories: 47, sugar: 9.4, carbohydrates: 11.8, protein: 0.9, fat: 0.1 }
-                },
-                {
-                    name: "Cherry",
-                    family: "Rosaceae",
-                    genus: "Prunus",
-                    order: "Rosales",
-                    nutritions: { calories: 50, sugar: 8.5, carbohydrates: 12.2, protein: 1.0, fat: 0.3 }
-                },
-                {
-                    name: "Grape",
-                    family: "Vitaceae",
-                    genus: "Vitis",
-                    order: "Vitales",
-                    nutritions: { calories: 67, sugar: 16.0, carbohydrates: 17.0, protein: 0.6, fat: 0.4 }
-                },
-                {
-                    name: "Strawberry",
-                    family: "Rosaceae",
-                    genus: "Fragaria",
-                    order: "Rosales",
-                    nutritions: { calories: 32, sugar: 4.9, carbohydrates: 7.7, protein: 0.7, fat: 0.3 }
-                },
-                {
-                    name: "Pineapple",
-                    family: "Bromeliaceae",
-                    genus: "Ananas",
-                    order: "Poales",
-                    nutritions: { calories: 50, sugar: 9.9, carbohydrates: 13.1, protein: 0.5, fat: 0.1 }
-                },
-                {
-                    name: "Mango",
-                    family: "Anacardiaceae",
-                    genus: "Mangifera",
-                    order: "Sapindales",
-                    nutritions: { calories: 60, sugar: 13.7, carbohydrates: 15.0, protein: 0.8, fat: 0.4 }
-                }
-            ],
+		/**
+		 * Fruit Data API Client
+		 */
+		const FruitDataAPI = {
+			// Fallback fruit data for when API is not accessible
+			fallbackFruits: [{
+					name: "Apple",
+					family: "Rosaceae",
+					genus: "Malus",
+					order: "Rosales",
+					nutritions: { calories: 52, sugar: 10.4, carbohydrates: 13.8, protein: 0.3, fat: 0.2 }
+				},
+				{
+					name: "Banana",
+					family: "Musaceae",
+					genus: "Musa",
+					order: "Zingiberales",
+					nutritions: { calories: 89, sugar: 12.2, carbohydrates: 22.8, protein: 1.1, fat: 0.3 }
+				},
+				{
+					name: "Orange",
+					family: "Rutaceae",
+					genus: "Citrus",
+					order: "Sapindales",
+					nutritions: { calories: 47, sugar: 9.4, carbohydrates: 11.8, protein: 0.9, fat: 0.1 }
+				},
+				{
+					name: "Cherry",
+					family: "Rosaceae",
+					genus: "Prunus",
+					order: "Rosales",
+					nutritions: { calories: 50, sugar: 8.5, carbohydrates: 12.2, protein: 1.0, fat: 0.3 }
+				},
+				{
+					name: "Grape",
+					family: "Vitaceae",
+					genus: "Vitis",
+					order: "Vitales",
+					nutritions: { calories: 67, sugar: 16.0, carbohydrates: 17.0, protein: 0.6, fat: 0.4 }
+				},
+				{
+					name: "Strawberry",
+					family: "Rosaceae",
+					genus: "Fragaria",
+					order: "Rosales",
+					nutritions: { calories: 32, sugar: 4.9, carbohydrates: 7.7, protein: 0.7, fat: 0.3 }
+				},
+				{
+					name: "Pineapple",
+					family: "Bromeliaceae",
+					genus: "Ananas",
+					order: "Poales",
+					nutritions: { calories: 50, sugar: 9.9, carbohydrates: 13.1, protein: 0.5, fat: 0.1 }
+				},
+				{
+					name: "Mango",
+					family: "Anacardiaceae",
+					genus: "Mangifera",
+					order: "Sapindales",
+					nutritions: { calories: 60, sugar: 13.7, carbohydrates: 15.0, protein: 0.8, fat: 0.4 }
+				}
+			],
 
-            async fetchAllFruits() {
-                // Try multiple CORS proxy options
-                const corsProxies = [
-                    'https://api.allorigins.win/raw?url=',
-                    'https://cors-anywhere.herokuapp.com/',
-                    'https://thingproxy.freeboard.io/fetch/'
-                ];
+			async fetchAllFruits() {
+				// Try multiple CORS proxy options
+				const corsProxies = [
+					'https://api.allorigins.win/raw?url=',
+					'https://cors-anywhere.herokuapp.com/',
+					'https://thingproxy.freeboard.io/fetch/'
+				];
 
-                const apiUrl = 'https://www.fruityvice.com/api/fruit/all';
+				const apiUrl = 'https://www.fruityvice.com/api/fruit/all';
 
-                for (let i = 0; i < corsProxies.length; i++) {
-                    try {
-                        const proxyUrl = corsProxies[i] + encodeURIComponent(apiUrl);
-                        console.log(`Trying CORS proxy ${i + 1}: ${corsProxies[i]}`);
+				for (let i = 0; i < corsProxies.length; i++) {
+					try {
+						const proxyUrl = corsProxies[i] + encodeURIComponent(apiUrl);
+						console.log(`Trying CORS proxy ${i + 1}: ${corsProxies[i]}`);
 
-                        const response = await fetch(proxyUrl);
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        const data = await response.json();
-                        console.log('Successfully fetched fruit data via CORS proxy');
-                        return data;
-                    } catch (error) {
-                        console.log(`CORS proxy ${i + 1} failed:`, error.message);
-                        if (i === corsProxies.length - 1) {
-                            // All proxies failed, use fallback data
-                            console.log('All CORS proxies failed, using fallback data');
-                            return this.fallbackFruits;
-                        }
-                    }
-                }
-            },
+						const response = await fetch(proxyUrl);
+						if (!response.ok) {
+							throw new Error(`HTTP error! status: ${response.status}`);
+						}
+						const data = await response.json();
+						console.log('Successfully fetched fruit data via CORS proxy');
+						return data;
+					} catch (error) {
+						console.log(`CORS proxy ${i + 1} failed:`, error.message);
+						if (i === corsProxies.length - 1) {
+							// All proxies failed, use fallback data
+							console.log('All CORS proxies failed, using fallback data');
+							return this.fallbackFruits;
+						}
+					}
+				}
+			},
 
-            async fetchFruitByName(name) {
-                const corsProxies = [
-                    'https://api.allorigins.win/raw?url=',
-                    'https://cors-anywhere.herokuapp.com/',
-                    'https://thingproxy.freeboard.io/fetch/'
-                ];
+			async fetchFruitByName(name) {
+				const corsProxies = [
+					'https://api.allorigins.win/raw?url=',
+					'https://cors-anywhere.herokuapp.com/',
+					'https://thingproxy.freeboard.io/fetch/'
+				];
 
-                const apiUrl = `https://www.fruityvice.com/api/fruit/${encodeURIComponent(name)}`;
+				const apiUrl = `https://www.fruityvice.com/api/fruit/${encodeURIComponent(name)}`;
 
-                for (let i = 0; i < corsProxies.length; i++) {
-                    try {
-                        const proxyUrl = corsProxies[i] + encodeURIComponent(apiUrl);
-                        const response = await fetch(proxyUrl);
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        const data = await response.json();
-                        return data;
-                    } catch (error) {
-                        if (i === corsProxies.length - 1) {
-                            // Find in fallback data
-                            return this.fallbackFruits.find(fruit =>
-                                fruit.name.toLowerCase() === name.toLowerCase()
-                            ) || null;
-                        }
-                    }
-                }
-            },
+				for (let i = 0; i < corsProxies.length; i++) {
+					try {
+						const proxyUrl = corsProxies[i] + encodeURIComponent(apiUrl);
+						const response = await fetch(proxyUrl);
+						if (!response.ok) {
+							throw new Error(`HTTP error! status: ${response.status}`);
+						}
+						const data = await response.json();
+						return data;
+					} catch (error) {
+						if (i === corsProxies.length - 1) {
+							// Find in fallback data
+							return this.fallbackFruits.find(fruit =>
+								fruit.name.toLowerCase() === name.toLowerCase()
+							) || null;
+						}
+					}
+				}
+			},
 
-            formatFruitData(fruits) {
-                return fruits.map(fruit => [
-                    fruit.name || 'N/A',
-                    fruit.family || 'N/A',
-                    fruit.genus || 'N/A',
-                    fruit.order || 'N/A',
-                    fruit.nutritions?.calories || 'N/A',
-                    fruit.nutritions?.sugar || 'N/A',
-                    fruit.nutritions?.carbohydrates || 'N/A',
-                    fruit.nutritions?.protein || 'N/A',
-                    fruit.nutritions?.fat || 'N/A'
-                ]);
-            }
-        };
+			formatFruitData(fruits) {
+				return fruits.map(fruit => [
+					fruit.name || 'N/A',
+					fruit.family || 'N/A',
+					fruit.genus || 'N/A',
+					fruit.order || 'N/A',
+					fruit.nutritions?.calories || 'N/A',
+					fruit.nutritions?.sugar || 'N/A',
+					fruit.nutritions?.carbohydrates || 'N/A',
+					fruit.nutritions?.protein || 'N/A',
+					fruit.nutritions?.fat || 'N/A'
+				]);
+			}
+		};
 
-        /**
-         * AI Prompt Generators
-         */
-        const AIPrompts = {
-            async getInterestingFact(fruit, userStatements, apiKey) {
-                const prompt = `${AppState.metadata.description}
+		/**
+		 * AI Prompt Generators
+		 */
+		const AIPrompts = {
+			async getInterestingFact(fruit, userStatements, apiKey) {
+				const prompt = `${AppState.metadata.description}
 
 The user selected "${fruit}" and provided these statements about it:
 
@@ -787,283 +778,283 @@ Please evaluate their knowledge and provide a response in JSON format with these
 
 Return only valid JSON, no other text.`;
 
-                DOM.setValue('apiPrompt', prompt);
+				DOM.setValue('apiPrompt', prompt);
 
-                if (!apiKey) return DemoResponses.getFact(fruit);
-                return await APIClient.callGroqAPI(prompt, apiKey, DemoResponses.getFact(fruit));
-            },
+				if (!apiKey) return DemoResponses.getFact(fruit);
+				return await APIClient.callGroqAPI(prompt, apiKey, DemoResponses.getFact(fruit));
+			},
 
-            async getChatResponse(message, apiKey) {
-                const prompt = `${AppState.metadata.description}\n\nAnswer in a friendly, concise manner with emojis: ${message}`;
+			async getChatResponse(message, apiKey) {
+				const prompt = `${AppState.metadata.description}\n\nAnswer in a friendly, concise manner with emojis: ${message}`;
 
-                if (!apiKey) return DemoResponses.getChatResponse(message);
-                const result = await APIClient.callGroqAPI(prompt, apiKey);
-                return typeof result === 'string' ? result : result.content;
-            },
+				if (!apiKey) return DemoResponses.getChatResponse(message);
+				const result = await APIClient.callGroqAPI(prompt, apiKey);
+				return typeof result === 'string' ? result : result.content;
+			},
 
-            async getStudyGuide(apiKey) {
-                const prompt = `${AppState.metadata.description}\n\nGenerate a Markdown table listing six interesting facts for each of the following fruits: Apple, Banana, Cherry, Orange. Use this format:
+			async getStudyGuide(apiKey) {
+				const prompt = `${AppState.metadata.description}\n\nGenerate a Markdown table listing six interesting facts for each of the following fruits: Apple, Banana, Cherry, Orange. Use this format:
 | Fruit | Fact 1 | Fact 2 | Fact 3 | Fact 4 | Fact 5 | Fact 6 |
 |-------|--------|--------|--------|--------|--------|--------|
 Each fact should be concise (1-2 sentences), unique, and include emojis. Return only the Markdown table, no other text.`;
 
-                if (!apiKey) return DemoResponses.getStudyGuide();
-                const result = await APIClient.callGroqAPI(prompt, apiKey);
-                return typeof result === 'string' ? result : result.content;
-            }
-        };
+				if (!apiKey) return DemoResponses.getStudyGuide();
+				const result = await APIClient.callGroqAPI(prompt, apiKey);
+				return typeof result === 'string' ? result : result.content;
+			}
+		};
 
-        /**
-         * UI Controllers
-         */
-        const UIControllers = {
-            handleFruitSelection(e) {
-                const selectedFruit = e.target.value;
-                const imageContainer = DOM.getElement('fruitImageContainer');
-                const fruitImage = DOM.getElement('fruitImage');
+		/**
+		 * UI Controllers
+		 */
+		const UIControllers = {
+			handleFruitSelection(e) {
+				const selectedFruit = e.target.value;
+				const imageContainer = DOM.getElement('fruitImageContainer');
+				const fruitImage = DOM.getElement('fruitImage');
 
-                if (selectedFruit) {
-                    const fruitData = FruitDataSource.getFruitByName(selectedFruit);
-                    if (fruitData) {
-                        fruitImage.src = fruitData.image;
-                        fruitImage.alt = selectedFruit;
-                        imageContainer.style.display = 'block';
-                    }
-                } else {
-                    imageContainer.style.display = 'none';
-                }
-            },
+				if (selectedFruit) {
+					const fruitData = FruitDataSource.getFruitByName(selectedFruit);
+					if (fruitData) {
+						fruitImage.src = fruitData.image;
+						fruitImage.alt = selectedFruit;
+						imageContainer.style.display = 'block';
+					}
+				} else {
+					imageContainer.style.display = 'none';
+				}
+			},
 
-            async handleFormSubmit(e) {
-                e.preventDefault();
-                const fruit = DOM.getValue('fruitSelect');
-                const description = DOM.getValue('fruitDescription');
-                const apiKey = DOM.getValue('api-key');
+			async handleFormSubmit(e) {
+				e.preventDefault();
+				const fruit = DOM.getValue('fruitSelect');
+				const description = DOM.getValue('fruitDescription');
+				const apiKey = DOM.getValue('api-key');
 
-                if (!fruit || !description) {
-                    DOM.setValue('resultArea', 'Please select a fruit and provide four statements about it.');
-                    DOM.setText('outputText', 'You picked ${fruit} and described it as ${description}.');
-                    return;
-                }
+				if (!fruit || !description) {
+					DOM.setValue('resultArea', 'Please select a fruit and provide four statements about it.');
+					DOM.setText('outputText', 'You picked ${fruit} and described it as ${description}.');
+					return;
+				}
 
-                try {
-                    const fruitData = await AIPrompts.getInterestingFact(fruit, description, apiKey);
-                    const resultText = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: ${fruitData.grade}\nfeedback: ${fruitData.feedback}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
+				try {
+					const fruitData = await AIPrompts.getInterestingFact(fruit, description, apiKey);
+					const resultText = `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: ${fruitData.grade}\nfeedback: ${fruitData.feedback}\nfun_fact: ${fruitData.fun_fact}\naverage_weight: ${fruitData.average_weight}g`;
 
-                    // Get the markdown template and replace variables
-                    const template = DOM.getValue('outputTemplate') || 'You picked ${fruit} Grade: ${grade}. ${feedback} ${fun_fact} It typically weighs around ${average_weight}g.';
-                    const outputText = template
-                        .replace(/\$\{fruit\}/g, fruit.toLowerCase())
-                        .replace(/\$\{grade\}/g, fruitData.grade)
-                        .replace(/\$\{feedback\}/g, fruitData.feedback)
-                        .replace(/\$\{fun_fact\}/g, fruitData.fun_fact)
-                        .replace(/\$\{average_weight\}/g, fruitData.average_weight)
-                        .replace(/\$\{description\}/g, description);
+					// Get the markdown template and replace variables
+					const template = DOM.getValue('outputTemplate') || 'You picked ${fruit} Grade: ${grade}. ${feedback} ${fun_fact} It typically weighs around ${average_weight}g.';
+					const outputText = template
+						.replace(/\$\{fruit\}/g, fruit.toLowerCase())
+						.replace(/\$\{grade\}/g, fruitData.grade)
+						.replace(/\$\{feedback\}/g, fruitData.feedback)
+						.replace(/\$\{fun_fact\}/g, fruitData.fun_fact)
+						.replace(/\$\{average_weight\}/g, fruitData.average_weight)
+						.replace(/\$\{description\}/g, description);
 
-                    DOM.setValue('resultArea', resultText);
-                    DOM.renderMarkdownOutput('outputText', outputText);
-                } catch (error) {
-                    const errorMessage = ErrorHandler.handleAPIError(error);
-                    DOM.setValue('resultArea', `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: N/A\nfeedback: Error: ${errorMessage}`);
-                    DOM.setText('outputText', `You picked ${fruit.toLowerCase()}. Error: ${errorMessage}`);
-                }
-            },
+					DOM.setValue('resultArea', resultText);
+					DOM.renderMarkdownOutput('outputText', outputText);
+				} catch (error) {
+					const errorMessage = ErrorHandler.handleAPIError(error);
+					DOM.setValue('resultArea', `fruit: ${fruit.toLowerCase()}\nstatements: ${description}\ngrade: N/A\nfeedback: Error: ${errorMessage}`);
+					DOM.setText('outputText', `You picked ${fruit.toLowerCase()}. Error: ${errorMessage}`);
+				}
+			},
 
-            async handleTestKey() {
-                const apiKey = DOM.getValue('api-key');
-                if (!apiKey) {
-                    DOM.setText('outputText', 'Please enter an API key.');
-                    return;
-                }
+			async handleTestKey() {
+				const apiKey = DOM.getValue('api-key');
+				if (!apiKey) {
+					DOM.setText('outputText', 'Please enter an API key.');
+					return;
+				}
 
-                DOM.setText('outputText', 'Testing key...');
-                try {
-                    const fruitData = await AIPrompts.getInterestingFact('apple', 'Apples are red, grow on trees, are sweet, have seeds', apiKey);
-                    DOM.setText('outputText', `Test OK! Grade: ${fruitData.grade}. ${fruitData.feedback}`);
-                } catch (error) {
-                    const errorMessage = ErrorHandler.handleAPIError(error);
-                    DOM.setText('outputText', `Test Failed: ${errorMessage}`);
-                }
-            },
+				DOM.setText('outputText', 'Testing key...');
+				try {
+					const fruitData = await AIPrompts.getInterestingFact('apple', 'Apples are red, grow on trees, are sweet, have seeds', apiKey);
+					DOM.setText('outputText', `Test OK! Grade: ${fruitData.grade}. ${fruitData.feedback}`);
+				} catch (error) {
+					const errorMessage = ErrorHandler.handleAPIError(error);
+					DOM.setText('outputText', `Test Failed: ${errorMessage}`);
+				}
+			},
 
-            handleClearKey() {
-                AppState.setApiKey('');
-                DOM.setValue('api-key', '');
-                DOM.setText('outputText', 'API key cleared.');
-            },
+			handleClearKey() {
+				AppState.setApiKey('');
+				DOM.setValue('api-key', '');
+				DOM.setText('outputText', 'API key cleared.');
+			},
 
-            async handleChatSend() {
-                const message = DOM.getValue('chatInput');
-                const chatHistory = DOM.getElement('chatHistory');
-                const apiKey = DOM.getValue('api-key');
+			async handleChatSend() {
+				const message = DOM.getValue('chatInput');
+				const chatHistory = DOM.getElement('chatHistory');
+				const apiKey = DOM.getValue('api-key');
 
-                if (!message) {
-                    DOM.addHTML('chatHistory', `<div class="chat-message chat-user">You: Please type a message.</div>`);
-                    DOM.scrollToBottom('chatHistory');
-                    return;
-                }
+				if (!message) {
+					DOM.addHTML('chatHistory', `<div class="chat-message chat-user">You: Please type a message.</div>`);
+					DOM.scrollToBottom('chatHistory');
+					return;
+				}
 
-                DOM.addHTML('chatHistory', `<div class="chat-message chat-user">You: ${message}</div>`);
-                DOM.setValue('chatInput', '');
+				DOM.addHTML('chatHistory', `<div class="chat-message chat-user">You: ${message}</div>`);
+				DOM.setValue('chatInput', '');
 
-                try {
-                    const response = await AIPrompts.getChatResponse(message, apiKey);
-                    DOM.addHTML('chatHistory', `<div class="chat-message">AI: ${response}</div>`);
-                } catch (error) {
-                    const errorMessage = ErrorHandler.handleAPIError(error);
-                    DOM.addHTML('chatHistory', `<div class="chat-message">AI: Error: ${errorMessage}</div>`);
-                }
+				try {
+					const response = await AIPrompts.getChatResponse(message, apiKey);
+					DOM.addHTML('chatHistory', `<div class="chat-message">AI: ${response}</div>`);
+				} catch (error) {
+					const errorMessage = ErrorHandler.handleAPIError(error);
+					DOM.addHTML('chatHistory', `<div class="chat-message">AI: Error: ${errorMessage}</div>`);
+				}
 
-                DOM.scrollToBottom('chatHistory');
-            },
+				DOM.scrollToBottom('chatHistory');
+			},
 
-            async handleStudyGuide() {
-                const apiKey = DOM.getValue('api-key');
-                const studyGuideOutput = DOM.getElement('studyGuideOutput');
+			async handleStudyGuide() {
+				const apiKey = DOM.getValue('api-key');
+				const studyGuideOutput = DOM.getElement('studyGuideOutput');
 
-                DOM.setValue('studyGuideOutput', 'Generating study guide...');
-                try {
-                    const studyGuide = await AIPrompts.getStudyGuide(apiKey);
-                    DOM.setValue('studyGuideOutput', studyGuide);
-                } catch (error) {
-                    const errorMessage = ErrorHandler.handleAPIError(error);
-                    DOM.setValue('studyGuideOutput', `Error: ${errorMessage}\n\n${DemoResponses.getStudyGuide()}`);
-                }
-            }
-        };
+				DOM.setValue('studyGuideOutput', 'Generating study guide...');
+				try {
+					const studyGuide = await AIPrompts.getStudyGuide(apiKey);
+					DOM.setValue('studyGuideOutput', studyGuide);
+				} catch (error) {
+					const errorMessage = ErrorHandler.handleAPIError(error);
+					DOM.setValue('studyGuideOutput', `Error: ${errorMessage}\n\n${DemoResponses.getStudyGuide()}`);
+				}
+			}
+		};
 
-        /**
-         * Simple Fruit Table Controller
-         */
-        const FruitTableController = {
-            async loadFruitData() {
-                const statusElement = DOM.getElement('fruitTableStatus');
-                const containerElement = DOM.getElement('fruitTableContainer');
+		/**
+		 * Simple Fruit Table Controller
+		 */
+		const FruitTableController = {
+			async loadFruitData() {
+				const statusElement = DOM.getElement('fruitTableStatus');
+				const containerElement = DOM.getElement('fruitTableContainer');
 
-                try {
-                    // Show loading state
-                    statusElement.textContent = 'Loading fruit data...';
+				try {
+					// Show loading state
+					statusElement.textContent = 'Loading fruit data...';
 
-                    // Clear container
-                    containerElement.innerHTML = '';
+					// Clear container
+					containerElement.innerHTML = '';
 
-                    // Fetch fruit data
-                    const fruits = await FruitDataAPI.fetchAllFruits();
+					// Fetch fruit data
+					const fruits = await FruitDataAPI.fetchAllFruits();
 
-                    // Check if we're using fallback data
-                    const isFallbackData = fruits === FruitDataAPI.fallbackFruits;
+					// Check if we're using fallback data
+					const isFallbackData = fruits === FruitDataAPI.fallbackFruits;
 
-                    // Create simple HTML table
-                    const tableHTML = this.createSimpleTable(fruits);
-                    containerElement.innerHTML = tableHTML;
+					// Create simple HTML table
+					const tableHTML = this.createSimpleTable(fruits);
+					containerElement.innerHTML = tableHTML;
 
-                    // Update status
-                    if (isFallbackData) {
-                        statusElement.innerHTML = `⚠️ <strong>Using fallback data</strong> - ${fruits.length} fruits loaded (CORS restrictions prevent live API access).`;
-                    } else {
-                        statusElement.textContent = `✅ Loaded ${fruits.length} fruits from Fruityvice API.`;
-                    }
+					// Update status
+					if (isFallbackData) {
+						statusElement.innerHTML = `⚠️ <strong>Using fallback data</strong> - ${fruits.length} fruits loaded (CORS restrictions prevent live API access).`;
+					} else {
+						statusElement.textContent = `✅ Loaded ${fruits.length} fruits from Fruityvice API.`;
+					}
 
-                } catch (error) {
-                    console.error('Error loading fruit data:', error);
-                    statusElement.innerHTML = `❌ Error loading fruit data: ${error.message}`;
-                    containerElement.innerHTML = `<p>Unable to display fruit data.</p>`;
-                }
-            },
+				} catch (error) {
+					console.error('Error loading fruit data:', error);
+					statusElement.innerHTML = `❌ Error loading fruit data: ${error.message}`;
+					containerElement.innerHTML = `<p>Unable to display fruit data.</p>`;
+				}
+			},
 
-            createSimpleTable(fruits) {
-                const headers = ['Name', 'Family', 'Genus', 'Order', 'Calories', 'Sugar (g)', 'Carbs (g)', 'Protein (g)', 'Fat (g)'];
+			createSimpleTable(fruits) {
+				const headers = ['Name', 'Family', 'Genus', 'Order', 'Calories', 'Sugar (g)', 'Carbs (g)', 'Protein (g)', 'Fat (g)'];
 
-                let html = '<div class="overflow-auto"><table><thead><tr>';
+				let html = '<div class="overflow-auto"><table><thead><tr>';
 
-                headers.forEach(header => {
-                    html += `<th>${header}</th>`;
-                });
+				headers.forEach(header => {
+					html += `<th>${header}</th>`;
+				});
 
-                html += '</tr></thead><tbody>';
+				html += '</tr></thead><tbody>';
 
-                fruits.forEach(fruit => {
-                    html += '<tr>';
-                    html += `<td><strong>${fruit.name || 'N/A'}</strong></td>`;
-                    html += `<td>${fruit.family || 'N/A'}</td>`;
-                    html += `<td>${fruit.genus || 'N/A'}</td>`;
-                    html += `<td>${fruit.order || 'N/A'}</td>`;
-                    html += `<td><strong>${fruit.nutritions?.calories || 'N/A'}</strong></td>`;
-                    html += `<td>${fruit.nutritions?.sugar || 'N/A'}</td>`;
-                    html += `<td>${fruit.nutritions?.carbohydrates || 'N/A'}</td>`;
-                    html += `<td>${fruit.nutritions?.protein || 'N/A'}</td>`;
-                    html += `<td>${fruit.nutritions?.fat || 'N/A'}</td>`;
-                    html += '</tr>';
-                });
+				fruits.forEach(fruit => {
+					html += '<tr>';
+					html += `<td><strong>${fruit.name || 'N/A'}</strong></td>`;
+					html += `<td>${fruit.family || 'N/A'}</td>`;
+					html += `<td>${fruit.genus || 'N/A'}</td>`;
+					html += `<td>${fruit.order || 'N/A'}</td>`;
+					html += `<td><strong>${fruit.nutritions?.calories || 'N/A'}</strong></td>`;
+					html += `<td>${fruit.nutritions?.sugar || 'N/A'}</td>`;
+					html += `<td>${fruit.nutritions?.carbohydrates || 'N/A'}</td>`;
+					html += `<td>${fruit.nutritions?.protein || 'N/A'}</td>`;
+					html += `<td>${fruit.nutritions?.fat || 'N/A'}</td>`;
+					html += '</tr>';
+				});
 
-                html += '</tbody></table></div>';
-                return html;
-            },
+				html += '</tbody></table></div>';
+				return html;
+			},
 
-            async refreshFruitData() {
-                await this.loadFruitData();
-            }
-        };
+			async refreshFruitData() {
+				await this.loadFruitData();
+			}
+		};
 
-        /**
-         * Event Handlers Setup
-         */
-        const EventHandlers = {
-            setup() {
-                // Form submission
-                DOM.getElement('fruitForm')?.addEventListener('submit', UIControllers.handleFormSubmit);
+		/**
+		 * Event Handlers Setup
+		 */
+		const EventHandlers = {
+			setup() {
+				// Form submission
+				DOM.getElement('fruitForm')?.addEventListener('submit', UIControllers.handleFormSubmit);
 
-                // Fruit selection change
-                DOM.getElement('fruitSelect')?.addEventListener('change', UIControllers.handleFruitSelection);
+				// Fruit selection change
+				DOM.getElement('fruitSelect')?.addEventListener('change', UIControllers.handleFruitSelection);
 
-                // API key management
-                DOM.getElement('test-key')?.addEventListener('click', UIControllers.handleTestKey);
-                DOM.getElement('clear-key')?.addEventListener('click', UIControllers.handleClearKey);
+				// API key management
+				DOM.getElement('test-key')?.addEventListener('click', UIControllers.handleTestKey);
+				DOM.getElement('clear-key')?.addEventListener('click', UIControllers.handleClearKey);
 
-                // Chat functionality
-                DOM.getElement('sendChat')?.addEventListener('click', UIControllers.handleChatSend);
-                DOM.getElement('chatInput')?.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        UIControllers.handleChatSend();
-                    }
-                });
+				// Chat functionality
+				DOM.getElement('sendChat')?.addEventListener('click', UIControllers.handleChatSend);
+				DOM.getElement('chatInput')?.addEventListener('keypress', (e) => {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						UIControllers.handleChatSend();
+					}
+				});
 
-                // Study guide
-                DOM.getElement('studyGuide')?.addEventListener('click', UIControllers.handleStudyGuide);
+				// Study guide
+				DOM.getElement('studyGuide')?.addEventListener('click', UIControllers.handleStudyGuide);
 
-                // Fruit table
-                DOM.getElement('loadFruitData')?.addEventListener('click', () => FruitTableController.loadFruitData());
-                DOM.getElement('refreshFruitData')?.addEventListener('click', () => FruitTableController.refreshFruitData());
-            }
-        };
+				// Fruit table
+				DOM.getElement('loadFruitData')?.addEventListener('click', () => FruitTableController.loadFruitData());
+				DOM.getElement('refreshFruitData')?.addEventListener('click', () => FruitTableController.refreshFruitData());
+			}
+		};
 
-        /**
-         * Application Initialization
-         */
-        function initializeApp() {
-            // Initialize state
-            AppState.init();
+		/**
+		 * Application Initialization
+		 */
+		function initializeApp() {
+			// Initialize state
+			AppState.init();
 
-            // Initialize AI•Web core
-            AIWebCore.replaceAllTokens();
-            AIWebCore.renderMarkdown();
+			// Initialize AI•Web core
+			AIWebCore.replaceAllTokens();
+			AIWebCore.renderMarkdown();
 
-            // Populate fruit dropdown from data source
-            FruitDataSource.populateDropdown('fruitSelect');
+			// Populate fruit dropdown from data source
+			FruitDataSource.populateDropdown('fruitSelect');
 
-            // Load saved API key
-            if (AppState.apiKey) {
-                DOM.setValue('api-key', AppState.apiKey);
-            }
+			// Load saved API key
+			if (AppState.apiKey) {
+				DOM.setValue('api-key', AppState.apiKey);
+			}
 
-            // Setup event handlers
-            EventHandlers.setup();
-        }
+			// Setup event handlers
+			EventHandlers.setup();
+		}
 
-        // Start the application
-        initializeApp();
-    </script>
+		// Start the application
+		initializeApp();
+	</script>
 </body>
 
 </html>

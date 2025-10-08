@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en" data-aiweb-format="AI•Web" data-aiweb-version="1.0">
+<head>
+  <meta charset="utf-8" />
+  <title>AI•Web + AICS — Minimal Fruit Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <style>
+    .app { max-width: 780px; margin: 2rem auto; }
+    textarea#aics { width: 100%; height: 200px; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+<main class="container app">
+
+  <h1>🍓 Minimal Fruit Quiz (AI•Web + AICS)</h1>
+
+  <!-- API key -->
+  <article>
+    <label>
+      Groq API Key (starts with <code>gsk_</code>)
+      <input type="text" id="apiKey" placeholder="gsk_..." />
+    </label>
+  </article>
+
+  <!-- Simple AICS editor -->
+  <article>
+    <header><strong>AICS Script</strong> (edit &amp; press Run)</header>
+    <textarea id="aics" spellcheck="false">
+title: Fruit Quiz
+author: J. Smith
+
+template: hello.template
+👋 Welcome to **::title.value::** by ::author.value::.
+
+template: ask.template
+Tell me 3 things you know about ::random from=fruits emoji=true::.
+
+template: reply.template
+### Your Answer
+::user_answer.value::
+
+### Quick Check
+::grade_block.html::
+
+### Fun Fact
+::fun_fact.html::
+
+template: goodbye.template
+Thanks for playing **::title.value::**! 👋
+
+fruits:
+- apple
+- banana
+- orange
+- strawberry
+- pineapple
+    </textarea>
+    <div class="grid">
+      <button id="runBtn">Run</button>
+      <button class="secondary" id="resetBtn">Reset</button>
+    </div>
+  </article>
+
+  <!-- App surface -->
+  <article id="stage">
+    <p class="hidden" id="hint">Ready.</p>
+    <div id="view"></div>
+    <form id="answerForm" class="hidden">
+      <label>Your answer
+        <textarea id="answer" rows="4" placeholder="Write 2–3 short lines…"></textarea>
+      </label>
+      <button type="submit">Submit</button>
+    </form>
+    <div id="actions" class="hidden">
+      <button id="againBtn" class="secondary">Try another fruit</button>
+      <button id="quitBtn" class="contrast">Quit</button>
+    </div>
+  </article>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+<script>
+/* =======================
+   0) Tiny helpers
+======================= */
+const $ = sel => document.querySelector(sel);
+const md = (text) => marked.parse(text || "");
+
+/* =======================
+   1) AICS parser (tiny)
+   Supports:
+   - metadata: key: value
+   - template blocks: "template: name"
+   - data list: "fruits:" then "- item"
+======================= */
+function parseAICS(src) {
+  const lines = src.replace(/\r\n/g, "\n").split("\n");
+  const meta = {};
+  const templates = {};
+  const data = {};
+  let i = 0;
+
+  // pass 1: metadata (key: value) until blank line or "template:"/data
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    if (!line) { i++; break; }
+    if (/^(template:|fruits:)/i.test(line)) break;
+    const m = line.match(/^([\w.-]+)\s*:\s*(.*)$/);
+    if (m) meta[m[1].trim()] = m[2].trim();
+    i++;
+  }
+
+  // pass 2: templates + data
+  let currentTpl = null, buf = [];
+  for (; i < lines.length; i++) {
+    const raw = lines[i];
+    const line = raw.trim();
+
+    if (/^template:\s*/i.test(line)) {
+      if (currentTpl) templates[currentTpl] = buf.join("\n").trim();
+      currentTpl = line.replace(/^template:\s*/i, "");
+      buf = [];
+      continue;
+    }
+    if (/^fruits:\s*$/i.test(line)) {
+      if (currentTpl) { templates[currentTpl] = buf.join("\n").trim(); currentTpl = null; buf = []; }
+      // collect list
+      i++;
+      data.fruits = [];
+      while (i < lines.length) {
+        const l = lines[i];
+        if (!l.trim()) break;
+        const m = l.match(/^\s*-\s+(.*)$/);
+        if (!m) { i--; break; }
+        data.fruits.push(m[1].trim());
+        i++;
+      }
+      continue;
+    }
+    if (currentTpl !== null) buf.push(raw);
+  }
+  if (currentTpl) templates[currentTpl] = buf.join("\n").trim();
+
+  return { meta, templates, data };
+}
+
+/* =======================
+   2) Token engine (tiny)
+   Supports:
+   - ::title.value:: / ::author.value:: / ::user_answer.value::
+   - ::random from=fruits emoji=true::
+   - ::hello.template:: etc. are just looked up before rendering
+======================= */
+function renderTemplate(name, ctx) {
+  const tpl = ctx.templates[name] || "";
+  return expandTokens(tpl, ctx);
+}
+
+function expandTokens(text, ctx) {
+  if (!text) return "";
+  return text.replace(/::([^:]+?)::/g, (m, body) => {
+    // namespaced forms: something.suffix
+    const parts = body.trim().split(/\s+/);
+    const head = parts.shift();
+
+    // built-in: random from=fruits emoji=true
+    if (head === "random") {
+      const args = Object.fromEntries(parts.map(p => p.split('=').map(s => s.replace(/^"+|"+$/g,''))));
+      const listName = (args.from || "").trim();
+      const emoji = String(args.emoji || "false") === "true";
+      const list = ctx.data[listName] || [];
+      if (!list.length) return "(none)";
+      const choice = list[Math.floor(Math.random()*list.length)];
+      const emojiMap = { apple:"🍎", banana:"🍌", orange:"🍊", strawberry:"🍓", pineapple:"🍍" };
+      return emoji ? `${choice} ${emojiMap[choice.toLowerCase()] || "🍇"}` : choice;
+    }
+
+    // .value lookup
+    if (head.endsWith(".value")) {
+      const key = head.slice(0, -6);
+      if (key === "user_answer") return ctx.userAnswer || "";
+      return ctx.meta[key] || "";
+    }
+
+    // .template include
+    if (head.endsWith(".template")) {
+      const key = head;
+      return renderTemplate(key, ctx);
+    }
+
+    // .html: inject precomputed html chunk (safe-ish, we trust our own generator)
+    if (head.endsWith(".html")) {
+      const key = head.slice(0,-5);
+      return (ctx.html && ctx.html[key]) ? ctx.html[key] : "";
+    }
+
+    // fallback: maybe plain template name w/o suffix
+    if (ctx.templates[head]) return renderTemplate(head, ctx);
+
+    return m; // unknown token → leave as-is
+  });
+}
+
+/* =======================
+   3) Minimal runtime (flow)
+   Flow:
+     hello → ask (wait input) → API call → reply → goodbye or again
+======================= */
+const state = {
+  ctx: null,
+  selectedFruit: null,
+  apiKey: "",
+  html: {}
+};
+
+function runAICS() {
+  state.apiKey = $("#apiKey").value.trim();
+  state.ctx = parseAICS($("#aics").value);
+  state.ctx.userAnswer = "";
+  state.ctx.html = {};
+
+  $("#view").innerHTML = md(expandTokens("::hello.template::", state.ctx));
+  $("#answer").value = "";
+  $("#answerForm").classList.remove("hidden");
+  $("#actions").classList.add("hidden");
+
+  // Pre-expand the ask template (contains ::random from=fruits::)
+  const ask = md(expandTokens("::ask.template::", state.ctx));
+  $("#view").insertAdjacentHTML("beforeend", ask);
+  $("#hint").classList.add("hidden");
+  $("#answer").focus();
+}
+
+async function handleSubmit(e) {
+  e.preventDefault();
+  const userText = $("#answer").value.trim();
+  if (!userText) return;
+
+  state.ctx.userAnswer = userText;
+
+  // Build a tiny prompt → expects JSON: { grade, fun_fact }
+  const prompt = `User wrote about a fruit. Grade A–F and give one fun fact.
+Return ONLY JSON like: {"grade":"A","fun_fact":"..."}.
+
+Text:
+${userText}`;
+
+  let result = { grade: "B", fun_fact: "Apples float in water because they’re ~25% air." }; // fallback demo
+  if (state.apiKey.startsWith("gsk_")) {
+    try {
+      const rsp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${state.apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "llama-3.1-8b-instant",
+          messages: [{ role: "user", content: prompt }]
+        })
+      });
+      const data = await rsp.json();
+      const content = data?.choices?.[0]?.message?.content || "";
+      try { result = JSON.parse(content); } catch { /* fall back */ }
+    } catch (err) { /* fall back silently */ }
+  }
+
+  // Prepare small HTML chunks used by ::grade_block.html:: and ::fun_fact.html::
+  state.ctx.html = {
+    grade_block: `<article><strong>Grade:</strong> ${result.grade || "?"}</article>`,
+    fun_fact: `<p>${(result.fun_fact || "Fruits are great!").replace(/</g,"&lt;")}</p>`
+  };
+
+  // Render reply
+  const reply = md(expandTokens("::reply.template::", state.ctx));
+  $("#view").innerHTML = reply;
+
+  $("#answerForm").classList.add("hidden");
+  $("#actions").classList.remove("hidden");
+}
+
+function again() {
+  // reset only the interaction part; keep same script
+  $("#view").innerHTML = md(expandTokens("::ask.template::", state.ctx));
+  $("#answer").value = "";
+  $("#answerForm").classList.remove("hidden");
+  $("#actions").classList.add("hidden");
+  $("#answer").focus();
+}
+
+function quit() {
+  const bye = md(expandTokens("::goodbye.template::", state.ctx));
+  $("#view").innerHTML = bye;
+  $("#answerForm").classList.add("hidden");
+  $("#actions").classList.add("hidden");
+}
+
+/* =======================
+   4) Wire up
+======================= */
+$("#runBtn").addEventListener("click", runAICS);
+$("#resetBtn").addEventListener("click", () => { $("#view").innerHTML=""; $("#answer").value=""; $("#hint").classList.remove("hidden"); });
+$("#answerForm").addEventListener("submit", handleSubmit);
+$("#againBtn").addEventListener("click", again);
+$("#quitBtn").addEventListener("click", quit);
+</script>
+</body>
+</html>
