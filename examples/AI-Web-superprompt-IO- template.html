@@ -1,0 +1,94 @@
+AI.Web.Script - Natural language instructions for AI to interpret
+The AI will read this entire script and execute the flow
+
+Super Prompt
+
+title: Cities Quiz
+author: J. Smith
+description: A simple quiz testing the knowledge of cities. 
+
+_________
+APP FLOW
+
+Greet user with
+{start.template}
+
+ai-selected-city: AI randomly select one city from {cities}.
+
+user-response: Ask user to provide three facts about the chosen city
+
+
+ai-evaluation: evaluate answer based on accuracy and completeness
+
+ai-grade: (i.e., whether user provided three facts), and assign a grade (A, B, C, D, or F) with a brief explanation
+
+
+
+Display a complete summary
+
+Respond to user with
+{reply.template}
+Then display
+{funfact.template}
+
+
+
+Then ask the user if they want to answer another city question or if they want to quit.
+
+If they want to quit display this
+{goodbye.template}
+
+__________
+TEMPLATES
+
+template: footer.template
+{title} QUIZ - **Q** to quit
+
+template: start.template
+// Greet the user  
+
+# Welcome to {title} by {author}.
+{footer.template}
+
+template: reply.template
+You were asked about: {ai-selected-city} and you replied:
+
+_{user-response}_
+
+> AI Evaluation
+
+{ai-evaluation}
+
+{goodbye.template}
+
+
+template: funfact.template
+// Then, share a fun fact about the chosen city. 
+## Fun Fact
+_{ai-funfact}_
+{footer.template}
+
+template: goodbye.template
+## Thanks for playing {title}.
+
+by the way the other cities were:
+// display in numbered list and append a flag for the country for each city
+
+{cities}
+
+> Goodbye
+
+____
+DATA
+
+cities:
+- London, England
+- New York City, USA
+- Toronto, Canada
+- Washington, D.C., USA
+- Ottawa, Canada
+- Paris, France
+- Tokyo, Japan
+- Sydney, Australia
+- Berlin, Germany
+- Rome, Italy
