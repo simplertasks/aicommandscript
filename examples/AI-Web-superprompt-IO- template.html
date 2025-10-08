@@ -35,8 +35,8 @@ Then ask the user if they want to answer another city question or if they want t
 If they want to quit display this
 {goodbye.template}
 
-__________
-TEMPLATES
+______________
+USER TEMPLATES
 
 template: footer.template
 {title} QUIZ - **Q** to quit
@@ -47,16 +47,6 @@ template: start.template
 # Welcome to {title} by {author}.
 {footer.template}
 
-template: reply.template
-You were asked about: {ai-selected-city} and you replied:
-
-_{user-response}_
-
-> AI Evaluation
-
-{ai-evaluation}
-
-{goodbye.template}
 
 
 template: funfact.template
@@ -74,6 +64,22 @@ by the way the other cities were:
 {cities}
 
 > Goodbye
+
+
+_____________________
+AI RESPONSE TEMPLATES
+
+template: reply.template
+You were asked about: {ai-selected-city} and you replied:
+
+_{user-response}_
+
+> AI Evaluation
+
+{ai-evaluation}
+
+{goodbye.template}
+
 
 ____
 DATA
