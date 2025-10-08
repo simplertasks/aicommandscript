@@ -58,47 +58,26 @@ textarea#aiweb-script {
 <article>
   <header><strong>AI.Web.Script</strong> (edit &amp; press Run)</header>
   <textarea id="aiweb-script" spellcheck="false">
+		
 
 // AI.Web.Script - Natural language instructions for AI to interpret
 // The AI will read this entire script and execute the flow
 
+// Super Prompt:
+
 title: Cities Quiz
 author: J. Smith
 
-// === Templates ===
-// Templates contain instructions for AI to follow when rendering
 
 template: start.template
-Greet the user warmly and introduce them to ::title.value:: by ::author.value::.
-Use a wave emoji and make it friendly.
+// Greet the user warmly 
 
-Then, pick a random city from data.cities below.
-Ask the user to tell you 3 things they know about that city.
-Include the appropriate country flag emoji for the city.
-Make the question engaging and encouraging.
+# Welcome to ::title.value:: by ::author.value::.
 
-IMPORTANT: At the very end of your response, add this hidden marker:
 
-<!-- CITY: [the city you picked] -->
 
-template: reply.template
-The user was asked about: ::selected_city.value::
-The user answered: ::user_answer.value::
+// Create a quiz where you randomly select one city from the following list
 
-Now do the following:
-
-1. Grade their answer from A to F based on accuracy, completeness (3 things?), and detail
-1. Be encouraging - even basic knowledge deserves at least a C
-1. Display the grade in a nice format with an appropriate emoji
-1. Share one surprising or little-known historical fact about ::selected_city.value::
-1. Format everything in clean, readable markdown
-
-template: goodbye.template
-Thank the user for playing ::title.value::.
-Wish them well and use a friendly wave emoji.
-
-// === Data section ===
-data:
 cities:
 - London, England
 - New York City, USA
@@ -110,6 +89,38 @@ cities:
 - Sydney, Australia
 - Berlin, Germany
 - Rome, Italy
+
+
+// Ask me to provide three facts about the chosen city.
+
+// After user responds, evaluate my answer based on accuracy and completeness (i.e., whether I provided three facts), and assign a grade (A, B, C, D, or F) with a brief explanation. 
+
+
+template: reply.template
+
+The user was asked about: ::selected_city.value::
+The user answered: ::user_answer.value::
+
+
+
+template: funfact.template
+// Then, share a fun fact about the chosen city. 
+
+## Fun Fact
+_::funfact::_
+
+
+// ask the user if they want to answering other city question or if they want to quit. 
+
+
+
+// if they want to quit display this
+
+template: goodbye.template
+Thanks for playing ::title.value::.
+
+
+
 </textarea>
 <div class="grid">
 <button id="runBtn">Run</button>
