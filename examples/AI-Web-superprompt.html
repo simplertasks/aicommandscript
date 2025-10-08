@@ -11,72 +11,59 @@ _________
 APP FLOW
 
 Greet user with
-[[start.template]]
+{start.template}
 
-
-ai-selected-city: AI randomly select one city from  [[cities]]. 
-
+ai-selected-city: AI randomly select one city from {cities}.
 
 user-response: Ask user to provide three facts about the chosen city
 
-
 Respond to user with
-[[reply.template]]
+{reply.template}
 
-
-Then, evaluate answer based on accuracy and completeness. 
+Then, evaluate answer based on accuracy and completeness.
 
 ai-grade: (i.e., whether user provided three facts), and assign a grade (A, B, C, D, or F) with a brief explanation
 
 Then display
-[[funfact.template]]
+{funfact.template}
 
-Then ask the user if they want to answer another city question or if they want to quit. 
+Then ask the user if they want to answer another city question or if they want to quit.
 
 If they want to quit display this
-
-[[goodbye.template]]
-
+{goodbye.template}
 
 __________
 TEMPLATES
 
-
 template: footer.template
-
-[[title] QUIZ - **Q** to quit
-
+{title} QUIZ - **Q** to quit
 
 template: start.template
 // Greet the user  
 
-# Welcome to [[title]] by [[author]].
-[[footer.template]]
+# Welcome to {title} by {author}.
+{footer.template}
 
 template: reply.template
+You were asked about: {ai-selected-city} and you replied:
 
-You were was asked about: [[ai-selected_city]] and you replied:
-
-_[[user-response]]_
-
+_{user-response}_
 
 template: funfact.template
 // Then, share a fun fact about the chosen city. 
 ## Fun Fact
-_[[ai-funfact]]_
-[[footer.template]]
+_{ai-funfact}_
+{footer.template}
 
 template: goodbye.template
-## Thanks for playing [[title]].
+## Thanks for playing {title}.
 
 by the way the other cities were:
-// display in numbered list and depend a flag for the country for each city
+// display in numbered list and append a flag for the country for each city
 
-
-[[cities]]
+{cities}
 
 > Goodbye
-
 
 ____
 DATA
@@ -92,8 +79,3 @@ cities:
 - Sydney, Australia
 - Berlin, Germany
 - Rome, Italy
-
-
-
-
-
