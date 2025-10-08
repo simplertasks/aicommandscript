@@ -1,10 +1,43 @@
-AI.Web.Script - Natural language instructions for AI to interpret
-The AI will read this entire script and execute the flow
+AI.Web.Script - Structural Natural language instructions for AI to interpret. 
 
-Instructions for AI execution ONLY:
-AI executes this script step by step. Do NOT elaborate, summarize, rephrase, or explain. 
+The AI will read this entire script and execute the flow. 
 
-Note that comments that start with '//' provide guidance to the AI but should never be displayed. 
+
+
+AI Execution Mode:
+- AI executes ONLY as scripted.
+- No elaboration, no paraphrasing, no creative filler.
+- AI must output EXACT template content, substituting variables and templates where required.
+- Comments beginning with '//' are for AI guidance only — never displayed.
+
+Super Prompt
+
+title: Cities Quiz
+author: J. Smith
+description: A simple quiz testing the knowledge of cities.
+
+_________
+APP FLOW
+
+Greet user with
+{start.template}
+
+ai-selected-city: randomly select one city from {cities}
+
+Then execute in order:
+1. Display {ask-user.template}
+2. Wait for user.name.input
+3. Display question: What are three facts about {ai-selected-city}
+4. Wait for user answer
+5. Evaluate: accuracy + completeness (3 facts)
+6. Assign ai-grade (A–F) with short reason
+7. Display {reply.template}
+8. Ask user if they want another round or to quit.
+9. If quit → Display {goodbye.template}
+
+______________
+PROMPT TEMPLATES
+// (Keep your templates as written)
 
 
 Super Prompt
@@ -21,9 +54,11 @@ Greet user with
 
 ai-selected-city: AI randomly select one city from {cities}.
 
-user-response: Ask user to provide three facts about {ai-selected-city}
+{ask-user.template}
 
 {city-facts.prompt}
+
+Hello **{user-name.prompt}**!
 
 ai-evaluation: evaluate answer based on accuracy and completeness
 
@@ -42,13 +77,18 @@ If they want to quit display this
 
 ______________
 PROMPT TEMPLATES
-Ask
 
-user-name.prompt: What is your name?
+template: ask-user.template
 
-and then
+// get information from user 
+// this is HTML but just converted to plain text to ask the 
 
-city-facts.input: What are three facts about about {ai-selected-city}
+user-name: prompt("Please enter your name", "Harry Potter");
+
+
+city-facts: 
+What are three facts about about {ai-selected-city}
+<input type="text" name="city-facts">
 
 ______________
 USER TEMPLATES
@@ -90,7 +130,7 @@ template: reply.template
 
 You were asked about: {ai-selected-city} and you replied:
 
-_{city-facts.prompt}_
+_{city-fact}_
 
 > AI Evaluation
 
