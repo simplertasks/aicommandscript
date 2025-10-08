@@ -1,49 +1,61 @@
 <!DOCTYPE html>
 <html lang="en" data-aiweb-format="AI.Web" data-aiweb-version="1.0">
+
 <head>
   <meta charset="utf-8" />
-  <title>AI.Web + AI.Web.Script — Minimal Fruit Quiz</title>
+  <title>AI.Web + AI.Web.Script — Minimal Cities Quiz</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <style>
-    .app { max-width: 780px; margin: 2rem auto; }
-    textarea#aiweb-script { width: 100%; height: 240px; }
-    .hidden { display:none; }
+    .app {
+      max-width: 780px;
+      margin: 2rem auto;
+    }
+
+    textarea#aiweb-script {
+      width: 100%;
+      height: 240px;
+    }
+
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
+
 <body>
-<main class="container app">
+  <main class="container app">
 
-  <h1>🍓 Minimal Fruit Quiz (AI.Web + AI.Web.Script)</h1>
+    <h1>🏙️ Minimal Cities Quiz (AI.Web + AI.Web.Script)</h1>
 
-  <!-- API key -->
-  <article>
-    <label>
-      Groq API Key (starts with <code>gsk_</code>)
-      <input type="text" id="apiKey" placeholder="gsk_..." />
-    </label>
-  </article>
+    <!-- API key -->
+    <article>
+      <label>
+        Groq API Key (starts with <code>gsk_</code>)
+        <input type="text" id="apiKey" placeholder="gsk_..." />
+      </label>
+    </article>
 
-  <!-- AI.Web.Script editor -->
-  <article>
-    <header><strong>AI.Web.Script</strong> (edit &amp; press Run)</header>
-    <textarea id="aiweb-script" spellcheck="false">
+    <!-- AI.Web.Script editor -->
+    <article>
+      <header><strong>AI.Web.Script</strong> (edit &amp; press Run)</header>
+      <textarea id="aiweb-script" spellcheck="false">
 // Author notes and AI guidance can go here (script-level):
 // - Use ::name.template:: for templates
 // - Use ::name.value:: for variables
 // - Use ::command args:: for built-ins (e.g., random)
 // - Data is pure YAML under the `data:` block (use # for YAML comments)
 
-title: Fruit Quiz
+title: Cities Quiz
 author: J. Smith
 
 // === Templates ===
 template: hello.template
 👋 Welcome to **::title.value::** by ::author.value::.
 
-/* Ask the user about a random fruit from data.fruits */
+/* Ask the user about a random city from data.cities */
 template: ask.template
-Tell me 3 things you know about ::random from=data.fruits emoji=true::.
+Tell me 3 things you know about ::random from=data.cities emoji=true::.
 
 template: reply.template
 ### Your Answer
@@ -60,298 +72,306 @@ Thanks for playing **::title.value::**! 👋
 
 # === Data section (pure YAML) ===
 data:
-  # Each item below is a fruit the quiz can use
-  fruits:
-    - apple
-    - banana
-    - orange
-    - strawberry
-    - pineapple
+  # Each item below is a city the quiz can use
+  cities:
+    - London, England
+    - New York City, USA
+    - Toronto, Canada
+    - Washington, D.C., USA
+    - Ottawa, Canada
+    - Paris, France
     </textarea>
-    <div class="grid">
-      <button id="runBtn">Run</button>
-      <button class="secondary" id="resetBtn">Reset</button>
-    </div>
-  </article>
+      <div class="grid">
+        <button id="runBtn">Run</button>
+        <button class="secondary" id="resetBtn">Reset</button>
+      </div>
+    </article>
 
-  <!-- App surface -->
-  <article id="stage">
-    <p class="hidden" id="hint">Ready.</p>
-    <div id="view"></div>
-    <form id="answerForm" class="hidden">
-      <label>Your answer
-        <textarea id="answer" rows="4" placeholder="Write 2–3 short lines…"></textarea>
-      </label>
-      <button type="submit">Submit</button>
-    </form>
-    <div id="actions" class="hidden">
-      <button id="againBtn" class="secondary">Try another fruit</button>
-      <button id="quitBtn" class="contrast">Quit</button>
-    </div>
-  </article>
+    <!-- App surface -->
+    <article id="stage">
+      <p class="hidden" id="hint">Ready.</p>
+      <div id="view"></div>
+      <form id="answerForm" class="hidden">
+        <label>Your answer
+          <textarea id="answer" rows="4" placeholder="Write 2–3 short lines…"></textarea>
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+      <div id="actions" class="hidden">
+        <button id="againBtn" class="secondary">Try another city</button>
+        <button id="quitBtn" class="contrast">Quit</button>
+      </div>
+    </article>
 
-</main>
+  </main>
 
-<script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
-<script>
-/* =======================
-   0) Tiny helpers
-======================= */
-const $ = sel => document.querySelector(sel);
-const md = (text) => marked.parse(text || "");
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+  <script>
+    /* =======================
+       0) Tiny helpers
+    ======================= */
+    const $ = sel => document.querySelector(sel);
+    const md = (text) => marked.parse(text || "");
 
-/* =======================
-   1) AI.Web.Script parser (tiny)
-   - metadata: key: value
-   - template blocks: "template: name.template"
-   - data block: "data:" then simple YAML (lists/maps). Here we parse a 2-space-indented list.
-======================= */
-function parseAIWebScript(src) {
-  const lines = src.replace(/\r\n/g, "\n").split("\n");
+    /* =======================
+       1) AI.Web.Script parser (tiny)
+       - metadata: key: value
+       - template blocks: "template: name.template"
+       - data block: "data:" then simple YAML (lists/maps). Here we parse a 2-space-indented list.
+    ======================= */
+    function parseAIWebScript(src) {
+      const lines = src.replace(/\r\n/g, "\n").split("\n");
 
-  const meta = {};
-  const templates = {};
-  const data = {};
-  let i = 0;
+      const meta = {};
+      const templates = {};
+      const data = {};
+      let i = 0;
 
-  // Pass 1: metadata until blank or template:/data:
-  while (i < lines.length) {
-    const line = lines[i].trim();
-    if (!line) { i++; break; }
-    if (/^(template:|data:)/i.test(line)) break;
-    if (/^\/\//.test(line) || /^\/\*/.test(line)) { i++; continue; } // script comments
-    const m = line.match(/^([\w.-]+)\s*:\s*(.*)$/);
-    if (m) meta[m[1].trim()] = m[2].trim();
-    i++;
-  }
-
-  // Pass 2: templates and data
-  let currentTpl = null, buf = [];
-  for (; i < lines.length; i++) {
-    const raw = lines[i];
-    const line = raw.trim();
-
-    // Template start
-    if (/^template:\s*/i.test(line)) {
-      if (currentTpl) templates[currentTpl] = buf.join("\n").trim();
-      currentTpl = line.replace(/^template:\s*/i, "");
-      buf = [];
-      continue;
-    }
-
-    // Data block (YAML-lite)
-    if (/^data:\s*$/i.test(line)) {
-      if (currentTpl) { templates[currentTpl] = buf.join("\n").trim(); currentTpl = null; buf = []; }
-      i++; // move to first data line
+      // Pass 1: metadata until blank or template:/data:
       while (i < lines.length) {
-        const draw = lines[i];
-        const dline = draw.replace(/\t/g, '    '); // normalize tabs
-        const trimmed = draw.trim();
-
-        if (!trimmed) { i++; continue; }            // skip blank lines
-        if (/^template:\s*/i.test(trimmed)) { i--; break; } // next block
-        if (!/^(\s|#)/.test(draw)) { i--; break; }  // left the indented YAML area
-
-        // YAML comments (#) inside data: skip
-        if (trimmed.startsWith('#')) { i++; continue; }
-
-        // Match "  key:" (two-space indent)
-        const keyMatch = dline.match(/^\s{2}([\w.-]+):\s*$/);
-        if (keyMatch) {
-          const key = keyMatch[1];
-          // Check for list under this key: "    - value"
-          const arr = [];
-          i++;
-          while (i < lines.length) {
-            const lraw = lines[i];
-            const ltrim = lraw.trim();
-            if (!ltrim) { i++; continue; }
-            if (ltrim.startsWith('#')) { i++; continue; }
-            // new key at same indent or end of data
-            if (/^\s{2}[\w.-]+:\s*$/.test(lraw) || !/^\s/.test(lraw)) { i--; break; }
-            const itemMatch = lraw.match(/^\s{4}-\s+(.*)$/);
-            if (itemMatch) {
-              arr.push(itemMatch[1].trim());
-              i++;
-              continue;
-            } else {
-              // (Optional) scalar map entries could be handled here in the future
-              i--; break;
-            }
-          }
-          data[key] = arr.length ? arr : data[key] || [];
-        }
+        const line = lines[i].trim();
+        if (!line) { i++; break; }
+        if (/^(template:|data:)/i.test(line)) break;
+        if (/^\/\//.test(line) || /^\/\*/.test(line)) { i++; continue; } // script comments
+        const m = line.match(/^([\w.-]+)\s*:\s*(.*)$/);
+        if (m) meta[m[1].trim()] = m[2].trim();
         i++;
       }
-      continue;
+
+      // Pass 2: templates and data
+      let currentTpl = null, buf = [];
+      for (; i < lines.length; i++) {
+        const raw = lines[i];
+        const line = raw.trim();
+
+        // Template start
+        if (/^template:\s*/i.test(line)) {
+          if (currentTpl) templates[currentTpl] = buf.join("\n").trim();
+          currentTpl = line.replace(/^template:\s*/i, "");
+          buf = [];
+          continue;
+        }
+
+        // Data block (YAML-lite)
+        if (/^data:\s*$/i.test(line)) {
+          if (currentTpl) { templates[currentTpl] = buf.join("\n").trim(); currentTpl = null; buf = []; }
+          i++; // move to first data line
+          while (i < lines.length) {
+            const draw = lines[i];
+            const dline = draw.replace(/\t/g, '    '); // normalize tabs
+            const trimmed = draw.trim();
+
+            if (!trimmed) { i++; continue; }            // skip blank lines
+            if (/^template:\s*/i.test(trimmed)) { i--; break; } // next block
+            if (!/^(\s|#)/.test(draw)) { i--; break; }  // left the indented YAML area
+
+            // YAML comments (#) inside data: skip
+            if (trimmed.startsWith('#')) { i++; continue; }
+
+            // Match "  key:" (two-space indent)
+            const keyMatch = dline.match(/^\s{2}([\w.-]+):\s*$/);
+            if (keyMatch) {
+              const key = keyMatch[1];
+              // Check for list under this key: "    - value"
+              const arr = [];
+              i++;
+              while (i < lines.length) {
+                const lraw = lines[i];
+                const ltrim = lraw.trim();
+                if (!ltrim) { i++; continue; }
+                if (ltrim.startsWith('#')) { i++; continue; }
+                // new key at same indent or end of data
+                if (/^\s{2}[\w.-]+:\s*$/.test(lraw) || !/^\s/.test(lraw)) { i--; break; }
+                const itemMatch = lraw.match(/^\s{4}-\s+(.*)$/);
+                if (itemMatch) {
+                  arr.push(itemMatch[1].trim());
+                  i++;
+                  continue;
+                } else {
+                  // (Optional) scalar map entries could be handled here in the future
+                  i--; break;
+                }
+              }
+              data[key] = arr.length ? arr : data[key] || [];
+            }
+            i++;
+          }
+          continue;
+        }
+
+        // Accumulate template body
+        if (currentTpl !== null) buf.push(raw);
+      }
+      if (currentTpl) templates[currentTpl] = buf.join("\n").trim();
+
+      return { meta, templates, data };
     }
 
-    // Accumulate template body
-    if (currentTpl !== null) buf.push(raw);
-  }
-  if (currentTpl) templates[currentTpl] = buf.join("\n").trim();
-
-  return { meta, templates, data };
-}
-
-/* =======================
-   2) Token engine (tiny)
-   Supports:
-   - ::title.value:: / ::author.value:: / ::user_answer.value::
-   - ::random from=data.fruits emoji=true::
-   - ::hello.template:: etc.
-   - ::grade_block.html:: / ::fun_fact.html:: (precomputed inserts)
-======================= */
-function renderTemplate(name, ctx) {
-  const tpl = ctx.templates[name] || "";
-  return expandTokens(tpl, ctx);
-}
-
-function expandTokens(text, ctx) {
-  if (!text) return "";
-  return text.replace(/::([^:]+?)::/g, (m, body) => {
-    const parts = body.trim().split(/\s+/);
-    const head = parts.shift();
-
-    // built-in: random from=data.fruits emoji=true
-    if (head === "random") {
-      const args = Object.fromEntries(parts.map(p => {
-        const [k, v] = p.split('=');
-        return [k, String((v||"").replace(/^"+|"+$/g,''))];
-      }));
-      let listName = (args.from || "").trim();
-      const emoji = (args.emoji || "false") === "true";
-
-      // Support "data.<name>" or plain "<name>"
-      if (listName.startsWith("data.")) listName = listName.slice(5);
-      const list = ctx.data[listName] || [];
-      if (!list.length) return "(none)";
-
-      const choice = list[Math.floor(Math.random()*list.length)];
-      const emojiMap = { apple:"🍎", banana:"🍌", orange:"🍊", strawberry:"🍓", pineapple:"🍍" };
-      return emoji ? `${choice} ${emojiMap[choice.toLowerCase()] || "🍇"}` : choice;
+    /* =======================
+       2) Token engine (tiny)
+       Supports:
+       - ::title.value:: / ::author.value:: / ::user_answer.value::
+       - ::random from=data.fruits emoji=true::
+       - ::hello.template:: etc.
+       - ::grade_block.html:: / ::fun_fact.html:: (precomputed inserts)
+    ======================= */
+    function renderTemplate(name, ctx) {
+      const tpl = ctx.templates[name] || "";
+      return expandTokens(tpl, ctx);
     }
 
-    // .value lookup
-    if (head.endsWith(".value")) {
-      const key = head.slice(0, -6);
-      if (key === "user_answer") return ctx.userAnswer || "";
-      return ctx.meta[key] || "";
+    function expandTokens(text, ctx) {
+      if (!text) return "";
+      return text.replace(/::([^:]+?)::/g, (m, body) => {
+        const parts = body.trim().split(/\s+/);
+        const head = parts.shift();
+
+        // built-in: random from=data.fruits emoji=true
+        if (head === "random") {
+          const args = Object.fromEntries(parts.map(p => {
+            const [k, v] = p.split('=');
+            return [k, String((v || "").replace(/^"+|"+$/g, ''))];
+          }));
+          let listName = (args.from || "").trim();
+          const emoji = (args.emoji || "false") === "true";
+
+          // Support "data.<name>" or plain "<name>"
+          if (listName.startsWith("data.")) listName = listName.slice(5);
+          const list = ctx.data[listName] || [];
+          if (!list.length) return "(none)";
+
+          const choice = list[Math.floor(Math.random() * list.length)];
+          const emojiMap = { "london, england": "🇬🇧", "new york city, usa": "🇺🇸", "toronto, canada": "🇨🇦", "washington, d.c., usa": "🇺🇸", "ottawa, canada": "🇨🇦", "paris, france": "🇫🇷" };
+          return emoji ? `${choice} ${emojiMap[choice.toLowerCase()] || "🍇"}` : choice;
+        }
+
+        // .value lookup
+        if (head.endsWith(".value")) {
+          const key = head.slice(0, -6);
+          if (key === "user_answer") return ctx.userAnswer || "";
+          return ctx.meta[key] || "";
+        }
+
+        // .template include
+        if (head.endsWith(".template")) {
+          return renderTemplate(head, ctx);
+        }
+
+        // .html: inject precomputed html chunk
+        if (head.endsWith(".html")) {
+          const key = head.slice(0, -5);
+          return (ctx.html && ctx.html[key]) ? ctx.html[key] : "";
+        }
+
+        // fallback: maybe plain template name
+        if (ctx.templates[head]) return renderTemplate(head, ctx);
+
+        return m; // unknown token → leave as-is
+      });
     }
 
-    // .template include
-    if (head.endsWith(".template")) {
-      return renderTemplate(head, ctx);
+    /* =======================
+       3) Minimal runtime (flow)
+       Flow:
+         hello → ask (wait input) → API call → reply → goodbye or again
+    ======================= */
+    const state = { ctx: null, apiKey: "", html: {} };
+
+    function runScript() {
+      state.apiKey = $("#apiKey").value.trim();
+      state.ctx = parseAIWebScript($("#aiweb-script").value);
+      state.ctx.userAnswer = "";
+      state.ctx.html = {};
+
+      $("#view").innerHTML = md(expandTokens("::hello.template::", state.ctx));
+      $("#answer").value = "";
+      $("#answerForm").classList.remove("hidden");
+      $("#actions").classList.add("hidden");
+
+      const ask = md(expandTokens("::ask.template::", state.ctx));
+      $("#view").insertAdjacentHTML("beforeend", ask);
+      $("#hint").classList.add("hidden");
+      $("#answer").focus();
     }
 
-    // .html: inject precomputed html chunk
-    if (head.endsWith(".html")) {
-      const key = head.slice(0,-5);
-      return (ctx.html && ctx.html[key]) ? ctx.html[key] : "";
-    }
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const userText = $("#answer").value.trim();
+      if (!userText) return;
 
-    // fallback: maybe plain template name
-    if (ctx.templates[head]) return renderTemplate(head, ctx);
+      state.ctx.userAnswer = userText;
 
-    return m; // unknown token → leave as-is
-  });
-}
+      // Minimal grading prompt → expects JSON: { grade, fun_fact }
+      const prompt = `A user was asked to write 3 things they know about a city. They wrote the following response. Grade it A–F based on:
+- Accuracy of information
+- Completeness (did they provide 3 things?)
+- Clarity and detail
 
-/* =======================
-   3) Minimal runtime (flow)
-   Flow:
-     hello → ask (wait input) → API call → reply → goodbye or again
-======================= */
-const state = { ctx: null, apiKey: "", html: {} };
+Be generous with grading - even basic knowledge should get at least a C.
 
-function runScript() {
-  state.apiKey = $("#apiKey").value.trim();
-  state.ctx = parseAIWebScript($("#aiweb-script").value);
-  state.ctx.userAnswer = "";
-  state.ctx.html = {};
-
-  $("#view").innerHTML = md(expandTokens("::hello.template::", state.ctx));
-  $("#answer").value = "";
-  $("#answerForm").classList.remove("hidden");
-  $("#actions").classList.add("hidden");
-
-  const ask = md(expandTokens("::ask.template::", state.ctx));
-  $("#view").insertAdjacentHTML("beforeend", ask);
-  $("#hint").classList.add("hidden");
-  $("#answer").focus();
-}
-
-async function handleSubmit(e) {
-  e.preventDefault();
-  const userText = $("#answer").value.trim();
-  if (!userText) return;
-
-  state.ctx.userAnswer = userText;
-
-  // Minimal grading prompt → expects JSON: { grade, fun_fact }
-  const prompt = `User wrote about a fruit. Grade A–F and give one fun fact.
 Return ONLY JSON like: {"grade":"A","fun_fact":"..."}.
 
-Text:
+User's response:
 ${userText}`;
 
-  let result = { grade: "B", fun_fact: "Apples float in water because they’re ~25% air." }; // fallback
-  if (state.apiKey.startsWith("gsk_")) {
-    try {
-      const rsp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${state.apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "llama-3.1-8b-instant",
-          messages: [{ role: "user", content: prompt }]
-        })
-      });
-      const data = await rsp.json();
-      const content = data?.choices?.[0]?.message?.content || "";
-      try { result = JSON.parse(content); } catch {}
-    } catch {}
-  }
+      let result = { grade: "B", fun_fact: "Ottawa is Canada's capital and sits on the Ottawa River, which forms the border between Ontario and Quebec." }; // fallback
+      if (state.apiKey.startsWith("gsk_")) {
+        try {
+          const rsp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${state.apiKey}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "llama-3.1-8b-instant",
+              messages: [{ role: "user", content: prompt }]
+            })
+          });
+          const data = await rsp.json();
+          const content = data?.choices?.[0]?.message?.content || "";
+          try { result = JSON.parse(content); } catch { }
+        } catch { }
+      }
 
-  // Precomputed HTML chunks referenced by ::grade_block.html:: and ::fun_fact.html::
-  state.ctx.html = {
-    grade_block: `<article><strong>Grade:</strong> ${result.grade || "?"}</article>`,
-    fun_fact: `<p>${(result.fun_fact || "Fruits are great!").replace(/</g,"&lt;")}</p>`
-  };
+      // Precomputed HTML chunks referenced by ::grade_block.html:: and ::fun_fact.html::
+      state.ctx.html = {
+        grade_block: `<article><strong>Grade:</strong> ${result.grade || "?"}</article>`,
+        fun_fact: `<p>${(result.fun_fact || "Cities are fascinating!").replace(/</g, "&lt;")}</p>`
+      };
 
-  const reply = md(expandTokens("::reply.template::", state.ctx));
-  $("#view").innerHTML = reply;
+      const reply = md(expandTokens("::reply.template::", state.ctx));
+      $("#view").innerHTML = reply;
 
-  $("#answerForm").classList.add("hidden");
-  $("#actions").classList.remove("hidden");
-}
+      $("#answerForm").classList.add("hidden");
+      $("#actions").classList.remove("hidden");
+    }
 
-function again() {
-  $("#view").innerHTML = md(expandTokens("::ask.template::", state.ctx));
-  $("#answer").value = "";
-  $("#answerForm").classList.remove("hidden");
-  $("#actions").classList.add("hidden");
-  $("#answer").focus();
-}
+    function again() {
+      $("#view").innerHTML = md(expandTokens("::ask.template::", state.ctx));
+      $("#answer").value = "";
+      $("#answerForm").classList.remove("hidden");
+      $("#actions").classList.add("hidden");
+      $("#answer").focus();
+    }
 
-function quit() {
-  const bye = md(expandTokens("::goodbye.template::", state.ctx));
-  $("#view").innerHTML = bye;
-  $("#answerForm").classList.add("hidden");
-  $("#actions").classList.add("hidden");
-}
+    function quit() {
+      const bye = md(expandTokens("::goodbye.template::", state.ctx));
+      $("#view").innerHTML = bye;
+      $("#answerForm").classList.add("hidden");
+      $("#actions").classList.add("hidden");
+    }
 
-/* =======================
-   4) Wire up
-======================= */
-$("#runBtn").addEventListener("click", runScript);
-$("#resetBtn").addEventListener("click", () => {
-  $("#view").innerHTML = "";
-  $("#answer").value = "";
-  $("#hint").classList.remove("hidden");
-});
-$("#answerForm").addEventListener("submit", handleSubmit);
-$("#againBtn").addEventListener("click", again);
-$("#quitBtn").addEventListener("click", quit);
-</script>
+    /* =======================
+       4) Wire up
+    ======================= */
+    $("#runBtn").addEventListener("click", runScript);
+    $("#resetBtn").addEventListener("click", () => {
+      $("#view").innerHTML = "";
+      $("#answer").value = "";
+      $("#hint").classList.remove("hidden");
+    });
+    $("#answerForm").addEventListener("submit", handleSubmit);
+    $("#againBtn").addEventListener("click", again);
+    $("#quitBtn").addEventListener("click", quit);
+  </script>
 </body>
+
 </html>
