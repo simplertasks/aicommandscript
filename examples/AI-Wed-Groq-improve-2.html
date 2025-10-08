@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en" data-aiweb-format="AI.Web" data-aiweb-version="1.0">
+<head>
+  <meta charset="utf-8" />
+  <title>AI.Web + AI.Web.Script — Minimal Cities Quiz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <style>
+    .app {
+      max-width: 780px;
+      margin: 2rem auto;
+    }
+    textarea#aiweb-script {
+      width: 100%;
+      height: 240px;
+    }
+    .hidden {
+      display: none;
+    }
+    .ai-thinking {
+      opacity: 0.6;
+      font-style: italic;
+    }
+    .error {
+      color: red;
+      background: #fee;
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+    #variables article {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 4px;
+      margin-top: 1rem;
+    }
+    #variables h3 {
+      margin-bottom: 0.5rem;
+    }
+    #variables dl {
+      margin: 0;
+    }
+    #variables dt {
+      font-weight: bold;
+      margin-top: 0.5rem;
+    }
+    #variables dd {
+      margin: 0 0 0.5rem 1rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="container app">
+    <h1>🏙️ Minimal Cities Quiz (AI.Web + AI.Web.Script)</h1>
+
+    <!-- API key -->
+    <article>
+      <label>
+        Groq API Key (starts with <code>gsk_</code>)
+        <input type="text" id="apiKey" placeholder="gsk_..." />
+      </label>
+    </article>
+
+    <!-- AI.Web.Script editor -->
+    <article>
+      <header><strong>AI.Web.Script</strong> (edit &amp; press Run)</header>
+      <textarea id="aiweb-script" spellcheck="false">
+AI.Web.Script - Natural language instructions for AI to interpret
+The AI will read this entire script and execute the flow
+
+Super Prompt
+
+title: Cities Quiz
+author: J. Smith
+description: A simple quiz testing the knowledge of cities.
+
+_________
+APP FLOW
+
+Greet user with
+[[start.template]]
+
+ai-selected-city: AI randomly select one city from [[cities]].
+
+user-response: Ask user to provide three facts about the chosen city
+
+Respond to user with
+[[reply.template]]
+
+Then, evaluate answer based on accuracy and completeness.
+
+ai-grade: (i.e., whether user provided three facts), and assign a grade (A, B, C, D, or F) with a brief explanation
+
+Then display
+[[funfact.template]]
+
+Then ask the user if they want to answer another city question or if they want to quit.
+
+If they want to quit display this
+[[goodbye.template]]
+
+Then display the current state of all variables with
+[[variables.template]]
+
+__________
+TEMPLATES
+
+template: footer.template
+[[title]] QUIZ - **Q** to quit
+
+template: start.template
+// Greet the user
+# Welcome to [[title]] by [[author]].
+[[footer.template]]
+
+template: reply.template
+You were asked about: [[ai-selected-city]] and you replied:
+_[[user-response]]_
+
+template: funfact.template
+// Then, share a fun fact about the chosen city.
+## Fun Fact
+_[[ai-funfact]]_
+[[footer.template]]
+
+template: goodbye.template
+## Thanks for playing [[title]].
+by the way the other cities were:
+// display in numbered list and append a flag for the country for each city
+[[cities]]
+> Goodbye
+
+template: variables.template
+// Display all variables in a formatted HTML block using Pico CSS
+<article class="outline">
+  <h3>Current Quiz State</h3>
+  <dl>
+    <dt>Title</dt><dd>[[title]]</dd>
+    <dt>Author</dt><dd>[[author]]</dd>
+    <dt>Description</dt><dd>[[description]]</dd>
+    <dt>Cities</dt><dd>[[cities]]</dd>
+    <dt>Selected City</dt><dd>[[ai-selected-city]]</dd>
+    <dt>User Response</dt><dd>[[user-response]]</dd>
+    <dt>Grade</dt><dd>[[ai-grade]]</dd>
+    <dt>Fun Fact</dt><dd>[[ai-funfact]]</dd>
+  </dl>
+</article>
+
+____
+DATA
+
+cities:
+- London, England
+- New York City, USA
+- Toronto, Canada
+- Washington, D.C., USA
+- Ottawa, Canada
+- Paris, France
+- Tokyo, Japan
+- Sydney, Australia
+- Berlin, Germany
+- Rome, Italy
+</textarea>
+      <div class="grid">
+        <button id="runBtn">Run</button>
+        <button class="secondary" id="resetBtn">Reset</button>
+      </div>
+    </article>
+
+    <!-- App surface -->
+    <article id="stage">
+      <p class="hidden" id="hint">Ready.</p>
+      <div id="view"></div>
+      <form id="answerForm" class="hidden">
+        <label>Your answer
+          <textarea id="answer" rows="4" placeholder="Write 2–3 short lines…"></textarea>
+        </label>
+        <button type="submit">Submit</button>
+      </form>
+      <div id="actions" class="hidden">
+        <button id="againBtn" class="secondary">Try another city</button>
+        <button id="quitBtn" class="contrast">Quit</button>
+      </div>
+    </article>
+
+    <!-- Variables display -->
+    <article id="variables">
+      <div id="variablesView"></div>
+    </article>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+  <script>
+    /* =======================
+       0) Tiny helpers
+    ======================= */
+    const $ = sel => document.querySelector(sel);
+    const md = (text) => marked.parse(text || "");
+
+    /* =======================
+       1) AI.Web.Script parser
+       Handles new variables.template and APP FLOW
+    ======================= */
+    function parseAIWebScript(src) {
+      const lines = src.replace(/\r\n/g, "\n").split("\n");
+      const meta = {};
+      const templates = {};
+      const data = {};
+      const flow = [];
+      let currentSection = null;
+      let currentTpl = null;
+      let buf = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const raw = lines[i];
+        const line = raw.trim();
+
+        if (/^_________/.test(line)) {
+          if (currentTpl) {
+            templates[currentTpl] = buf.join("\n").trim();
+            currentTpl = null;
+            buf = [];
+          }
+          currentSection = lines[i + 1]?.trim();
+          i++;
+          continue;
+        }
+
+        if (currentSection === "APP FLOW") {
+          if (line && !/^\/\//.test(line)) {
+            flow.push(line);
+          }
+          continue;
+        }
+
+        if (/^template:\s*/i.test(line)) {
+          if (currentTpl) templates[currentTpl] = buf.join("\n").trim();
+          currentTpl = line.replace(/^template:\s*/i, "");
+          buf = [];
+          continue;
+        }
+
+        if (/^data:\s*$/i.test(line)) {
+          if (currentTpl) {
+            templates[currentTpl] = buf.join("\n").trim();
+            currentTpl = null;
+            buf = [];
+          }
+          i++;
+          while (i < lines.length) {
+            const draw = lines[i];
+            const dline = draw.replace(/\t/g, '    ');
+            const trimmed = draw.trim();
+
+            if (!trimmed) { i++; continue; }
+            if (/^template:\s*/i.test(trimmed)) { i--; break; }
+            if (!/^(\s|#)/.test(draw)) { i--; break; }
+            if (trimmed.startsWith('#')) { i++; continue; }
+
+            const keyMatch = dline.match(/^\s{2}([\w.-]+):\s*$/);
+            if (keyMatch) {
+              const key = keyMatch[1];
+              const arr = [];
+              i++;
+              while (i < lines.length) {
+                const lraw = lines[i];
+                const ltrim = lraw.trim();
+                if (!ltrim) { i++; continue; }
+                if (ltrim.startsWith('#')) { i++; continue; }
+                if (/^\s{2}[\w.-]+:\s*$/.test(lraw) || !/^\s/.test(lraw)) { i--; break; }
+                const itemMatch = lraw.match(/^\s{4}-\s+(.*)$/);
+                if (itemMatch) {
+                  arr.push(itemMatch[1].trim());
+                  i++;
+                  continue;
+                } else {
+                  i--; break;
+                }
+              }
+              data[key] = arr.length ? arr : data[key] || [];
+            }
+            i++;
+          }
+          continue;
+        }
+
+        if (!currentSection && line && !/^\/\//.test(line) && !/^Super Prompt/.test(line)) {
+          const m = line.match(/^([\w.-]+)\s*:\s*(.*)$/);
+          if (m) meta[m[1].trim()] = m[2].trim();
+          continue;
+        }
+
+        if (currentTpl !== null) buf.push(raw);
+      }
+      if (currentTpl) templates[currentTpl] = buf.join("\n").trim();
+
+      return { meta, templates, data, flow };
+    }
+
+    /* =======================
+       2) AI Interpreter
+       Returns JSON with variables alongside HTML/Markdown
+    ======================= */
+    async function renderTemplateWithAI(templateName, ctx, apiKey) {
+      if (!apiKey || !apiKey.startsWith("gsk_")) {
+        return { html: `<p class="error">⚠️ Valid Groq API key required (starts with gsk_)</p>`, city: null, variables: {} };
+      }
+
+      const superPrompt = buildSuperPrompt(templateName, ctx);
+      console.log("Calling AI with prompt:", superPrompt.substring(0, 200) + "...");
+      console.log("Request details:", { method: "POST", url: "https://api.groq.com/openai/v1/chat/completions" });
+
+      try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "llama-3.1-8b-instant",
+            messages: [
+              {
+                role: "system",
+                content: "You are an AI.Web.Script interpreter. You read scripts with natural language instructions and render them into clean HTML/Markdown. Follow all instructions precisely. Use markdown formatting. Be creative and helpful."
+              },
+              {
+                role: "user",
+                content: superPrompt
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 1500
+          })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("API Error:", response.status, errorText);
+          throw new Error(`API returned ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json();
+        const content = result?.choices?.[0]?.message?.content;
+
+        if (!content) {
+          throw new Error("No content in AI response");
+        }
+
+        // Extract JSON and HTML
+        const jsonMatch = content.match(/<!-- JSON: ({[\s\S]*?}) -->/);
+        let variables = {};
+        let html = content;
+
+        if (jsonMatch) {
+          try {
+            variables = JSON.parse(jsonMatch[1]);
+            html = content.replace(/<!-- JSON: {[\s\S]*?} -->/, '');
+          } catch (e) {
+            console.error("Error parsing JSON:", e);
+          }
+        }
+
+        const cityMatch = html.match(/<!--\s*CITY:\s*([^-]+)\s*-->/);
+        const city = cityMatch ? cityMatch[1].trim() : null;
+        html = html.replace(/<!--\s*CITY:[^-]+-->/, '');
+
+        return { html, city, variables };
+      } catch (error) {
+        console.error("Error calling AI:", error);
+        return {
+          html: `<div class="error">⚠️ Error calling AI: ${error.message}<br><br>Please check:<br>1. Your API key is correct<br>2. You have API credits<br>3. Your internet connection</div>`,
+          city: null,
+          variables: {}
+        };
+      }
+    }
+
+    function buildSuperPrompt(templateName, ctx) {
+      const template = ctx.templates[templateName] || "";
+      let contextSection = "";
+      if (ctx.userResponse) contextSection += `- User response: "${ctx.userResponse}"\n`;
+      if (ctx.aiSelectedCity) contextSection += `- Selected city: ${ctx.aiSelectedCity}\n`;
+      if (ctx.aiGrade) contextSection += `- Grade: ${ctx.aiGrade}\n`;
+      if (ctx.aiFunfact) contextSection += `- Fun fact: ${ctx.aiFunfact}\n`;
+      if (!contextSection) contextSection = "- No user interaction yet\n";
+
+      return `You are interpreting an AI.Web.Script application.
+
+SCRIPT METADATA:
+${Object.entries(ctx.meta).map(([k, v]) => `${k}: ${v}`).join('\n')}
+
+APP FLOW:
+${ctx.flow.join('\n')}
+
+AVAILABLE DATA:
+${Object.entries(ctx.data).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join('\n')}
+
+CURRENT CONTEXT:
+${contextSection}
+
+TEMPLATE TO RENDER: ${templateName}
+----------------------------------------
+${template}
+----------------------------------------
+
+YOUR TASK:
+1. Render the template into clean, well-formatted HTML/Markdown, replacing all tokens.
+2. Return a JSON object containing all variables (static and AI-generated) in the format:
+   <!-- JSON: {
+     "title": string,
+     "author": string,
+     "description": string,
+     "cities": array,
+     "ai-selected-city": string|null,
+     "user-response": string|null,
+     "ai-grade": string|null,
+     "ai-funfact": string|null
+   } -->
+   Ensure the JSON is valid and includes the latest values for all variables.
+
+CRITICAL RULES FOR TOKEN REPLACEMENT:
+1. Replace [[title]] with exactly: ${ctx.meta.title || 'Cities Quiz'}
+2. Replace [[author]] with exactly: ${ctx.meta.author || 'J. Smith'}
+3. Replace [[description]] with exactly: ${ctx.meta.description || 'A simple quiz testing the knowledge of cities'}
+4. Replace [[user-response]] with exactly: ${ctx.userResponse || '(no response yet)'}
+5. Replace [[ai-selected-city]] with exactly: ${ctx.aiSelectedCity || '(no city selected)'}
+6. Replace [[ai-funfact]] with a surprising or little-known fact about the selected city
+7. Replace [[cities]] with the list of cities from data.cities, formatted as instructed
+8. When you see "AI randomly select one city from [[cities]]", choose ONE city from this list: ${JSON.stringify(ctx.data.cities)}
+9. For [[cities]] in goodbye.template, format as a numbered list with country flag emojis (e.g., London, England 🏴󠁧󠁢󠁥󠁮󠁧󠁿)
+10. DO NOT use [[variable]] unless explicitly present in the template
+
+OTHER RULES:
+- Follow ALL natural language instructions in the template and app flow carefully
+- Use proper HTML/Markdown formatting
+- Be warm, engaging, and helpful in tone
+- If you select a random city, include this hidden marker at the end: <!-- CITY: [the city you picked] -->
+- For grading (A-F), evaluate based on accuracy, completeness (3 facts?), and detail
+- When asked to append flags, use these: England 🏴󠁧󠁢󠁥󠁮󠁧󠁿, USA 🇺🇸, Canada 🇨🇦, France 🇫🇷, Japan 🇯🇵, Australia 🇦🇺, Germany 🇩🇪, Italy 🇮🇹
+- For variables.template, format the output as clean HTML using Pico CSS classes
+
+Return the rendered HTML/Markdown content followed by the JSON object in the format:
+[HTML/Markdown content]
+<!-- JSON: {...} -->`;
+    }
+
+    /* =======================
+       3) Application Flow
+       Renders variables.template after each step
+    ======================= */
+    const state = {
+      ctx: null,
+      apiKey: "",
+      userResponse: "",
+      aiSelectedCity: null,
+      aiGrade: null,
+      aiFunfact: null,
+      step: "start",
+      variables: {}
+    };
+
+    async function renderVariablesTemplate() {
+      const variablesCtx = { ...state.ctx, variables: state.variables };
+      const result = await renderTemplateWithAI("variables.template", variablesCtx, state.apiKey);
+      $("#variablesView").innerHTML = md(result.html);
+    }
+
+    async function runScript() {
+      state.apiKey = $("#apiKey").value.trim();
+      if (!state.apiKey.startsWith("gsk_")) {
+        alert("Please enter a valid Groq API key (starts with gsk_)");
+        return;
+      }
+
+      state.ctx = parseAIWebScript($("#aiweb-script").value);
+      state.userResponse = "";
+      state.aiSelectedCity = null;
+      state.aiGrade = null;
+      state.aiFunfact = null;
+      state.variables = {
+        title: state.ctx.meta.title,
+        author: state.ctx.meta.author,
+        description: state.ctx.meta.description,
+        cities: state.ctx.data.cities,
+        "ai-selected-city": null,
+        "user-response": null,
+        "ai-grade": null,
+        "ai-funfact": null
+      };
+      state.step = "start";
+
+      $("#view").innerHTML = '<p class="ai-thinking">🤖 AI is rendering your app...</p>';
+      $("#variablesView").innerHTML = '<p class="ai-thinking">🤖 Updating variables...</p>';
+      $("#answerForm").classList.add("hidden");
+      $("#actions").classList.add("hidden");
+
+      const result = await renderTemplateWithAI("start.template", state.ctx, state.apiKey);
+      if (result.city) {
+        state.aiSelectedCity = result.city;
+        state.ctx.aiSelectedCity = result.city;
+        state.variables["ai-selected-city"] = result.city;
+      }
+      state.variables = { ...state.variables, ...result.variables };
+
+      $("#view").innerHTML = md(result.html);
+      await renderVariablesTemplate();
+      $("#answerForm").classList.remove("hidden");
+      $("#hint").classList.add("hidden");
+      $("#answer").focus();
+      state.step = "reply";
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const userText = $("#answer").value.trim();
+      if (!userText) return;
+
+      state.ctx.userResponse = userText;
+      state.userResponse = userText;
+      state.variables["user-response"] = userText;
+
+      $("#view").innerHTML = '<p class="ai-thinking">🤖 AI is reading your answer and preparing feedback...</p>';
+      $("#variablesView").innerHTML = '<p class="ai-thinking">🤖 Updating variables...</p>';
+      $("#answerForm").classList.add("hidden");
+
+      if (state.step === "reply") {
+        const replyResult = await renderTemplateWithAI("reply.template", state.ctx, state.apiKey);
+        const gradeMatch = replyResult.html.match(/\*\*Grade: ([A-F])\*\*/);
+        state.aiGrade = gradeMatch ? gradeMatch[1] : "C";
+        state.ctx.aiGrade = state.aiGrade;
+        state.variables["ai-grade"] = state.aiGrade;
+        state.variables = { ...state.variables, ...replyResult.variables };
+
+        state.step = "funfact";
+        const funfactResult = await renderTemplateWithAI("funfact.template", state.ctx, state.apiKey);
+        state.aiFunfact = funfactResult.html.match(/## Fun Fact\n_([^_]+)_/)?.[1] || "No fun fact provided";
+        state.ctx.aiFunfact = state.aiFunfact;
+        state.variables["ai-funfact"] = state.aiFunfact;
+        state.variables = { ...state.variables, ...funfactResult.variables };
+
+        $("#view").innerHTML = md(replyResult.html + "\n\n" + funfactResult.html);
+        await renderVariablesTemplate();
+        $("#actions").classList.remove("hidden");
+      }
+    }
+
+    async function again() {
+      state.userResponse = "";
+      state.aiSelectedCity = null;
+      state.aiGrade = null;
+      state.aiFunfact = null;
+      state.ctx.userResponse = "";
+      state.ctx.aiSelectedCity = null;
+      state.ctx.aiGrade = null;
+      state.ctx.aiFunfact = null;
+      state.variables["ai-selected-city"] = null;
+      state.variables["user-response"] = null;
+      state.variables["ai-grade"] = null;
+      state.variables["ai-funfact"] = null;
+      state.step = "start";
+
+      $("#view").innerHTML = '<p class="ai-thinking">🤖 Picking a new city...</p>';
+      $("#variablesView").innerHTML = '<p class="ai-thinking">🤖 Updating variables...</p>';
+      $("#answerForm").classList.add("hidden");
+      $("#actions").classList.add("hidden");
+
+      const result = await renderTemplateWithAI("start.template", state.ctx, state.apiKey);
+      if (result.city) {
+        state.aiSelectedCity = result.city;
+        state.ctx.aiSelectedCity = result.city;
+        state.variables["ai-selected-city"] = result.city;
+      }
+      state.variables = { ...state.variables, ...result.variables };
+
+      $("#view").innerHTML = md(result.html);
+      await renderVariablesTemplate();
+      $("#answer").value = "";
+      $("#answerForm").classList.remove("hidden");
+      $("#answer").focus();
+      state.step = "reply";
+    }
+
+    async function quit() {
+      $("#view").innerHTML = '<p class="ai-thinking">🤖 AI is saying goodbye...</p>';
+      $("#variablesView").innerHTML = '<p class="ai-thinking">🤖 Updating variables...</p>';
+
+      const result = await renderTemplateWithAI("goodbye.template", state.ctx, state.apiKey);
+      state.variables = { ...state.variables, ...result.variables };
+
+      $("#view").innerHTML = md(result.html);
+      await renderVariablesTemplate();
+      $("#answerForm").classList.add("hidden");
+      $("#actions").classList.add("hidden");
+      state.step = "done";
+    }
+
+    /* =======================
+       4) Wire up
+    ======================= */
+    $("#runBtn").addEventListener("click", runScript);
+    $("#resetBtn").addEventListener("click", () => {
+      $("#view").innerHTML = "";
+      $("#variablesView").innerHTML = "";
+      $("#answer").value = "";
+      $("#hint").classList.remove("hidden");
+      $("#answerForm").classList.add("hidden");
+      $("#actions").classList.add("hidden");
+      state.step = "start";
+      state.variables = {};
+    });
+    $("#answerForm").addEventListener("submit", handleSubmit);
+    $("#againBtn").addEventListener("click", again);
+    $("#quitBtn").addEventListener("click", quit);
+  </script>
+</body>
+</html>
