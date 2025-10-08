@@ -2,7 +2,7 @@ AI.Web.Script - Natural language instructions for AI to interpret
 The AI will read this entire script and execute the flow
 
 Instructions for AI execution ONLY:
-AI executes this script step by step. Output ONLY user-facing messages in templates. Do NOT elaborate, summarize, rephrase, or explain. System notes are for AI internal use ONLY and must NOT be output. 
+AI executes this script step by step. Do NOT elaborate, summarize, rephrase, or explain. System notes are for AI internal use ONLY and must NOT be output. 
 
 Note that comments that start with '//' provide guidance to the AI but should never be displayed. 
 
@@ -24,6 +24,7 @@ ai-selected-city: AI randomly select one city from {cities}.
 
 user-response: Ask user to provide three facts about {ai-selected-city}
 
+{city-facts.prompt}
 
 ai-evaluation: evaluate answer based on accuracy and completeness
 
@@ -32,8 +33,6 @@ ai-grade: (i.e., whether user provided three facts), and assign a grade (A, B, C
 
 Respond to user with
 {reply.template}
-Then display
-{funfact.template}
 
 
 
@@ -41,6 +40,11 @@ Then ask the user if they want to answer another city question or if they want t
 
 If they want to quit display this
 {goodbye.template}
+
+______________
+PROMPT TEMPLATES
+
+city-facts.prompt: What are three facts about about {ai-selected-city}
 
 ______________
 USER TEMPLATES
@@ -77,13 +81,16 @@ _____________________
 AI RESPONSE TEMPLATES
 
 template: reply.template
+
 You were asked about: {ai-selected-city} and you replied:
 
-_{user-response}_
+_{city-facts.prompt}_
 
 > AI Evaluation
 
 {ai-evaluation}
+
+{funfact.template}
 
 {goodbye.template}
 
