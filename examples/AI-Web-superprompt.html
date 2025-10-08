@@ -7,6 +7,7 @@ title: Cities Quiz
 author: J. Smith
 description: A simple quiz testing the knowledge of cities. 
 
+_________
 APP FLOW
 
 Greet user with
@@ -37,6 +38,7 @@ If they want to quit display this
 [[goodbye.template]]
 
 
+__________
 TEMPLATES
 
 
@@ -53,7 +55,7 @@ template: start.template
 
 template: reply.template
 
-You were was asked about: [[selected_city]] and you replied:
+You were was asked about: [[ai-selected_city]] and you replied:
 
 _[[user-response]]_
 
@@ -68,14 +70,15 @@ template: goodbye.template
 ## Thanks for playing [[title]].
 
 by the way the other cities were:
-// display in numbered list
+// display in numbered list and depend a flag for the country for each city
+
 
 [[cities]]
 
 > Goodbye
 
 
-
+____
 DATA
 
 cities:
