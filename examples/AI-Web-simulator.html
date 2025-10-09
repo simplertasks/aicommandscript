@@ -34,7 +34,6 @@
 
     <!-- View Container -->
     <article id="viewContainer">
-      <p><em>👆 Click "Start Quiz" to begin</em></p>
     </article>
 
     <!-- Navigation Buttons -->
@@ -161,10 +160,6 @@ VIEWS
     <input type="password" name="apiKey" placeholder="gsk_..." />
     <small>Leave blank to use simulated AI. Your API key is stored in browser memory only.</small>
   </label>
-  
-  <button type="submit" class="contrast">
-    <i data-lucide="play"></i> Start Quiz
-  </button>
 </form>
 </view>
 
@@ -472,19 +467,29 @@ MIT License - Free to use and modify
       },
 
       async generateAI() {
+        console.log('🎯 generateAI called with API key:', this.apiKey ? 'Present' : 'Missing');
         const cities = this.script.data.cities || [];
-        if (cities.length > 0) {
-          const cityPrompt = `From this list, randomly select ONE city:\n${cities.join('\n')}\n\nRespond with ONLY the city name exactly as it appears in the list, nothing else.`;
-          const selectedCity = await this.callGroqAPI(cityPrompt);
+        console.log('🏙️ Available cities:', cities);
 
-          if (selectedCity && cities.some(c => selectedCity.includes(c.split(',')[0]))) {
-            this.context['ai-selected-city'] = cities.find(c => selectedCity.includes(c.split(',')[0]));
-            console.log('✨ AI selected city:', this.context['ai-selected-city']);
-          } else {
-            this.context['ai-selected-city'] = cities[Math.floor(Math.random() * cities.length)];
-            console.log('🎲 Random selected city:', this.context['ai-selected-city']);
+        if (cities.length > 0) {
+          // Always set a city first as fallback
+          this.context['ai-selected-city'] = cities[Math.floor(Math.random() * cities.length)];
+          console.log('🎲 Fallback city set:', this.context['ai-selected-city']);
+
+          // Try to get AI selection if API key is available
+          if (this.apiKey && this.apiKey.startsWith('gsk_')) {
+            const cityPrompt = `From this list, randomly select ONE city:\n${cities.join('\n')}\n\nRespond with ONLY the city name exactly as it appears in the list, nothing else.`;
+            const selectedCity = await this.callGroqAPI(cityPrompt);
+            console.log('🤖 API response for city selection:', selectedCity);
+
+            if (selectedCity && cities.some(c => selectedCity.includes(c.split(',')[0]))) {
+              this.context['ai-selected-city'] = cities.find(c => selectedCity.includes(c.split(',')[0]));
+              console.log('✨ AI selected city:', this.context['ai-selected-city']);
+            }
           }
         }
+
+        console.log('🎯 Final context after generateAI:', this.context);
       },
 
       buildWizardSteps() {
@@ -528,9 +533,12 @@ MIT License - Free to use and modify
           const view = this.views[index];
           let content = view.content;
 
-          console.log('Rendering view:', view.name);
+          console.log('🎨 Rendering view:', view.name, 'at index:', index);
+          console.log('🎨 Original content:', content);
+          console.log('🎨 Current context:', this.context);
 
           content = this.replaceVariables(content);
+          console.log('🎨 Content after variable replacement:', content);
           content = content.replace(/^\/\/.+$/gm, '');
 
           const container = document.getElementById('viewContainer');
@@ -671,6 +679,23 @@ MIT License - Free to use and modify
               console.log('Captured:', key, '=', value);
             }
 
+            // If this is the first view (input), capture API key and start the wizard
+            if (this.currentStep === 0) {
+              this.apiKey = formData.get('apiKey') || '';
+
+              if (this.apiKey && this.apiKey.startsWith('gsk_')) {
+                console.log('🤖 Using Groq API');
+              } else {
+                console.log('🎭 Using simulated AI (no API key provided)');
+              }
+
+              console.log('Context after first view:', this.context);
+
+              // Start the wizard
+              await this.startWizard();
+              return; // startWizard() will handle the navigation
+            }
+
             // Run AI evaluation when moving from facts view (index 1) to output view (index 2)
             if (this.currentStep === 1) {
               const nextBtn = document.getElementById('nextBtn');
@@ -770,13 +795,13 @@ GRADE: [letter grade only]`;
 
         // Check if wizard is initialized (has views)
         if (!this.views || this.views.length === 0) {
-          // Initial state - show Start Quiz button
+          // Initial state - show Next button that starts the script
           homeBtn.disabled = true;
           homeBtn.style.opacity = '0.5';
           prevBtn.disabled = true;
           prevBtn.style.opacity = '0.5';
-          nextBtn.innerHTML = '<i data-lucide="play"></i> Start Quiz';
-          nextBtn.className = 'contrast';
+          nextBtn.innerHTML = 'Next <i data-lucide="chevron-right"></i>';
+          nextBtn.className = '';
           nextBtn.onclick = () => runScript();
           lucide.createIcons();
           return;
@@ -826,6 +851,7 @@ GRADE: [letter grade only]`;
     function runScript() {
       try {
         wizard.init(defaultScript);
+        // The first view will be displayed automatically by init()
       } catch (error) {
         console.error('Run script error:', error);
         alert('Error running script: ' + error.message);
@@ -838,6 +864,7 @@ GRADE: [letter grade only]`;
       initializeModals();
       loadSettings();
       wizard.updateNavButtons(); // Set up initial button state
+      runScript(); // Automatically start the script to show first view
     });
 
     // Modal functionality
