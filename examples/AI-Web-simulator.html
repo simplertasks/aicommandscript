@@ -5,6 +5,7 @@
   <title>AI.Web.Script Wizard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
   <main class="container">
@@ -17,7 +18,9 @@
         <input type="password" id="apiKey" placeholder="gsk_..." />
         <small>Leave blank to use simulated AI. Your API key is stored in browser memory only.</small>
       </label>
-      <button onclick="runScript()" class="contrast">Start Quiz</button>
+      <button onclick="runScript()" class="contrast">
+        <i data-lucide="play"></i> Start Quiz
+      </button>
     </details>
 
     <!-- Wizard Navigation -->
@@ -32,14 +35,20 @@
       <p><em>👆 Click "Start Quiz" above to begin</em></p>
     </article>
 
-<!-- Navigation Buttons -->
-<article id="wizardButtons" style="display:none;">
-  <div role="group">
-    <button class="secondary" id="homeBtn" onclick="wizard.goto(0)">🏠 Home</button>
-    <button class="secondary" id="prevBtn" onclick="wizard.prev()">← Back</button>
-    <button id="nextBtn" onclick="wizard.next()">Forward →</button>
-  </div>
-</article>
+    <!-- Navigation Buttons -->
+    <article id="wizardButtons" style="display:none;">
+      <div role="group">
+        <button class="secondary" id="homeBtn" onclick="wizard.goto(0)">
+          <i data-lucide="home"></i> Home
+        </button>
+        <button class="secondary" id="prevBtn" onclick="wizard.prev()">
+          <i data-lucide="chevron-left"></i> Back
+        </button>
+        <button id="nextBtn" onclick="wizard.next()">
+          Forward <i data-lucide="chevron-right"></i>
+        </button>
+      </div>
+    </article>
 
   </main>
 
@@ -383,6 +392,9 @@ cities:
               this.next();
             };
           }
+
+          // Initialize Lucide icons after rendering
+          lucide.createIcons();
         } catch (error) {
           console.error('Render error:', error);
           alert('Error rendering view: ' + error.message);
@@ -444,14 +456,16 @@ cities:
 
             if (this.currentStep === 0) {
               const nextBtn = document.getElementById('nextBtn');
-              const originalText = nextBtn.textContent;
-              nextBtn.textContent = '🤖 AI is thinking...';
+              const originalHTML = nextBtn.innerHTML;
+              nextBtn.innerHTML = '<i data-lucide="loader-2"></i> AI is thinking...';
               nextBtn.disabled = true;
+              lucide.createIcons();
 
               await this.evaluateWithAI();
 
-              nextBtn.textContent = originalText;
+              nextBtn.innerHTML = originalHTML;
               nextBtn.disabled = false;
+              lucide.createIcons();
             }
           }
 
@@ -550,17 +564,20 @@ GRADE: [letter grade only]`;
         
         // Forward/Restart button
         if (this.currentStep === this.views.length - 1) {
-          nextBtn.textContent = '🔄 Restart';
+          nextBtn.innerHTML = '<i data-lucide="refresh-cw"></i> Restart';
           nextBtn.className = 'contrast';
           nextBtn.onclick = async () => {
             await this.generateAI();
             this.goto(0);
           };
         } else {
-          nextBtn.textContent = 'Forward →';
+          nextBtn.innerHTML = 'Forward <i data-lucide="chevron-right"></i>';
           nextBtn.className = '';
           nextBtn.onclick = () => this.next();
         }
+
+        // Re-initialize icons after button updates
+        lucide.createIcons();
       },
 
       capitalize(str) {
@@ -576,6 +593,11 @@ GRADE: [letter grade only]`;
         alert('Error running script: ' + error.message);
       }
     }
+
+    // Initialize Lucide icons on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
   </script>
 </body>
 </html>
