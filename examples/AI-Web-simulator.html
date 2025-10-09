@@ -73,43 +73,7 @@
         <p><strong>Help</strong></p>
       </header>
       <div id="helpContent">
-        <h3>Welcome to the Cities Quiz!</h3>
-        <p>Here's how to use this application:</p>
-
-        <h4>Getting Started</h4>
-        <ol>
-          <li>Optionally enter your Groq API key for AI-powered evaluation</li>
-          <li>Click "Start Quiz" to begin</li>
-          <li>Enter your name when prompted</li>
-          <li>Answer the question about the selected city</li>
-        </ol>
-
-        <h4>Tips</h4>
-        <ul>
-          <li>Without an API key, the app uses simulated AI responses</li>
-          <li>Try to provide three detailed facts about the city</li>
-          <li>Click through all pages to see your results and fun facts</li>
-        </ul>
-
-        <h4>Navigation</h4>
-        <ul>
-          <li>Use the numbered buttons to jump between sections</li>
-          <li>Use Home, Back, and Forward buttons at the bottom</li>
-          <li>Click Restart on the final page to try again with a new city</li>
-        </ul>
-
-        <h4>About AI.Web.Script</h4>
-        <p>This application is built using AI.Web.Script - a declarative language for creating AI-powered web
-          applications.</p>
-
-        <h5>Features</h5>
-        <ul>
-          <li>Natural language AI instructions</li>
-          <li>Markdown-based views</li>
-          <li>Variable substitution</li>
-          <li>Multi-step wizard interface</li>
-          <li>Optional AI integration via Groq API</li>
-        </ul>
+        <p><em>Loading help content...</em></p>
       </div>
     </article>
   </dialog>
@@ -638,8 +602,23 @@ MIT License - Free to use and modify
             console.log('Generated HTML:', htmlContent);
             menuContainer.innerHTML = htmlContent;
           }
+
+          // Also update the help modal content
+          this.updateHelpModal(menuContent);
         } catch (error) {
           console.error('Menu render error:', error);
+        }
+      },
+
+      updateHelpModal(menuContent) {
+        try {
+          const helpContainer = document.getElementById('helpContent');
+          if (helpContainer && menuContent) {
+            const htmlContent = marked.parse(menuContent);
+            helpContainer.innerHTML = htmlContent;
+          }
+        } catch (error) {
+          console.error('Help modal update error:', error);
         }
       },
 
@@ -831,6 +810,11 @@ GRADE: [letter grade only]`;
       if (helpLink && helpModal) {
         helpLink.addEventListener('click', (event) => {
           event.preventDefault();
+          // Check if help content is available, if not show a message
+          const helpContent = document.getElementById('helpContent');
+          if (helpContent && helpContent.innerHTML.includes('Loading help content')) {
+            helpContent.innerHTML = '<p><em>Please start the quiz first to load help content from the script.</em></p>';
+          }
           openModal(helpModal);
         });
       }
