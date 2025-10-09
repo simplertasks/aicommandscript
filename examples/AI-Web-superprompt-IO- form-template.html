@@ -19,13 +19,12 @@ ai-funfact: generate interesting fact about {ai-selected-city}
 _________
 VIEWS
 
-view: input
+<view name= "input">
 
 # Welcome to {title} by {author}
 
 {description}
 
----
 
 <form>
   <label>Please enter your name
@@ -39,9 +38,10 @@ view: input
 
 </form>
 
----
+</view>
 
-view: output
+
+<view name= "output">
 
 **Hello {user-name}!**
 
@@ -58,9 +58,9 @@ _{city-facts}_
 _{ai-funfact}_
 
 
----
+</view>
 
-view: goodbye
+<view name= "goodbye">
 
 ## Thanks for playing {title}!
 
@@ -69,6 +69,8 @@ By the way, the other cities were:
 {cities}
 
 > Goodbye
+
+</view>
 
 ____
 DATA

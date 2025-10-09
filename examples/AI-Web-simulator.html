@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AI.Web.Script Wizard Simulator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <main class="container">
+    <h1>🧙‍♂️ AI.Web.Script Wizard Simulator</h1>
+
+    <!-- Script Editor - Hidden by default -->
+    <details>
+      <summary><strong>AI.Web.Script Editor</strong></summary>
+      <textarea id="scriptEditor" rows="25" style="font-family: monospace; font-size: 0.9rem; width: 100%;"></textarea>
+      <button onclick="runScript()">Run Script</button>
+    </details>
+
+    <!-- Wizard Navigation -->
+    <article id="wizardNav" style="display:none;">
+      <nav>
+        <ul role="list" id="wizardSteps"></ul>
+      </nav>
+    </article>
+
+    <!-- View Container -->
+    <article id="viewContainer"></article>
+
+    <!-- Navigation Buttons -->
+    <article id="wizardButtons" style="display:none;">
+      <div class="grid">
+        <button class="secondary" id="prevBtn">← Previous</button>
+        <button id="nextBtn">Next →</button>
+      </div>
+    </article>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+  <script>
+    // Load default script
+    window.addEventListener('DOMContentLoaded', function() {
+      const defaultScript = `AI.Web.Script - Structural Natural language instructions for AI to interpret
+
+_________
+METADATA
+
+title: Cities Quiz
+author: J. Smith
+description: A simple quiz testing the knowledge of cities.
+
+____________
+AI-GENERATED 
+
+ai-selected-city: randomly select one city from \{cities\}
+
+ai-evaluation: evaluate \{city-facts\} for accuracy and completeness
+ai-grade: assign grade A-F with brief explanation
+ai-funfact: generate interesting fact about \{ai-selected-city\}
+
+_________
+VIEWS
+
+<view name="input">
+
+# Welcome to \{title\} by \{author\}
+
+\{description\}
+
+<form>
+  <label>Please enter your name
+    <input type="text" name="user-name" placeholder="Your name" required />
+  </label>
+  
+  <label>What are three facts about \{ai-selected-city\}?
+    <textarea name="city-facts" rows="4" placeholder="Enter three facts..." required></textarea>
+  </label>
+</form>
+
+</view>
+
+<view name="output">
+
+**Hello \{user-name\}!**
+
+You were asked about **\{ai-selected-city\}** and you replied:
+
+_\{city-facts\}_
+
+## AI Evaluation
+\{ai-evaluation\}
+
+**Grade: \{ai-grade\}**
+
+## Fun Fact
+_\{ai-funfact\}_
+
+</view>
+
+<view name="goodbye">
+
+## Thanks for playing \{title\}!
+
+By the way, the other cities were:
+\{cities\}
+
+> Goodbye
+
+</view>
+
+____
+DATA
+
+cities:
+- London, England
+- New York City, USA
+- Toronto, Canada
+- Washington, D.C., USA
+- Ottawa, Canada
+- Paris, France
+- Tokyo, Japan
+- Sydney, Australia
+- Berlin, Germany
+- Rome, Italy`;
+
+      // Remove backslash escapes when loading
+      document.getElementById('scriptEditor').value = defaultScript.replace(/\\{/g, '{').replace(/\\}/g, '}');
+      
+      // Auto-run the script on load
+      runScript();
+    });
+
+    const wizard = {
+      script: null,
+      currentStep: 0,
+      context: {},
+      views: [],
+
+      parseScript(src) {
+        const script = {
+          metadata: {},
+          aiGenerated: {},
+          views: [],
+          data: {}
+        };
+
+        try {
+          // Parse METADATA
+          const metaMatch = src.match(/_+\s*METADATA\s+([\s\S]*?)_+/);
+          if (metaMatch) {
+            const lines = metaMatch[1].trim().split('\n');
+            lines.forEach(line => {
+              const match = line.match(/^(\w+):\s*(.+)$/);
+              if (match) {
+                script.metadata[match[1]] = match[2].trim();
+              }
+            });
+          }
+
+          // Parse AI-GENERATED
+          const aiMatch = src.match(/_+\s*AI-GENERATED\s+([\s\S]*?)_+/);
+          if (aiMatch) {
+            const lines = aiMatch[1].trim().split('\n');
+            lines.forEach(line => {
+              const match = line.match(/^([\w-]+):\s*(.+)$/);
+              if (match) {
+                script.aiGenerated[match[1]] = match[2].trim();
+              }
+            });
+          }
+
+          // Parse VIEWS
+          const viewMatches = src.matchAll(/<view name="([^"]+)">([\s\S]*?)<\/view>/g);
+          for (const match of viewMatches) {
+            script.views.push({
+              name: match[1],
+              content: match[2].trim()
+            });
+          }
+
+          // Parse DATA
+          const dataMatch = src.match(/_+\s*DATA\s+([\s\S]*?)$/);
+          if (dataMatch) {
+            const dataText = dataMatch[1].trim();
+            const currentKey = dataText.match(/^(\w+):/m);
+            if (currentKey) {
+              const key = currentKey[1];
+              const items = [];
+              const lines = dataText.split('\n');
+              lines.forEach(line => {
+                const itemMatch = line.match(/^-\s*(.+)$/);
+                if (itemMatch) {
+                  items.push(itemMatch[1].trim());
+                }
+              });
+              script.data[key] = items;
+            }
+          }
+        } catch (error) {
+          console.error('Parse error:', error);
+          alert('Error parsing script: ' + error.message);
+        }
+
+        console.log('Parsed views:', script.views.length);
+        console.log('Parsed data keys:', Object.keys(script.data));
+
+        return script;
+      },
+
+      init(scriptText) {
+        try {
+          this.script = this.parseScript(scriptText);
+          this.views = this.script.views;
+          this.currentStep = 0;
+          this.context = {
+            ...this.script.metadata,
+            ...this.script.data
+          };
+
+          console.log('Parsed script:', this.script);
+          console.log('Views found:', this.views.length);
+
+          if (this.views.length === 0) {
+            alert('No views found in script! Check the <view name="..."> tags.');
+            return;
+          }
+
+          // Simulate AI-generated values
+          this.simulateAI();
+
+          // Build wizard navigation
+          this.buildWizardSteps();
+
+          // Show wizard
+          document.getElementById('wizardNav').style.display = 'block';
+          document.getElementById('wizardButtons').style.display = 'block';
+
+          // Render first view
+          this.goto(0);
+        } catch (error) {
+          console.error('Init error:', error);
+          alert('Error initializing wizard: ' + error.message);
+        }
+      },
+
+      simulateAI() {
+        const cities = this.script.data.cities || [];
+        if (cities.length > 0) {
+          this.context['ai-selected-city'] = cities[Math.floor(Math.random() * cities.length)];
+          console.log('Selected city:', this.context['ai-selected-city']);
+        } else {
+          console.error('No cities found in data!');
+        }
+      },
+
+      buildWizardSteps() {
+        const stepsContainer = document.getElementById('wizardSteps');
+        stepsContainer.innerHTML = '';
+
+        this.views.forEach((view, index) => {
+          const li = document.createElement('li');
+          const btn = document.createElement('button');
+          btn.textContent = `${index + 1}. ${this.capitalize(view.name)}`;
+          btn.className = index === 0 ? 'contrast' : 'secondary outline';
+          btn.onclick = () => this.goto(index);
+          li.appendChild(btn);
+          stepsContainer.appendChild(li);
+        });
+      },
+
+      goto(step) {
+        if (step < 0 || step >= this.views.length) return;
+
+        console.log('Going to step:', step);
+
+        // Update step buttons
+        const stepButtons = document.querySelectorAll('#wizardSteps button');
+        stepButtons.forEach((btn, index) => {
+          if (index === step) {
+            btn.className = 'contrast';
+          } else if (index < step) {
+            btn.className = 'secondary';
+          } else {
+            btn.className = 'secondary outline';
+          }
+        });
+
+        this.currentStep = step;
+        this.renderView(step);
+        this.updateNavButtons();
+      },
+
+      renderView(index) {
+        try {
+          const view = this.views[index];
+          let content = view.content;
+
+          console.log('Rendering view:', view.name);
+
+          // Replace variables
+          content = this.replaceVariables(content);
+
+          // Process comments
+          content = content.replace(/^\/\/.+$/gm, '');
+
+          // Convert markdown to HTML
+          const container = document.getElementById('viewContainer');
+          container.innerHTML = marked.parse(content);
+
+          // If view has a form, wire it up
+          const form = container.querySelector('form');
+          if (form) {
+            form.onsubmit = (e) => {
+              e.preventDefault();
+              this.next();
+            };
+          }
+        } catch (error) {
+          console.error('Render error:', error);
+          alert('Error rendering view: ' + error.message);
+        }
+      },
+
+      replaceVariables(content) {
+        return content.replace(/\{([^}]+)\}/g, (match, key) => {
+          if (this.context[key] !== undefined) {
+            if (Array.isArray(this.context[key])) {
+              return this.formatArray(this.context[key]);
+            }
+            return this.context[key];
+          }
+          return match;
+        });
+      },
+
+      formatArray(arr) {
+        const flags = {
+          'England': '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+          'USA': '🇺🇸',
+          'Canada': '🇨🇦',
+          'France': '🇫🇷',
+          'Japan': '🇯🇵',
+          'Australia': '🇦🇺',
+          'Germany': '🇩🇪',
+          'Italy': '🇮🇹'
+        };
+
+        return '\n' + arr.map((item, index) => {
+          let flagged = item;
+          Object.keys(flags).forEach(country => {
+            if (item.includes(country)) {
+              flagged = `${item} ${flags[country]}`;
+            }
+          });
+          return `${index + 1}. ${flagged}`;
+        }).join('\n') + '\n';
+      },
+
+      next() {
+        try {
+          console.log('Next clicked');
+          const currentViewEl = document.getElementById('viewContainer');
+          const form = currentViewEl.querySelector('form');
+
+          if (form) {
+            if (!form.checkValidity()) {
+              form.reportValidity();
+              return;
+            }
+
+            const formData = new FormData(form);
+            for (const [key, value] of formData.entries()) {
+              this.context[key] = value;
+              console.log('Captured:', key, '=', value);
+            }
+
+            if (this.currentStep === 0) {
+              this.simulateEvaluation();
+            }
+          }
+
+          this.goto(this.currentStep + 1);
+        } catch (error) {
+          console.error('Next error:', error);
+          alert('Error: ' + error.message);
+        }
+      },
+
+      prev() {
+        console.log('Prev clicked');
+        this.goto(this.currentStep - 1);
+      },
+
+      simulateEvaluation() {
+        const facts = this.context['city-facts'] || '';
+        const factCount = facts.split('.').filter(f => f.trim().length > 10).length;
+
+        if (factCount >= 3) {
+          this.context['ai-evaluation'] = 'Great job! You provided comprehensive information about the city.';
+          this.context['ai-grade'] = 'A';
+        } else if (factCount === 2) {
+          this.context['ai-evaluation'] = 'Good effort, but you only provided two facts.';
+          this.context['ai-grade'] = 'B';
+        } else {
+          this.context['ai-evaluation'] = 'You need to provide more detail about the city.';
+          this.context['ai-grade'] = 'C';
+        }
+
+        const funFacts = {
+          'London, England': 'London has over 170 museums, more than any other city in the world!',
+          'New York City, USA': 'New York City has a hidden network of abandoned subway stations.',
+          'Toronto, Canada': 'Toronto has the longest street in the world - Yonge Street at 1,896 km.',
+          'Paris, France': 'There is only one stop sign in the entire city of Paris!',
+          'Tokyo, Japan': 'Tokyo has more neon signs than any other city in the world.',
+          'Sydney, Australia': 'The Sydney Harbour Bridge took 8 years to build and was completed in 1932.',
+          'Berlin, Germany': 'Berlin has more bridges than Venice - over 1,700 of them!',
+          'Rome, Italy': 'The Trevi Fountain collects about €3,000 in coins every day!'
+        };
+
+        const selectedCity = this.context['ai-selected-city'];
+        this.context['ai-funfact'] = funFacts[selectedCity] || 'This city has a fascinating history!';
+      },
+
+      updateNavButtons() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        prevBtn.onclick = () => this.prev();
+        nextBtn.onclick = () => this.next();
+
+        if (this.currentStep === 0) {
+          prevBtn.style.display = 'none';
+        } else {
+          prevBtn.style.display = 'block';
+        }
+        
+        if (this.currentStep === this.views.length - 1) {
+          nextBtn.textContent = 'Restart';
+          nextBtn.className = 'contrast';
+          nextBtn.onclick = () => {
+            this.goto(0);
+            this.simulateAI();
+          };
+        } else {
+          nextBtn.textContent = 'Next →';
+          nextBtn.className = '';
+        }
+      },
+
+      capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      }
+    };
+
+    function runScript() {
+      try {
+        const scriptText = document.getElementById('scriptEditor').value;
+        wizard.init(scriptText);
+      } catch (error) {
+        console.error('Run script error:', error);
+        alert('Error running script: ' + error.message);
+      }
+    }
+  </script>
+</body>
+</html>
+
