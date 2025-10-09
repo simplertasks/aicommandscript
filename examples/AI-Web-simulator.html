@@ -12,6 +12,16 @@
 <body>
   <main class="container">
 
+    <nav>
+      <ul>
+        <li><strong>AI Quiz</strong></li>
+      </ul>
+      <ul>
+        <li><a href="#" id="helpLink">Help</a></li>
+        <li><a href="#" id="settingsLink">Settings</a></li>
+      </ul>
+    </nav>
+
     <!-- API Key Input -->
     <details open>
       <summary><i data-lucide="menu"></i> Menu</summary>
@@ -54,6 +64,105 @@
     </article>
 
   </main>
+
+  <!-- Help Modal -->
+  <dialog id="helpModal">
+    <article>
+      <header>
+        <button aria-label="Close" rel="prev"></button>
+        <p><strong>Help</strong></p>
+      </header>
+      <div id="helpContent">
+        <h3>Welcome to the Cities Quiz!</h3>
+        <p>Here's how to use this application:</p>
+
+        <h4>Getting Started</h4>
+        <ol>
+          <li>Optionally enter your Groq API key for AI-powered evaluation</li>
+          <li>Click "Start Quiz" to begin</li>
+          <li>Enter your name when prompted</li>
+          <li>Answer the question about the selected city</li>
+        </ol>
+
+        <h4>Tips</h4>
+        <ul>
+          <li>Without an API key, the app uses simulated AI responses</li>
+          <li>Try to provide three detailed facts about the city</li>
+          <li>Click through all pages to see your results and fun facts</li>
+        </ul>
+
+        <h4>Navigation</h4>
+        <ul>
+          <li>Use the numbered buttons to jump between sections</li>
+          <li>Use Home, Back, and Forward buttons at the bottom</li>
+          <li>Click Restart on the final page to try again with a new city</li>
+        </ul>
+
+        <h4>About AI.Web.Script</h4>
+        <p>This application is built using AI.Web.Script - a declarative language for creating AI-powered web
+          applications.</p>
+
+        <h5>Features</h5>
+        <ul>
+          <li>Natural language AI instructions</li>
+          <li>Markdown-based views</li>
+          <li>Variable substitution</li>
+          <li>Multi-step wizard interface</li>
+          <li>Optional AI integration via Groq API</li>
+        </ul>
+      </div>
+    </article>
+  </dialog>
+
+  <!-- Settings Modal -->
+  <dialog id="settingsModal">
+    <article>
+      <header>
+        <button aria-label="Close" rel="prev"></button>
+        <p><strong>Settings</strong></p>
+      </header>
+      <div id="settingsContent">
+        <h3>Application Settings</h3>
+
+        <form>
+          <fieldset>
+            <legend>AI Configuration</legend>
+            <label>
+              <input type="checkbox" id="useSimulatedAI" checked>
+              Use simulated AI responses (recommended for testing)
+            </label>
+            <small>When enabled, the app will use pre-programmed responses instead of calling the Groq API.</small>
+          </fieldset>
+
+          <fieldset>
+            <legend>Display Options</legend>
+            <label>
+              <input type="checkbox" id="showDebugInfo">
+              Show debug information in console
+            </label>
+            <small>Enable this to see detailed logging information in the browser console.</small>
+          </fieldset>
+
+          <fieldset>
+            <legend>Quiz Behavior</legend>
+            <label>
+              Auto-advance after form submission
+              <select id="autoAdvance">
+                <option value="true">Yes</option>
+                <option value="false" selected>No</option>
+              </select>
+            </label>
+            <small>Automatically move to the next step after submitting a form.</small>
+          </fieldset>
+        </form>
+
+        <footer>
+          <button type="button" onclick="saveSettings()">Save Settings</button>
+          <button type="button" class="secondary" onclick="resetSettings()">Reset to Defaults</button>
+        </footer>
+      </div>
+    </article>
+  </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
   <script>
@@ -695,7 +804,115 @@ GRADE: [letter grade only]`;
     // Initialize Lucide icons on page load
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
+      initializeModals();
+      loadSettings();
     });
+
+    // Modal functionality
+    function initializeModals() {
+      const helpLink = document.getElementById('helpLink');
+      const settingsLink = document.getElementById('settingsLink');
+      const helpModal = document.getElementById('helpModal');
+      const settingsModal = document.getElementById('settingsModal');
+
+      // Function to open a modal
+      const openModal = (modal) => {
+        modal.setAttribute('open', '');
+        document.documentElement.classList.add('modal-is-open');
+      };
+
+      // Function to close a modal
+      const closeModal = (modal) => {
+        modal.removeAttribute('open');
+        document.documentElement.classList.remove('modal-is-open');
+      };
+
+      // Event listeners for opening modals
+      if (helpLink && helpModal) {
+        helpLink.addEventListener('click', (event) => {
+          event.preventDefault();
+          openModal(helpModal);
+        });
+      }
+
+      if (settingsLink && settingsModal) {
+        settingsLink.addEventListener('click', (event) => {
+          event.preventDefault();
+          openModal(settingsModal);
+        });
+      }
+
+      // Event listeners for closing modals
+      document.querySelectorAll('dialog button[rel="prev"]').forEach((button) => {
+        button.addEventListener('click', (event) => {
+          const modal = button.closest('dialog');
+          closeModal(modal);
+        });
+      });
+
+      // Close modal when clicking outside of it
+      document.querySelectorAll('dialog').forEach((modal) => {
+        modal.addEventListener('click', (event) => {
+          if (event.target === modal) {
+            closeModal(modal);
+          }
+        });
+      });
+
+      // Close modal with Escape key
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          const openModal = document.querySelector('dialog[open]');
+          if (openModal) {
+            closeModal(openModal);
+          }
+        }
+      });
+    }
+
+    // Settings functions
+    function saveSettings() {
+      const useSimulatedAI = document.getElementById('useSimulatedAI').checked;
+      const showDebugInfo = document.getElementById('showDebugInfo').checked;
+      const autoAdvance = document.getElementById('autoAdvance').value === 'true';
+
+      // Store settings in localStorage
+      localStorage.setItem('aiQuizSettings', JSON.stringify({
+        useSimulatedAI,
+        showDebugInfo,
+        autoAdvance
+      }));
+
+      // Close the modal
+      const settingsModal = document.getElementById('settingsModal');
+      settingsModal.removeAttribute('open');
+      document.documentElement.classList.remove('modal-is-open');
+
+      // Show confirmation
+      alert('Settings saved successfully!');
+    }
+
+    function resetSettings() {
+      // Reset form to defaults
+      document.getElementById('useSimulatedAI').checked = true;
+      document.getElementById('showDebugInfo').checked = false;
+      document.getElementById('autoAdvance').value = 'false';
+
+      // Clear localStorage
+      localStorage.removeItem('aiQuizSettings');
+
+      alert('Settings reset to defaults!');
+    }
+
+    function loadSettings() {
+      const savedSettings = localStorage.getItem('aiQuizSettings');
+      if (savedSettings) {
+        const settings = JSON.parse(savedSettings);
+        document.getElementById('useSimulatedAI').checked = settings.useSimulatedAI;
+        document.getElementById('showDebugInfo').checked = settings.showDebugInfo;
+        document.getElementById('autoAdvance').value = settings.autoAdvance ? 'true' : 'false';
+      }
+    }
   </script>
 </body>
 
