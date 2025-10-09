@@ -19,6 +19,30 @@
       <ul>
         <li><a href="#" id="helpLink">Help</a></li>
         <li><a href="#" id="settingsLink">Settings</a></li>
+        <li>
+          <details class="dropdown">
+            <summary role="button" aria-label="Toggle theme">
+              <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24" height="16px" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+            </summary>
+            <ul>
+              <li><a href="#" data-theme-switcher="light">Light</a></li>
+              <li><a href="#" data-theme-switcher="dark">Dark</a></li>
+              <li><a href="#" data-theme-switcher="auto">Auto</a></li>
+            </ul>
+          </details>
+        </li>
       </ul>
     </nav>
 
@@ -862,10 +886,48 @@ GRADE: [letter grade only]`;
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       initializeModals();
+      initializeThemeSwitcher();
       loadSettings();
       wizard.updateNavButtons(); // Set up initial button state
       runScript(); // Automatically start the script to show first view
     });
+
+    // PicoCSS Theme Switcher
+    function initializeThemeSwitcher() {
+      // Get saved theme or default to 'auto'
+      const savedTheme = localStorage.getItem('theme') || 'auto';
+
+      // Apply saved theme
+      document.documentElement.setAttribute('data-theme', savedTheme);
+
+      // Handle theme switcher clicks
+      document.querySelectorAll('[data-theme-switcher]').forEach(button => {
+        button.addEventListener('click', (e) => {
+          e.preventDefault();
+          const theme = button.getAttribute('data-theme-switcher');
+
+          // Set theme
+          document.documentElement.setAttribute('data-theme', theme);
+
+          // Save to localStorage
+          localStorage.setItem('theme', theme);
+
+          // Close dropdown
+          const dropdown = button.closest('details');
+          if (dropdown) {
+            dropdown.removeAttribute('open');
+          }
+        });
+      });
+
+      // Listen for system theme changes in auto mode
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        const currentTheme = localStorage.getItem('theme') || 'auto';
+        if (currentTheme === 'auto') {
+          document.documentElement.setAttribute('data-theme', 'auto');
+        }
+      });
+    }
 
     // Modal functionality
     function initializeModals() {
