@@ -20,91 +20,10 @@
       <button onclick="runScript()" class="contrast">Start Quiz</button>
     </details>
 
-    <!-- Script Editor - Hidden by default -->
+    <!-- Script Editor -->
     <details>
       <summary><strong>AI.Web.Script Editor</strong></summary>
-      <textarea id="scriptEditor" rows="25" style="font-family: monospace; font-size: 0.9rem; width: 100%;">AI.Web.Script - Structural Natural language instructions for AI to interpret
-
-_________
-METADATA
-
-title: Cities Quiz
-author: J. Smith
-description: A simple quiz testing the knowledge of cities.
-
-____________
-AI-GENERATED 
-
-ai-selected-city: randomly select one city from [[cities]]
-
-ai-evaluation: evaluate [[city-facts]] for accuracy and completeness
-ai-grade: assign grade A-F with brief explanation
-ai-funfact: generate interesting fact about [[ai-selected-city]]
-
-_________
-VIEWS
-
-&lt;view name="input"&gt;
-
-# Welcome to [[title]] by [[author]]
-
-[[description]]
-
-&lt;form&gt;
-  &lt;label&gt;Please enter your name
-    &lt;input type="text" name="user-name" placeholder="Your name" required /&gt;
-  &lt;/label&gt;
-  
-  &lt;label&gt;What are three facts about [[ai-selected-city]]?
-    &lt;textarea name="city-facts" rows="4" placeholder="Enter three facts..." required&gt;&lt;/textarea&gt;
-  &lt;/label&gt;
-&lt;/form&gt;
-
-&lt;/view&gt;
-
-&lt;view name="output"&gt;
-
-**Hello [[user-name]]!**
-
-You were asked about **[[ai-selected-city]]** and you replied:
-
-_[[city-facts]]_
-
-## AI Evaluation
-[[ai-evaluation]]
-
-**Grade: [[ai-grade]]**
-
-## Fun Fact
-_[[ai-funfact]]_
-
-&lt;/view&gt;
-
-&lt;view name="goodbye"&gt;
-
-## Thanks for playing [[title]]!
-
-By the way, the other cities were:
-[[cities]]
-
-&gt; Goodbye
-
-&lt;/view&gt;
-
-____
-DATA
-
-cities:
-- London, England
-- New York City, USA
-- Toronto, Canada
-- Washington, D.C., USA
-- Ottawa, Canada
-- Paris, France
-- Tokyo, Japan
-- Sydney, Australia
-- Berlin, Germany
-- Rome, Italy</textarea>
+      <textarea id="scriptEditor" rows="25" style="font-family: monospace; font-size: 0.9rem; width: 100%;"></textarea>
       <button onclick="runScript()">Reload Script</button>
     </details>
 
@@ -132,6 +51,93 @@ cities:
 
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
   <script>
+    // DEFAULT SCRIPT - stored as a JavaScript template literal
+    const defaultScript = `AI.Web.Script - Structural Natural language instructions for AI to interpret
+
+_________
+METADATA
+
+title: Cities Quiz
+author: J. Smith
+description: A simple quiz testing the knowledge of cities.
+
+____________
+AI-GENERATED 
+
+ai-selected-city: randomly select one city from [[cities]]
+
+ai-evaluation: evaluate [[city-facts]] for accuracy and completeness
+ai-grade: assign grade A-F with brief explanation
+ai-funfact: generate interesting fact about [[ai-selected-city]]
+
+_________
+VIEWS
+
+<view name="input">
+
+# Welcome to [[title]] by [[author]]
+
+[[description]]
+
+<form>
+  <label>Please enter your name
+    <input type="text" name="user-name" placeholder="Your name" required />
+  </label>
+  
+  <label>What are three facts about [[ai-selected-city]]?
+    <textarea name="city-facts" rows="4" placeholder="Enter three facts..." required></textarea>
+  </label>
+</form>
+
+</view>
+
+<view name="output">
+
+**Hello [[user-name]]!**
+
+You were asked about **[[ai-selected-city]]** and you replied:
+
+_[[city-facts]]_
+
+## AI Evaluation
+[[ai-evaluation]]
+
+**Grade: [[ai-grade]]**
+
+## Fun Fact
+_[[ai-funfact]]_
+
+</view>
+
+<view name="goodbye">
+
+## Thanks for playing [[title]]!
+
+By the way, the other cities were:
+[[cities]]
+
+> Goodbye
+
+</view>
+
+____
+DATA
+
+cities:
+- London, England
+- New York City, USA
+- Toronto, Canada
+- Washington, D.C., USA
+- Ottawa, Canada
+- Paris, France
+- Tokyo, Japan
+- Sydney, Australia
+- Berlin, Germany
+- Rome, Italy`;
+
+    // Load the default script into the textarea on page load
+    document.getElementById('scriptEditor').value = defaultScript;
+
     const wizard = {
       script: null,
       currentStep: 0,
@@ -172,7 +178,7 @@ cities:
             });
           }
 
-          // Parse VIEWS - handle HTML entities
+          // Parse VIEWS - NO MORE HTML ENTITY DECODING NEEDED!
           const viewMatches = src.matchAll(/<view name="([^"]+)">([\s\S]*?)<\/view>/gi);
           for (const match of viewMatches) {
             script.views.push({
@@ -211,7 +217,6 @@ cities:
         try {
           this.apiKey = document.getElementById('apiKey').value.trim();
           
-          // Show API mode status
           if (this.apiKey && this.apiKey.startsWith('gsk_')) {
             console.log('🤖 Using Groq API');
           } else {
@@ -234,17 +239,12 @@ cities:
             return;
           }
 
-          // Generate AI values on initialization
           await this.generateAI();
-
-          // Build wizard navigation
           this.buildWizardSteps();
 
-          // Show wizard
           document.getElementById('wizardNav').style.display = 'block';
           document.getElementById('wizardButtons').style.display = 'block';
 
-          // Render first view
           this.goto(0);
         } catch (error) {
           console.error('Init error:', error);
@@ -309,7 +309,6 @@ cities:
             this.context['ai-selected-city'] = cities.find(c => selectedCity.includes(c.split(',')[0]));
             console.log('✨ AI selected city:', this.context['ai-selected-city']);
           } else {
-            // Fallback to random selection
             this.context['ai-selected-city'] = cities[Math.floor(Math.random() * cities.length)];
             console.log('🎲 Random selected city:', this.context['ai-selected-city']);
           }
@@ -336,7 +335,6 @@ cities:
 
         console.log('Going to step:', step);
 
-        // Update step buttons
         const stepButtons = document.querySelectorAll('#wizardSteps button');
         stepButtons.forEach((btn, index) => {
           if (index === step) {
@@ -360,22 +358,15 @@ cities:
 
           console.log('Rendering view:', view.name);
 
-          // Decode HTML entities
-          const txt = document.createElement('textarea');
-          txt.innerHTML = content;
-          content = txt.value;
+          // NO MORE HTML ENTITY DECODING NEEDED! 🎉
+          // The content already has proper < > tags
 
-          // Replace variables
           content = this.replaceVariables(content);
-
-          // Process comments
           content = content.replace(/^\/\/.+$/gm, '');
 
-          // Convert markdown to HTML
           const container = document.getElementById('viewContainer');
           container.innerHTML = marked.parse(content);
 
-          // If view has a form, wire it up
           const form = container.querySelector('form');
           if (form) {
             form.onsubmit = (e) => {
