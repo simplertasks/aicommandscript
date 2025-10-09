@@ -22,19 +22,8 @@
       </ul>
     </nav>
 
-    <!-- API Key Input -->
-    <details open>
-      <summary><i data-lucide="menu"></i> Menu</summary>
-      <label>
-        Groq API Key (optional - starts with <code>gsk_</code>)
-        <input type="password" id="apiKey" placeholder="gsk_..." />
-        <small>Leave blank to use simulated AI. Your API key is stored in browser memory only.</small>
-      </label>
-      <button onclick="runScript()" class="contrast">
-        <i data-lucide="play"></i> Start Quiz
-      </button>
-      <div id="menuContent"></div>
-    </details>
+    <!-- Menu content will be shown in Help modal -->
+    <div id="menuContent" style="display:none;"></div>
 
     <!-- Wizard Navigation -->
     <article id="wizardNav" style="display:none;">
@@ -45,11 +34,11 @@
 
     <!-- View Container -->
     <article id="viewContainer">
-      <p><em>👆 Click "Start Quiz" above to begin</em></p>
+      <p><em>👆 Click "Start Quiz" to begin</em></p>
     </article>
 
     <!-- Navigation Buttons -->
-    <article id="wizardButtons" style="display:none;">
+    <article id="wizardButtons">
       <div role="group">
         <button class="secondary" id="homeBtn" onclick="wizard.goto(0)">
           <i data-lucide="home"></i> Home
@@ -158,7 +147,6 @@ _________
 VIEWS
 
 <view name="input">
-
 # Welcome to [[title]] by [[author]]
 
 [[description]]
@@ -168,6 +156,20 @@ VIEWS
     <input type="text" name="user-name" placeholder="Your name" required />
   </label>
   
+  <label>
+    Groq API Key (optional - starts with <code>gsk_</code>)
+    <input type="password" name="apiKey" placeholder="gsk_..." />
+    <small>Leave blank to use simulated AI. Your API key is stored in browser memory only.</small>
+  </label>
+  
+  <button type="submit" class="contrast">
+    <i data-lucide="play"></i> Start Quiz
+  </button>
+</form>
+</view>
+
+<view name="facts">
+<form>
   <label>What are three facts about [[ai-selected-city]]?
     <textarea name="city-facts" rows="4" placeholder="Enter three facts..." required></textarea>
   </label>
@@ -376,14 +378,6 @@ MIT License - Free to use and modify
 
       async init(scriptText) {
         try {
-          this.apiKey = document.getElementById('apiKey').value.trim();
-
-          if (this.apiKey && this.apiKey.startsWith('gsk_')) {
-            console.log('🤖 Using Groq API');
-          } else {
-            console.log('🎭 Using simulated AI (no API key provided)');
-          }
-
           this.script = this.parseScript(scriptText);
           this.views = this.script.views;
           this.currentStep = 0;
@@ -403,16 +397,27 @@ MIT License - Free to use and modify
             return;
           }
 
+          // Show the first view (input form)
+          this.goto(0);
+        } catch (error) {
+          console.error('Init error:', error);
+          alert('Error initializing wizard: ' + error.message);
+        }
+      },
+
+      async startWizard() {
+        try {
           await this.generateAI();
           this.buildWizardSteps();
 
           document.getElementById('wizardNav').style.display = 'block';
           document.getElementById('wizardButtons').style.display = 'block';
 
-          this.goto(0);
+          // Move to the next view (facts)
+          this.goto(1);
         } catch (error) {
-          console.error('Init error:', error);
-          alert('Error initializing wizard: ' + error.message);
+          console.error('Start wizard error:', error);
+          alert('Error starting wizard: ' + error.message);
         }
       },
 
@@ -535,7 +540,31 @@ MIT License - Free to use and modify
           if (form) {
             form.onsubmit = (e) => {
               e.preventDefault();
-              this.next();
+
+              // If this is the first view (input), capture API key and start the wizard
+              if (index === 0) {
+                const formData = new FormData(form);
+                this.apiKey = formData.get('apiKey') || '';
+
+                // Capture all form data including user-name
+                for (const [key, value] of formData.entries()) {
+                  this.context[key] = value;
+                  console.log('First view captured:', key, '=', value);
+                }
+
+                if (this.apiKey && this.apiKey.startsWith('gsk_')) {
+                  console.log('🤖 Using Groq API');
+                } else {
+                  console.log('🎭 Using simulated AI (no API key provided)');
+                }
+
+                console.log('Context after first view:', this.context);
+
+                // Start the wizard
+                this.startWizard();
+              } else {
+                this.next();
+              }
             };
           }
 
@@ -549,12 +578,14 @@ MIT License - Free to use and modify
 
       replaceVariables(content) {
         return content.replace(/\[\[([^\]]+)\]\]/g, (match, key) => {
+          console.log('Replacing variable:', key, 'with value:', this.context[key]);
           if (this.context[key] !== undefined) {
             if (Array.isArray(this.context[key])) {
               return this.formatArray(this.context[key]);
             }
             return this.context[key];
           }
+          console.log('Variable not found:', key);
           return match;
         });
       },
@@ -640,7 +671,8 @@ MIT License - Free to use and modify
               console.log('Captured:', key, '=', value);
             }
 
-            if (this.currentStep === 0) {
+            // Run AI evaluation when moving from facts view (index 1) to output view (index 2)
+            if (this.currentStep === 1) {
               const nextBtn = document.getElementById('nextBtn');
               const originalHTML = nextBtn.innerHTML;
               nextBtn.innerHTML = '<i data-lucide="loader-2"></i> AI is thinking...';
@@ -691,6 +723,8 @@ GRADE: [letter grade only]`;
           this.context['ai-evaluation'] = evalMatch ? evalMatch[1].trim() : 'Good effort!';
           this.context['ai-grade'] = gradeMatch ? gradeMatch[1] : 'B';
           console.log('✨ AI evaluation:', this.context['ai-evaluation']);
+          console.log('✨ AI grade:', this.context['ai-grade']);
+          console.log('✨ Full context after AI evaluation:', this.context);
         } else {
           const factCount = facts.split('.').filter(f => f.trim().length > 10).length;
           if (factCount >= 3) {
@@ -701,6 +735,8 @@ GRADE: [letter grade only]`;
             this.context['ai-grade'] = 'C';
           }
           console.log('🎭 Simulated evaluation:', this.context['ai-evaluation']);
+          console.log('🎭 Simulated grade:', this.context['ai-grade']);
+          console.log('🎭 Full context after simulated evaluation:', this.context);
         }
 
         const factPrompt = `Provide ONE surprising or little-known fact about ${city}. Be specific and interesting. Respond with ONLY the fact, no introduction.`;
@@ -721,14 +757,30 @@ GRADE: [letter grade only]`;
             'Rome, Italy': 'The Trevi Fountain collects about €3,000 in coins every day!'
           };
           this.context['ai-funfact'] = funFacts[city] || `${city} has a fascinating history!`;
-          console.log('🎭 Simulated fun fact');
+          console.log('🎭 Simulated fun fact:', this.context['ai-funfact']);
         }
+
+        console.log('🎯 Final context after all AI processing:', this.context);
       },
 
       updateNavButtons() {
         const homeBtn = document.getElementById('homeBtn');
         const prevBtn = document.getElementById('prevBtn');
         const nextBtn = document.getElementById('nextBtn');
+
+        // Check if wizard is initialized (has views)
+        if (!this.views || this.views.length === 0) {
+          // Initial state - show Start Quiz button
+          homeBtn.disabled = true;
+          homeBtn.style.opacity = '0.5';
+          prevBtn.disabled = true;
+          prevBtn.style.opacity = '0.5';
+          nextBtn.innerHTML = '<i data-lucide="play"></i> Start Quiz';
+          nextBtn.className = 'contrast';
+          nextBtn.onclick = () => runScript();
+          lucide.createIcons();
+          return;
+        }
 
         // Home button - disabled on first step
         if (this.currentStep === 0) {
@@ -785,6 +837,7 @@ GRADE: [letter grade only]`;
       lucide.createIcons();
       initializeModals();
       loadSettings();
+      wizard.updateNavButtons(); // Set up initial button state
     });
 
     // Modal functionality
