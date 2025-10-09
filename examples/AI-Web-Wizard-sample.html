@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Wizard Navigation Demo - Pure Pico CSS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+</head>
+<body>
+  <main class="container">
+    <h1>🧙‍♂️ Wizard Navigation Demo</h1>
+
+```
+<!-- Wizard Steps as Button Group -->
+<article>
+  <nav>
+    <ul role="list" id="wizardSteps">
+      <li><button class="contrast" onclick="wizard.goto(0)">1. Input</button></li>
+      <li><button class="secondary outline" onclick="wizard.goto(1)">2. Review</button></li>
+      <li><button class="secondary outline" onclick="wizard.goto(2)">3. Results</button></li>
+      <li><button class="secondary outline" onclick="wizard.goto(3)">4. Complete</button></li>
+    </ul>
+  </nav>
+</article>
+
+<!-- View 1: Input -->
+<article class="view" data-view="0">
+  <h2>Step 1: Enter Your Information</h2>
+  <form onsubmit="event.preventDefault(); wizard.next();">
+    <label>
+      Your Name
+      <input type="text" name="userName" placeholder="John Doe" required />
+    </label>
+    <label>
+      Your Email
+      <input type="email" name="userEmail" placeholder="john@example.com" required />
+    </label>
+    <label>
+      Favorite Color
+      <select name="favoriteColor">
+        <option value="">Select...</option>
+        <option value="red">Red</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+      </select>
+    </label>
+    <button type="submit">Next →</button>
+  </form>
+</article>
+
+<!-- View 2: Review -->
+<article class="view" data-view="1" style="display:none;">
+  <h2>Step 2: Review Your Choices</h2>
+  <p><strong>Name:</strong> <span id="reviewName">—</span></p>
+  <p><strong>Email:</strong> <span id="reviewEmail">—</span></p>
+  <p><strong>Favorite Color:</strong> <span id="reviewColor">—</span></p>
+  
+  <div class="grid">
+    <button class="secondary" onclick="wizard.prev()">← Back</button>
+    <button onclick="wizard.next()">Next →</button>
+  </div>
+</article>
+
+<!-- View 3: Results -->
+<article class="view" data-view="2" style="display:none;">
+  <h2>Step 3: Processing Results</h2>
+  <p>🎉 Your information has been processed!</p>
+  
+  <article>
+    <header><strong>Summary</strong></header>
+    <p id="resultSummary">Loading...</p>
+  </article>
+
+  <div class="grid">
+    <button class="secondary" onclick="wizard.prev()">← Back</button>
+    <button onclick="wizard.next()">Finish →</button>
+  </div>
+</article>
+
+<!-- View 4: Complete -->
+<article class="view" data-view="3" style="display:none;">
+  <h2>🎊 All Done!</h2>
+  <p>Thank you for completing the wizard.</p>
+  <blockquote>
+    "The journey of a thousand miles begins with a single step."
+    <footer>— Lao Tzu</footer>
+  </blockquote>
+  
+  <div class="grid">
+    <button class="secondary" onclick="wizard.goto(0)">Start Over</button>
+    <button class="contrast" onclick="alert('Wizard completed!')">Close</button>
+  </div>
+</article>
+```
+
+  </main>
+
+  <script>
+    const wizard = {
+      currentStep: 0,
+      totalSteps: 4,
+      formData: {},
+
+      goto(step) {
+        if (step < 0 || step >= this.totalSteps) return;
+        
+        // Hide all views
+        document.querySelectorAll('.view').forEach(view => {
+          view.style.display = 'none';
+        });
+
+        // Show target view
+        document.querySelector(`.view[data-view="${step}"]`).style.display = 'block';
+
+        // Update step buttons
+        const stepButtons = document.querySelectorAll('#wizardSteps button');
+        stepButtons.forEach((btn, index) => {
+          if (index === step) {
+            btn.className = 'contrast';
+          } else if (index < step) {
+            btn.className = 'secondary';
+          } else {
+            btn.className = 'secondary outline';
+          }
+        });
+
+        this.currentStep = step;
+
+        // Update content based on step
+        if (step === 1) this.updateReview();
+        if (step === 2) this.updateResults();
+      },
+
+      next() {
+        if (this.currentStep === 0) {
+          this.captureFormData();
+        }
+        this.goto(this.currentStep + 1);
+      },
+
+      prev() {
+        this.goto(this.currentStep - 1);
+      },
+
+      captureFormData() {
+        const form = document.querySelector('form');
+        this.formData = {
+          name: form.userName.value,
+          email: form.userEmail.value,
+          color: form.favoriteColor.value
+        };
+      },
+
+      updateReview() {
+        document.getElementById('reviewName').textContent = this.formData.name || '—';
+        document.getElementById('reviewEmail').textContent = this.formData.email || '—';
+        document.getElementById('reviewColor').textContent = this.formData.color || '—';
+      },
+
+      updateResults() {
+        document.getElementById('resultSummary').textContent = 
+          `Hello ${this.formData.name}! We've recorded your favorite color as ${this.formData.color}. ` +
+          `A confirmation will be sent to ${this.formData.email}.`;
+      }
+    };
+
+    // Initialize
+    wizard.goto(0);
+  </script>
+
+</body>
+</html>

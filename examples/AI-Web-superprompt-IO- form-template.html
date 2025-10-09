@@ -1,0 +1,87 @@
+AI.Web.Script - Structural Natural language instructions for AI to interpret
+
+_________
+METADATA
+
+title: Cities Quiz
+author: J. Smith
+description: A simple quiz testing the knowledge of cities.
+
+____________
+AI-GENERATED 
+
+ai-selected-city: randomly select one city from {cities}
+
+ai-evaluation: evaluate {city-facts} for accuracy and completeness
+ai-grade: assign grade A-F with brief explanation
+ai-funfact: generate interesting fact about {ai-selected-city}
+
+_________
+VIEWS
+
+view: input
+
+# Welcome to {title} by {author}
+
+{description}
+
+---
+
+<form>
+  <label>Please enter your name
+    <input type="text" name="user-name" placeholder="Your name" />
+  </label>
+  
+  <label>What are three facts about {ai-selected-city}?
+    <textarea name="city-facts" rows="4" placeholder="Enter three facts..."></textarea>
+  </label>
+  
+
+</form>
+
+---
+
+view: output
+
+**Hello {user-name}!**
+
+You were asked about **{ai-selected-city}** and you replied:
+
+_{city-facts}_
+
+## AI Evaluation
+{ai-evaluation}
+
+**Grade: {ai-grade}**
+
+## Fun Fact
+_{ai-funfact}_
+
+
+---
+
+view: goodbye
+
+## Thanks for playing {title}!
+
+By the way, the other cities were:
+// display in numbered list and append a flag for the country for each city
+{cities}
+
+> Goodbye
+
+____
+DATA
+
+cities:
+- London, England
+- New York City, USA
+- Toronto, Canada
+- Washington, D.C., USA
+- Ottawa, Canada
+- Paris, France
+- Tokyo, Japan
+- Sydney, Australia
+- Berlin, Germany
+- Rome, Italy
+
