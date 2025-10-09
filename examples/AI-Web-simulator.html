@@ -8,6 +8,35 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
+    /* Fix wizard width consistency and loading behavior */
+    html,
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    main.container {
+      max-width: 600px;
+      width: 90%;
+      margin: 2rem auto;
+      opacity: 0;
+      transition: opacity 0.2s ease-in;
+    }
+
+    body.loaded main.container {
+      opacity: 1;
+    }
+
+    /* Ensure form elements don't cause width jumps */
+    #viewContainer form,
+    #viewContainer textarea,
+    #viewContainer input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
     /* Simple mobile fix - just make close button bigger on mobile */
     @media (max-width: 768px) {
       dialog[open] article header button[rel="prev"] {
@@ -367,9 +396,10 @@ MIT License - Free to use and modify
           }
 
           // Parse DATA
-          const dataMatch = src.match(/_+\s*DATA\s+([\s\S]*?)$/);
+          const dataMatch = src.match(/_+\s*DATA\s+([\s\S]*?)_+\s*MENU/);
           if (dataMatch) {
             const dataText = dataMatch[1].trim();
+            console.log('📊 Parsing data section:', dataText);
             const currentKey = dataText.match(/^(\w+):/m);
             if (currentKey) {
               const key = currentKey[1];
@@ -382,6 +412,7 @@ MIT License - Free to use and modify
                 }
               });
               script.data[key] = items;
+              console.log('📊 Parsed data for key:', key, 'items:', items);
             }
           }
 
@@ -419,8 +450,10 @@ MIT License - Free to use and modify
           // Render menu content
           this.renderMenu();
 
-          console.log('Parsed script:', this.script);
-          console.log('Views found:', this.views.length);
+          console.log('📋 Parsed script:', this.script);
+          console.log('📋 Views found:', this.views.length);
+          console.log('📋 Script data:', this.script.data);
+          console.log('📋 Initial context:', this.context);
 
           if (this.views.length === 0) {
             alert('No views found in script! Check the <view name="..."> tags.');
@@ -443,6 +476,7 @@ MIT License - Free to use and modify
       async startWizard() {
         try {
           await this.generateAI();
+          console.log('🎯 City selected, moving to facts view. Context:', this.context);
           // Navigation bar is already visible from init()
 
           // Move to the next view (facts)
@@ -510,7 +544,8 @@ MIT License - Free to use and modify
 
         if (cities.length > 0) {
           // Always set a city first as fallback
-          this.context['ai-selected-city'] = cities[Math.floor(Math.random() * cities.length)];
+          const randomIndex = Math.floor(Math.random() * cities.length);
+          this.context['ai-selected-city'] = cities[randomIndex];
           console.log('🎲 Fallback city set:', this.context['ai-selected-city']);
 
           // Try to get AI selection if API key is available
@@ -524,9 +559,12 @@ MIT License - Free to use and modify
               console.log('✨ AI selected city:', this.context['ai-selected-city']);
             }
           }
+        } else {
+          console.error('❌ No cities found in script data!');
         }
 
         console.log('🎯 Final context after generateAI:', this.context);
+        console.log('🎯 ai-selected-city value:', this.context['ai-selected-city']);
       },
 
       buildWizardSteps() {
@@ -623,14 +661,15 @@ MIT License - Free to use and modify
 
       replaceVariables(content) {
         return content.replace(/\[\[([^\]]+)\]\]/g, (match, key) => {
-          console.log('Replacing variable:', key, 'with value:', this.context[key]);
+          console.log('🔄 Replacing variable:', key, 'with value:', this.context[key]);
+          console.log('🔄 Full context keys:', Object.keys(this.context));
           if (this.context[key] !== undefined) {
             if (Array.isArray(this.context[key])) {
               return this.formatArray(this.context[key]);
             }
             return this.context[key];
           }
-          console.log('Variable not found:', key);
+          console.log('❌ Variable not found:', key, 'in context');
           return match;
         });
       },
@@ -897,6 +936,9 @@ GRADE: [letter grade only]`;
 
     // Initialize Lucide icons on page load
     document.addEventListener('DOMContentLoaded', () => {
+      // Add loaded class to trigger fade-in effect
+      document.body.classList.add('loaded');
+
       lucide.createIcons();
       initializeModals();
       initializeThemeSwitcher();
