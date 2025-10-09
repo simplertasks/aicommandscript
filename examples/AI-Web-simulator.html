@@ -197,6 +197,16 @@ AI-CONTEXT
 
 system-prompt: You are an AI assistant helping to interpret and execute AI.Web.Script instructions. Follow all instructions precisely and provide only the requested output without any additional commentary.
 
+grading-criteria: |
+  Grade criteria (be strict about accuracy):
+  - A: 3+ accurate, detailed facts with no major errors
+  - B: 2-3 mostly accurate facts with minor inaccuracies
+  - C: 1-2 basic facts with some inaccuracies
+  - D: Few facts with significant inaccuracies or major errors
+  - F: No relevant facts or completely wrong information
+  
+  IMPORTANT: Major factual errors (like saying Eiffel Tower is in Tokyo) should result in D or F grades, even if other facts are correct.
+
 ____________
 AI-GENERATED 
 
@@ -487,7 +497,7 @@ MIT License - Free to use and modify
         }
       },
 
-      async callGroqAPI(prompt) {
+      async callGroqAPI(prompt, options = {}) {
         if (!this.apiKey || !this.apiKey.startsWith('gsk_')) {
           console.log('⚠️ No API key - using fallback');
           return null;
@@ -496,7 +506,24 @@ MIT License - Free to use and modify
         try {
           console.log('🌐 Calling Groq API...');
           const systemPrompt = this.script.aiContext['system-prompt'] ||
-            'You are a helpful AI assistant.';
+            'You are a helpful AI assistant. Follow instructions precisely and provide only the requested output format.';
+
+          const requestBody = {
+            model: options.model || 'llama-3.1-8b-instant',
+            messages: [
+              {
+                role: 'system',
+                content: systemPrompt
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            temperature: options.temperature || 0.3, // Lower temperature for more consistent JSON
+            max_tokens: options.max_tokens || 500,
+            ...options.extraParams
+          };
 
           const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -504,21 +531,7 @@ MIT License - Free to use and modify
               'Authorization': `Bearer ${this.apiKey}`,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-              model: 'llama-3.1-8b-instant',
-              messages: [
-                {
-                  role: 'system',
-                  content: systemPrompt
-                },
-                {
-                  role: 'user',
-                  content: prompt
-                }
-              ],
-              temperature: 0.7,
-              max_tokens: 500
-            })
+            body: JSON.stringify(requestBody)
           });
 
           if (!response.ok) {
@@ -550,13 +563,42 @@ MIT License - Free to use and modify
 
           // Try to get AI selection if API key is available
           if (this.apiKey && this.apiKey.startsWith('gsk_')) {
-            const cityPrompt = `From this list, randomly select ONE city:\n${cities.join('\n')}\n\nRespond with ONLY the city name exactly as it appears in the list, nothing else.`;
-            const selectedCity = await this.callGroqAPI(cityPrompt);
-            console.log('🤖 API response for city selection:', selectedCity);
+            const cityPrompt = `Randomly select ONE city from this list. Respond with ONLY a valid JSON object:
 
-            if (selectedCity && cities.some(c => selectedCity.includes(c.split(',')[0]))) {
-              this.context['ai-selected-city'] = cities.find(c => selectedCity.includes(c.split(',')[0]));
-              console.log('✨ AI selected city:', this.context['ai-selected-city']);
+{
+  "selected_city": "City name exactly as it appears in the list"
+}
+
+City list:
+${cities.join('\n')}
+
+Respond with ONLY the JSON object, no other text.`;
+
+            const selectedCityResponse = await this.callGroqAPI(cityPrompt, {
+              temperature: 0.1, // Very low temperature for consistent selection
+              max_tokens: 100
+            });
+            console.log('🤖 API response for city selection:', selectedCityResponse);
+
+            if (selectedCityResponse) {
+              try {
+                const cityData = JSON.parse(selectedCityResponse);
+                const selectedCity = cityData.selected_city;
+
+                if (selectedCity && cities.includes(selectedCity)) {
+                  this.context['ai-selected-city'] = selectedCity;
+                  console.log('✨ AI selected city (JSON):', this.context['ai-selected-city']);
+                } else {
+                  console.log('⚠️ AI selected invalid city, using fallback');
+                }
+              } catch (parseError) {
+                // Fallback to text parsing if JSON fails
+                console.log('⚠️ JSON parse failed for city selection, using text fallback');
+                if (selectedCityResponse && cities.some(c => selectedCityResponse.includes(c.split(',')[0]))) {
+                  this.context['ai-selected-city'] = cities.find(c => selectedCityResponse.includes(c.split(',')[0]));
+                  console.log('✨ AI selected city (text):', this.context['ai-selected-city']);
+                }
+              }
             }
           }
         } else {
@@ -804,49 +846,115 @@ MIT License - Free to use and modify
         const facts = this.context['city-facts'] || '';
         const city = this.context['ai-selected-city'];
 
-        const evalPrompt = `Evaluate these facts about ${city}:
-"${facts}"
+        // Structured evaluation request
+        const evalRequest = {
+          task: "evaluate_city_facts",
+          data: {
+            city: city,
+            user_facts: facts
+          },
+          response_format: {
+            evaluation: "string",
+            grade: "string",
+            grade_options: ["A", "B", "C", "D", "F"]
+          }
+        };
 
-Provide:
-1. A brief evaluation (1-2 sentences) on accuracy and completeness
-2. A grade (A, B, C, D, or F)
+        // Get grading criteria from script
+        const gradingCriteria = this.script.aiContext['grading-criteria'] ||
+          'Grade based on accuracy and completeness: A (excellent), B (good), C (fair), D (poor), F (failing)';
 
-Format your response as:
-EVALUATION: [your evaluation]
-GRADE: [letter grade only]`;
+        const evalPrompt = `You are evaluating city facts. Respond with ONLY a valid JSON object in this exact format:
 
-        const evalResponse = await this.callGroqAPI(evalPrompt);
+{
+  "evaluation": "Brief 1-2 sentence evaluation of accuracy and completeness",
+  "grade": "A"
+}
+
+City: ${city}
+User facts: "${facts}"
+
+${gradingCriteria}
+
+Respond with ONLY the JSON object, no other text.`;
+
+        const evalResponse = await this.callGroqAPI(evalPrompt, {
+          temperature: 0.2, // Low temperature for consistent evaluation
+          max_tokens: 200
+        });
 
         if (evalResponse) {
-          const evalMatch = evalResponse.match(/EVALUATION:\s*(.+)/i);
-          const gradeMatch = evalResponse.match(/GRADE:\s*([A-F])/i);
+          try {
+            // Try to parse as JSON first
+            const evalData = JSON.parse(evalResponse);
+            this.context['ai-evaluation'] = evalData.evaluation || 'Unable to evaluate properly.';
+            this.context['ai-grade'] = evalData.grade || 'C';
+            console.log('✨ AI evaluation (JSON):', this.context['ai-evaluation']);
+            console.log('✨ AI grade (JSON):', this.context['ai-grade']);
+          } catch (parseError) {
+            // Fallback to regex parsing if JSON fails
+            console.log('⚠️ JSON parse failed, using regex fallback');
+            const evalMatch = evalResponse.match(/EVALUATION:\s*(.+)/i);
+            const gradeMatch = evalResponse.match(/GRADE:\s*([A-F])/i);
 
-          this.context['ai-evaluation'] = evalMatch ? evalMatch[1].trim() : 'Good effort!';
-          this.context['ai-grade'] = gradeMatch ? gradeMatch[1] : 'B';
-          console.log('✨ AI evaluation:', this.context['ai-evaluation']);
-          console.log('✨ AI grade:', this.context['ai-grade']);
-          console.log('✨ Full context after AI evaluation:', this.context);
+            this.context['ai-evaluation'] = evalMatch ? evalMatch[1].trim() : 'Unable to evaluate properly.';
+            this.context['ai-grade'] = gradeMatch ? gradeMatch[1] : 'C';
+            console.log('✨ AI evaluation (regex):', this.context['ai-evaluation']);
+            console.log('✨ AI grade (regex):', this.context['ai-grade']);
+          }
         } else {
+          // Simulated fallback - be more conservative
           const factCount = facts.split('.').filter(f => f.trim().length > 10).length;
           if (factCount >= 3) {
-            this.context['ai-evaluation'] = 'Great job! You provided comprehensive information.';
-            this.context['ai-grade'] = 'A';
-          } else {
-            this.context['ai-evaluation'] = 'Good effort, but could use more detail.';
+            this.context['ai-evaluation'] = 'Good effort! You provided multiple facts.';
+            this.context['ai-grade'] = 'B'; // Even with 3 facts, simulated AI can't verify accuracy
+          } else if (factCount >= 2) {
+            this.context['ai-evaluation'] = 'You provided some information, but more detail would be helpful.';
             this.context['ai-grade'] = 'C';
+          } else {
+            this.context['ai-evaluation'] = 'Limited information provided. Try to include more detailed facts.';
+            this.context['ai-grade'] = 'D';
           }
           console.log('🎭 Simulated evaluation:', this.context['ai-evaluation']);
           console.log('🎭 Simulated grade:', this.context['ai-grade']);
-          console.log('🎭 Full context after simulated evaluation:', this.context);
         }
 
-        const factPrompt = `Provide ONE surprising or little-known fact about ${city}. Be specific and interesting. Respond with ONLY the fact, no introduction.`;
-        const funFact = await this.callGroqAPI(factPrompt);
+        // Structured fun fact request
+        const funFactRequest = {
+          task: "generate_fun_fact",
+          data: {
+            city: city
+          },
+          response_format: {
+            fun_fact: "string"
+          }
+        };
 
-        if (funFact) {
-          this.context['ai-funfact'] = funFact;
-          console.log('✨ AI fun fact:', funFact);
+        const factPrompt = `Generate ONE surprising or little-known fact about ${city}. Respond with ONLY a valid JSON object:
+
+{
+  "fun_fact": "Your interesting fact here"
+}
+
+Be specific and interesting. Respond with ONLY the JSON object, no other text.`;
+
+        const funFactResponse = await this.callGroqAPI(factPrompt, {
+          temperature: 0.7, // Higher temperature for creative fun facts
+          max_tokens: 150
+        });
+
+        if (funFactResponse) {
+          try {
+            const factData = JSON.parse(funFactResponse);
+            this.context['ai-funfact'] = factData.fun_fact || `${city} has a fascinating history!`;
+            console.log('✨ AI fun fact (JSON):', this.context['ai-funfact']);
+          } catch (parseError) {
+            // Fallback to direct text if JSON parsing fails
+            this.context['ai-funfact'] = funFactResponse || `${city} has a fascinating history!`;
+            console.log('✨ AI fun fact (text):', this.context['ai-funfact']);
+          }
         } else {
+          // Simulated fallback
           const funFacts = {
             'London, England': 'London has over 170 museums, more than any other city in the world!',
             'New York City, USA': 'New York City has a hidden network of abandoned subway stations.',
