@@ -182,45 +182,35 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
   <script>
-    // DEFAULT SCRIPT - stored as a JavaScript template literal
-    const defaultScript = `AI.Web.Script - Structural Natural language instructions for AI to interpret
+    // DEFAULT SCRIPT - stored as a JSON object
+    const defaultScript = {
+      metadata: {
+        title: "Cities Quiz",
+        author: "J. Smith",
+        description: "A simple quiz testing the knowledge of cities."
+      },
+      aiContext: {
+        "system-prompt": "You are an AI assistant helping to interpret and execute AI.Web.Script instructions. Follow all instructions precisely and provide only the requested output without any additional commentary.",
+        "grading-criteria": `Grade criteria (be strict about accuracy):
+- A: 3+ accurate, detailed facts with no major errors
+- B: 2-3 mostly accurate facts with minor inaccuracies
+- C: 1-2 basic facts with some inaccuracies
+- D: Few facts with significant inaccuracies or major errors
+- F: No relevant facts or completely wrong information
 
-_________
-METADATA
-
-title: Cities Quiz
-author: J. Smith
-description: A simple quiz testing the knowledge of cities.
-
-___________
-AI-CONTEXT
-
-system-prompt: You are an AI assistant helping to interpret and execute AI.Web.Script instructions. Follow all instructions precisely and provide only the requested output without any additional commentary.
-
-grading-criteria: |
-  Grade criteria (be strict about accuracy):
-  - A: 3+ accurate, detailed facts with no major errors
-  - B: 2-3 mostly accurate facts with minor inaccuracies
-  - C: 1-2 basic facts with some inaccuracies
-  - D: Few facts with significant inaccuracies or major errors
-  - F: No relevant facts or completely wrong information
-  
-  IMPORTANT: Major factual errors (like saying Eiffel Tower is in Tokyo) should result in D or F grades, even if other facts are correct.
-
-____________
-AI-GENERATED 
-
-ai-selected-city: randomly select one city from [[cities]]
-
-ai-evaluation: evaluate [[city-facts]] for accuracy and completeness
-ai-grade: assign grade A-F with brief explanation
-ai-funfact: generate interesting fact about [[ai-selected-city]]
-
-_________
-VIEWS
-
-<view name="input">
-# Welcome to [[title]] by [[author]]
+IMPORTANT: Major factual errors (like saying Eiffel Tower is in Tokyo) should result in D or F grades, even if other facts are correct.`
+      },
+      aiGenerated: {
+        "ai-selected-city": "randomly select one city from [[cities]]",
+        "ai-evaluation": "evaluate [[city-facts]] for accuracy and completeness",
+        "ai-grade": "assign grade A-F with brief explanation",
+        "ai-funfact": "generate interesting fact about [[ai-selected-city]]"
+      },
+      views: [
+        {
+          name: "input",
+          content: `### Welcome to [[title]]
+> a quiz by [[author]]
 
 [[description]]
 
@@ -234,21 +224,19 @@ VIEWS
     <input type="password" name="apiKey" placeholder="gsk_..." />
     <small>Leave blank to use simulated AI. Your API key is stored in browser memory only.</small>
   </label>
-</form>
-</view>
-
-<view name="facts">
-<form>
+</form>`
+        },
+        {
+          name: "facts",
+          content: `<form>
   <label>What are three facts about [[ai-selected-city]]?
     <textarea name="city-facts" rows="4" placeholder="Enter three facts..." required></textarea>
   </label>
-</form>
-
-</view>
-
-<view name="output">
-
-**Hello [[user-name]]!**
+</form>`
+        },
+        {
+          name: "output",
+          content: `**Hello [[user-name]]!**
 
 You were asked about **[[ai-selected-city]]** and you replied:
 
@@ -260,42 +248,33 @@ _[[city-facts]]_
 **Grade: [[ai-grade]]**
 
 ## Fun Fact
-_[[ai-funfact]]_
-
-</view>
-
-<view name="goodbye">
-
-## Thanks for playing [[title]]!
+_[[ai-funfact]]_`
+        },
+        {
+          name: "goodbye",
+          content: `## Thanks for playing [[title]]!
 
 By the way, the other cities were:
 [[cities]]
 
-> Goodbye
-
-</view>
-
-____
-DATA
-
-cities:
-- London, England
-- New York City, USA
-- Toronto, Canada
-- Washington, D.C., USA
-- Ottawa, Canada
-- Paris, France
-- Tokyo, Japan
-- Sydney, Australia
-- Berlin, Germany
-- Rome, Italy
-
-_____
-MENU
-
-<menu>
-
-# Help
+> Goodbye`
+        }
+      ],
+      data: {
+        cities: [
+          "London, England",
+          "New York City, USA",
+          "Toronto, Canada",
+          "Washington, D.C., USA",
+          "Ottawa, Canada",
+          "Paris, France",
+          "Tokyo, Japan",
+          "Sydney, Australia",
+          "Berlin, Germany",
+          "Rome, Italy"
+        ]
+      },
+      menu: `# Help
 
 Welcome to the Cities Quiz! Here's how to use this application:
 
@@ -314,7 +293,6 @@ Welcome to the Cities Quiz! Here's how to use this application:
 - Use the numbered buttons to jump between sections
 - Use Home, Back, and Forward buttons at the bottom
 - Click Restart on the final page to try again with a new city
-
 
 # About [[title]]
 
@@ -338,9 +316,8 @@ This application is built using AI.Web.Script - a declarative language for creat
 - [Examples](https://examples.aiwebscript.dev)
 
 ### License
-MIT License - Free to use and modify
-
-</menu>`;
+MIT License - Free to use and modify`
+    };
 
     const wizard = {
       script: null,
@@ -349,102 +326,25 @@ MIT License - Free to use and modify
       views: [],
       apiKey: '',
 
-      parseScript(src) {
-        const script = {
-          metadata: {},
-          aiContext: {},
-          aiGenerated: {},
-          views: [],
-          data: {},
-          menu: ''
-        };
-
-        try {
-          // Parse METADATA
-          const metaMatch = src.match(/_+\s*METADATA\s+([\s\S]*?)_+/);
-          if (metaMatch) {
-            const lines = metaMatch[1].trim().split('\n');
-            lines.forEach(line => {
-              const match = line.match(/^(\w+):\s*(.+)$/);
-              if (match) {
-                script.metadata[match[1]] = match[2].trim();
-              }
-            });
-          }
-
-          // Parse AI-CONTEXT
-          const contextMatch = src.match(/_+\s*AI-CONTEXT\s+([\s\S]*?)_+/);
-          if (contextMatch) {
-            const lines = contextMatch[1].trim().split('\n');
-            lines.forEach(line => {
-              const match = line.match(/^([\w-]+):\s*(.+)$/);
-              if (match) {
-                script.aiContext[match[1]] = match[2].trim();
-              }
-            });
-          }
-
-          // Parse AI-GENERATED
-          const aiMatch = src.match(/_+\s*AI-GENERATED\s+([\s\S]*?)_+/);
-          if (aiMatch) {
-            const lines = aiMatch[1].trim().split('\n');
-            lines.forEach(line => {
-              const match = line.match(/^([\w-]+):\s*(.+)$/);
-              if (match) {
-                script.aiGenerated[match[1]] = match[2].trim();
-              }
-            });
-          }
-
-          // Parse VIEWS
-          const viewMatches = src.matchAll(/<view name="([^"]+)">([\s\S]*?)<\/view>/gi);
-          for (const match of viewMatches) {
-            script.views.push({
-              name: match[1],
-              content: match[2].trim()
-            });
-          }
-
-          // Parse DATA
-          const dataMatch = src.match(/_+\s*DATA\s+([\s\S]*?)_+\s*MENU/);
-          if (dataMatch) {
-            const dataText = dataMatch[1].trim();
-            console.log('📊 Parsing data section:', dataText);
-            const currentKey = dataText.match(/^(\w+):/m);
-            if (currentKey) {
-              const key = currentKey[1];
-              const items = [];
-              const lines = dataText.split('\n');
-              lines.forEach(line => {
-                const itemMatch = line.match(/^-\s*(.+)$/);
-                if (itemMatch) {
-                  items.push(itemMatch[1].trim());
-                }
-              });
-              script.data[key] = items;
-              console.log('📊 Parsed data for key:', key, 'items:', items);
-            }
-          }
-
-          // Parse MENU
-          const menuMatch = src.match(/_+\s*MENU\s+([\s\S]*?)$/);
-          console.log('Menu match found:', menuMatch);
-          if (menuMatch) {
-            const menuContent = menuMatch[1].trim();
-            console.log('Menu content section:', menuContent);
-            const menuTagMatch = menuContent.match(/<menu>([\s\S]*?)<\/menu>/i);
-            console.log('Menu tag match:', menuTagMatch);
-            if (menuTagMatch) {
-              script.menu = menuTagMatch[1].trim();
-              console.log('Parsed menu content:', script.menu);
-            }
-          }
-        } catch (error) {
-          console.error('Parse error:', error);
-          alert('Error parsing script: ' + error.message);
+      parseScript(scriptData) {
+        // If it's already a JSON object, use it directly
+        if (typeof scriptData === 'object') {
+          return scriptData;
         }
 
-        return script;
+        // If it's a string, try to parse it as JSON
+        if (typeof scriptData === 'string') {
+          try {
+            return JSON.parse(scriptData);
+          } catch (error) {
+            console.error('Failed to parse script as JSON:', error);
+            alert('Error: Script must be valid JSON format');
+            return null;
+          }
+        }
+
+        console.error('Invalid script format');
+        return null;
       },
 
       async init(scriptText) {
@@ -566,7 +466,7 @@ MIT License - Free to use and modify
             const cityPrompt = `Randomly select ONE city from this list. Respond with ONLY a valid JSON object:
 
 {
-  "selected_city": "City name exactly as it appears in the list"
+  "ai-selected-city": "City name exactly as it appears in the list"
 }
 
 City list:
@@ -583,7 +483,7 @@ Respond with ONLY the JSON object, no other text.`;
             if (selectedCityResponse) {
               try {
                 const cityData = JSON.parse(selectedCityResponse);
-                const selectedCity = cityData.selected_city;
+                const selectedCity = cityData['ai-selected-city'];
 
                 if (selectedCity && cities.includes(selectedCity)) {
                   this.context['ai-selected-city'] = selectedCity;
@@ -854,8 +754,8 @@ Respond with ONLY the JSON object, no other text.`;
             user_facts: facts
           },
           response_format: {
-            evaluation: "string",
-            grade: "string",
+            "ai-evaluation": "string",
+            "ai-grade": "string",
             grade_options: ["A", "B", "C", "D", "F"]
           }
         };
@@ -867,8 +767,8 @@ Respond with ONLY the JSON object, no other text.`;
         const evalPrompt = `You are evaluating city facts. Respond with ONLY a valid JSON object in this exact format:
 
 {
-  "evaluation": "Brief 1-2 sentence evaluation of accuracy and completeness",
-  "grade": "A"
+  "ai-evaluation": "Brief 1-2 sentence evaluation of accuracy and completeness",
+  "ai-grade": "A"
 }
 
 City: ${city}
@@ -887,8 +787,8 @@ Respond with ONLY the JSON object, no other text.`;
           try {
             // Try to parse as JSON first
             const evalData = JSON.parse(evalResponse);
-            this.context['ai-evaluation'] = evalData.evaluation || 'Unable to evaluate properly.';
-            this.context['ai-grade'] = evalData.grade || 'C';
+            this.context['ai-evaluation'] = evalData['ai-evaluation'] || 'Unable to evaluate properly.';
+            this.context['ai-grade'] = evalData['ai-grade'] || 'C';
             console.log('✨ AI evaluation (JSON):', this.context['ai-evaluation']);
             console.log('✨ AI grade (JSON):', this.context['ai-grade']);
           } catch (parseError) {
@@ -926,14 +826,14 @@ Respond with ONLY the JSON object, no other text.`;
             city: city
           },
           response_format: {
-            fun_fact: "string"
+            "ai-funfact": "string"
           }
         };
 
         const factPrompt = `Generate ONE surprising or little-known fact about ${city}. Respond with ONLY a valid JSON object:
 
 {
-  "fun_fact": "Your interesting fact here"
+  "ai-funfact": "Your interesting fact here"
 }
 
 Be specific and interesting. Respond with ONLY the JSON object, no other text.`;
@@ -946,7 +846,7 @@ Be specific and interesting. Respond with ONLY the JSON object, no other text.`;
         if (funFactResponse) {
           try {
             const factData = JSON.parse(funFactResponse);
-            this.context['ai-funfact'] = factData.fun_fact || `${city} has a fascinating history!`;
+            this.context['ai-funfact'] = factData['ai-funfact'] || `${city} has a fascinating history!`;
             console.log('✨ AI fun fact (JSON):', this.context['ai-funfact']);
           } catch (parseError) {
             // Fallback to direct text if JSON parsing fails
