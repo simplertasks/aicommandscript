@@ -416,6 +416,11 @@ MIT License - Free to use and modify
             return;
           }
 
+          // Build and show wizard navigation immediately
+          this.buildWizardSteps();
+          document.getElementById('wizardNav').style.display = 'block';
+          document.getElementById('wizardButtons').style.display = 'block';
+
           // Show the first view (input form)
           this.goto(0);
         } catch (error) {
@@ -427,10 +432,7 @@ MIT License - Free to use and modify
       async startWizard() {
         try {
           await this.generateAI();
-          this.buildWizardSteps();
-
-          document.getElementById('wizardNav').style.display = 'block';
-          document.getElementById('wizardButtons').style.display = 'block';
+          // Navigation bar is already visible from init()
 
           // Move to the next view (facts)
           this.goto(1);
