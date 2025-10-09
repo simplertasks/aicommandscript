@@ -7,6 +7,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    /* Simple mobile fix - just make close button bigger on mobile */
+    @media (max-width: 768px) {
+      dialog[open] article header button[rel="prev"] {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0.75rem;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -996,6 +1007,8 @@ GRADE: [letter grade only]`;
           }
         }
       });
+
+
     }
 
     // Settings functions
