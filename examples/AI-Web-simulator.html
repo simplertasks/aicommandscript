@@ -22,7 +22,88 @@
     <!-- Script Editor - Hidden by default -->
     <details>
       <summary><strong>AI.Web.Script Editor</strong></summary>
-      <textarea id="scriptEditor" rows="25" style="font-family: monospace; font-size: 0.9rem; width: 100%;"></textarea>
+      <textarea id="scriptEditor" rows="25" style="font-family: monospace; font-size: 0.9rem; width: 100%;">AI.Web.Script - Structural Natural language instructions for AI to interpret
+
+_________
+METADATA
+
+title: Cities Quiz
+author: J. Smith
+description: A simple quiz testing the knowledge of cities.
+
+____________
+AI-GENERATED 
+
+ai-selected-city: randomly select one city from [[cities]]
+
+ai-evaluation: evaluate [[city-facts]] for accuracy and completeness
+ai-grade: assign grade A-F with brief explanation
+ai-funfact: generate interesting fact about [[ai-selected-city]]
+
+_________
+VIEWS
+
+&lt;view name="input"&gt;
+
+# Welcome to [[title]] by [[author]]
+
+[[description]]
+
+&lt;form&gt;
+  &lt;label&gt;Please enter your name
+    &lt;input type="text" name="user-name" placeholder="Your name" required /&gt;
+  &lt;/label&gt;
+  
+  &lt;label&gt;What are three facts about [[ai-selected-city]]?
+    &lt;textarea name="city-facts" rows="4" placeholder="Enter three facts..." required&gt;&lt;/textarea&gt;
+  &lt;/label&gt;
+&lt;/form&gt;
+
+&lt;/view&gt;
+
+&lt;view name="output"&gt;
+
+**Hello [[user-name]]!**
+
+You were asked about **[[ai-selected-city]]** and you replied:
+
+_[[city-facts]]_
+
+## AI Evaluation
+[[ai-evaluation]]
+
+**Grade: [[ai-grade]]**
+
+## Fun Fact
+_[[ai-funfact]]_
+
+&lt;/view&gt;
+
+&lt;view name="goodbye"&gt;
+
+## Thanks for playing [[title]]!
+
+By the way, the other cities were:
+[[cities]]
+
+&gt; Goodbye
+
+&lt;/view&gt;
+
+____
+DATA
+
+cities:
+- London, England
+- New York City, USA
+- Toronto, Canada
+- Washington, D.C., USA
+- Ottawa, Canada
+- Paris, France
+- Tokyo, Japan
+- Sydney, Australia
+- Berlin, Germany
+- Rome, Italy</textarea>
       <button onclick="runScript()">Run Script</button>
     </details>
 
@@ -48,95 +129,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
   <script>
-    // Load default script
+    // Auto-run on page load
     window.addEventListener('DOMContentLoaded', function() {
-      const defaultScript = `AI.Web.Script - Structural Natural language instructions for AI to interpret
-
-_________
-METADATA
-
-title: Cities Quiz
-author: J. Smith
-description: A simple quiz testing the knowledge of cities.
-
-____________
-AI-GENERATED 
-
-ai-selected-city: randomly select one city from \{cities\}
-
-ai-evaluation: evaluate \{city-facts\} for accuracy and completeness
-ai-grade: assign grade A-F with brief explanation
-ai-funfact: generate interesting fact about \{ai-selected-city\}
-
-_________
-VIEWS
-
-<view name="input">
-
-# Welcome to \{title\} by \{author\}
-
-\{description\}
-
-<form>
-  <label>Please enter your name
-    <input type="text" name="user-name" placeholder="Your name" required />
-  </label>
-  
-  <label>What are three facts about \{ai-selected-city\}?
-    <textarea name="city-facts" rows="4" placeholder="Enter three facts..." required></textarea>
-  </label>
-</form>
-
-</view>
-
-<view name="output">
-
-**Hello \{user-name\}!**
-
-You were asked about **\{ai-selected-city\}** and you replied:
-
-_\{city-facts\}_
-
-## AI Evaluation
-\{ai-evaluation\}
-
-**Grade: \{ai-grade\}**
-
-## Fun Fact
-_\{ai-funfact\}_
-
-</view>
-
-<view name="goodbye">
-
-## Thanks for playing \{title\}!
-
-By the way, the other cities were:
-\{cities\}
-
-> Goodbye
-
-</view>
-
-____
-DATA
-
-cities:
-- London, England
-- New York City, USA
-- Toronto, Canada
-- Washington, D.C., USA
-- Ottawa, Canada
-- Paris, France
-- Tokyo, Japan
-- Sydney, Australia
-- Berlin, Germany
-- Rome, Italy`;
-
-      // Remove backslash escapes when loading
-      document.getElementById('scriptEditor').value = defaultScript.replace(/\\{/g, '{').replace(/\\}/g, '}');
-      
-      // Auto-run the script on load
       runScript();
     });
 
@@ -180,8 +174,8 @@ cities:
             });
           }
 
-          // Parse VIEWS
-          const viewMatches = src.matchAll(/<view name="([^"]+)">([\s\S]*?)<\/view>/g);
+          // Parse VIEWS - handle HTML entities
+          const viewMatches = src.matchAll(/<view name="([^"]+)">([\s\S]*?)<\/view>/gi);
           for (const match of viewMatches) {
             script.views.push({
               name: match[1],
@@ -211,6 +205,9 @@ cities:
           console.error('Parse error:', error);
           alert('Error parsing script: ' + error.message);
         }
+
+        console.log('Parsed views:', script.views.length);
+        console.log('Parsed data keys:', Object.keys(script.data));
 
         return script;
       },
@@ -299,7 +296,7 @@ cities:
         // Generate ai-selected-city
         const cities = this.script.data.cities || [];
         if (cities.length > 0) {
-          const cityPrompt = `From this list, randomly select ONE city:\n${cities.join('\n')}\n\nRespond with ONLY the city name, nothing else.`;
+          const cityPrompt = `From this list, randomly select ONE city:\n${cities.join('\n')}\n\nRespond with ONLY the city name exactly as it appears in the list, nothing else.`;
           const selectedCity = await this.callGroqAPI(cityPrompt);
           
           if (selectedCity && cities.some(c => selectedCity.includes(c.split(',')[0]))) {
@@ -357,6 +354,11 @@ cities:
 
           console.log('Rendering view:', view.name);
 
+          // Decode HTML entities
+          const txt = document.createElement('textarea');
+          txt.innerHTML = content;
+          content = txt.value;
+
           // Replace variables
           content = this.replaceVariables(content);
 
@@ -382,7 +384,7 @@ cities:
       },
 
       replaceVariables(content) {
-        return content.replace(/\{([^}]+)\}/g, (match, key) => {
+        return content.replace(/\[\[([^\]]+)\]\]/g, (match, key) => {
           if (this.context[key] !== undefined) {
             if (Array.isArray(this.context[key])) {
               return this.formatArray(this.context[key]);
@@ -435,7 +437,6 @@ cities:
             }
 
             if (this.currentStep === 0) {
-              // Show loading state
               const nextBtn = document.getElementById('nextBtn');
               const originalText = nextBtn.textContent;
               nextBtn.textContent = '🤖 AI is thinking...';
@@ -464,7 +465,6 @@ cities:
         const facts = this.context['city-facts'] || '';
         const city = this.context['ai-selected-city'];
 
-        // Evaluate facts
         const evalPrompt = `Evaluate these facts about ${city}:
 "${facts}"
 
@@ -485,7 +485,6 @@ GRADE: [letter grade only]`;
           this.context['ai-evaluation'] = evalMatch ? evalMatch[1].trim() : 'Good effort!';
           this.context['ai-grade'] = gradeMatch ? gradeMatch[1] : 'B';
         } else {
-          // Fallback evaluation
           const factCount = facts.split('.').filter(f => f.trim().length > 10).length;
           if (factCount >= 3) {
             this.context['ai-evaluation'] = 'Great job! You provided comprehensive information.';
@@ -496,7 +495,6 @@ GRADE: [letter grade only]`;
           }
         }
 
-        // Generate fun fact
         const factPrompt = `Provide ONE surprising or little-known fact about ${city}. Be specific and interesting. Respond with ONLY the fact, no introduction.`;
         const funFact = await this.callGroqAPI(factPrompt);
         
@@ -546,3 +544,4 @@ GRADE: [letter grade only]`;
   </script>
 </body>
 </html>
+
