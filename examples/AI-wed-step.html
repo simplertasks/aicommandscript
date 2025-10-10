@@ -36,14 +36,16 @@
     .button-group button i[data-lucide]:first-child { margin-right: .25rem; }
     .button-group button i[data-lucide]:last-child { margin-left: .25rem; }
 
+    /* Dropdown summary tidy look */
     details.dropdown summary {
       display: inline-flex;
       align-items: center;
       gap: .4rem;
+      cursor: pointer;
     }
-    #step-menu li a[aria-current="step"] {
-      font-weight: 600;
-    }
+
+    /* Highlight current step in dropdown */
+    #step-menu li a[aria-current="step"] { font-weight: 600; }
   </style>
 </head>
 <body>
@@ -161,13 +163,15 @@ cities:
   </script>
 
   <script>
+    // -------------------------------
     // Parser for AI.Web.Script format
+    // -------------------------------
     class AIWebScriptParser {
       parse(scriptContent) {
         const sections = this.splitIntoSections(scriptContent);
         return {
-          metadata: this.parseMetadata(sections.METADATA || ''),
-          aiGenerated: this.parseAIGenerated(sections['AI-GENERATED'] || ''),
+          metadata: this.parseKeyValue(sections.METADATA || ''),
+          aiGenerated: this.parseKeyValue(sections['AI-GENERATED'] || ''),
           views: this.parseViews(sections.VIEWS || ''),
           data: this.parseData(sections.DATA || '')
         };
@@ -177,14 +181,10 @@ cities:
         const sectionRegex = /^([A-Z\-]+)\s*$/gm;
         const parts = content.split(sectionRegex).filter(s => s.trim());
         for (let i = 0; i < parts.length; i += 2) {
-          if (parts[i] && parts[i + 1]) {
-            sections[parts[i].trim()] = parts[i + 1].trim();
-          }
+          if (parts[i] && parts[i + 1]) sections[parts[i].trim()] = parts[i + 1].trim();
         }
         return sections;
       }
-      parseMetadata(content) { return this.parseKeyValue(content); }
-      parseAIGenerated(content) { return this.parseKeyValue(content); }
       parseKeyValue(content) {
         const result = {};
         const lines = content.split('\n');
@@ -222,27 +222,48 @@ cities:
       }
     }
 
+    // -------------------------------
     // Application state
+    // -------------------------------
     let parsedScript = null;
     let currentStep = 1;
     let formData = {};
     let aiData = {};
+    let stepsCache = null; // cache for getSteps()
 
+    // -------------------------------
+    // Helpers
+    // -------------------------------
     function refreshIcons() {
       if (window.lucide && typeof lucide.createIcons === 'function') {
         lucide.createIcons();
       }
     }
 
+    function buildSteps() {
+      const viewNames = Object.keys(parsedScript.views || {});
+      return viewNames.map((name, index) => ({
+        id: index + 1,
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        viewName: name
+      }));
+    }
+
+    function getSteps(force = false) {
+      if (force || !stepsCache) stepsCache = buildSteps();
+      return stepsCache;
+    }
+
+    // -------------------------------
+    // Init
+    // -------------------------------
     function init() {
       const scriptElement = document.querySelector('script[type="text/ai-web-script"]');
-      if (!scriptElement) {
-        console.error('No AI.Web.Script found');
-        return;
-      }
+      if (!scriptElement) return console.error('No AI.Web.Script found');
 
       const parser = new AIWebScriptParser();
       parsedScript = parser.parse(scriptElement.textContent);
+      stepsCache = null; // invalidate cache (fresh parse)
 
       generateAIData();
       renderWizard();
@@ -252,8 +273,9 @@ cities:
       refreshIcons();
     }
 
+    // Simulated AI generation
     function generateAIData() {
-      if (parsedScript.data.cities) {
+      if (parsedScript.data.cities?.length) {
         const randomCity = parsedScript.data.cities[
           Math.floor(Math.random() * parsedScript.data.cities.length)
         ];
@@ -264,22 +286,17 @@ cities:
       aiData['ai-funfact'] = `Did you know that ${aiData['ai-selected-city']} has a fascinating history dating back centuries?`;
     }
 
-    function getSteps() {
-      const viewNames = Object.keys(parsedScript.views);
-      return viewNames.map((name, index) => ({
-        id: index + 1,
-        name: name.charAt(0).toUpperCase() + name.slice(1),
-        viewName: name
-      }));
-    }
-
-    // Simplified interpolation – no flags
+    // -------------------------------
+    // Rendering
+    // -------------------------------
     function interpolateVariables(content) {
       let result = content;
 
+      // Metadata
       for (const [key, value] of Object.entries(parsedScript.metadata))
         result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
 
+      // Data (no flags; plain numbered list for arrays)
       for (const [key, value] of Object.entries(parsedScript.data)) {
         if (Array.isArray(value)) {
           const listText = value.map((item, i) => `${i + 1}. ${item}`).join('\n');
@@ -289,9 +306,11 @@ cities:
         }
       }
 
+      // AI-generated
       for (const [key, value] of Object.entries(aiData))
         result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
 
+      // Form data
       for (const [key, value] of Object.entries(formData))
         result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value || '[not provided]');
 
@@ -301,12 +320,15 @@ cities:
     function renderWizard() {
       const steps = getSteps();
       const mainContent = document.getElementById('main-content');
+
       mainContent.innerHTML = steps.map(step => {
         const view = parsedScript.views[step.viewName];
         const interpolated = interpolateVariables(view.content);
         const html = marked.parse(interpolated);
         return `<div id="step-${step.id}" class="step-content" data-step="${step.id}">${html}</div>`;
       }).join('');
+
+      refreshIcons();
     }
 
     function renderStepMenu() {
@@ -317,82 +339,102 @@ cities:
       `).join('');
     }
 
+    // -------------------------------
+    // Events
+    // -------------------------------
     function attachEventListeners() {
       document.getElementById('home-btn').addEventListener('click', () => goToStep(1));
       document.getElementById('back-btn').addEventListener('click', previousStep);
       document.getElementById('next-btn').addEventListener('click', nextStep);
 
-      document.getElementById('step-menu').addEventListener('click', e => {
+      // Step dropdown click -> navigate
+      document.getElementById('step-menu').addEventListener('click', (e) => {
         const link = e.target.closest('a[data-step]');
         if (!link) return;
         e.preventDefault();
-        const stepId = parseInt(link.dataset.step);
+        const stepId = parseInt(link.dataset.step, 10);
         goToStep(stepId);
-        document.getElementById('step-dropdown').removeAttribute('open');
+        document.getElementById('step-dropdown').removeAttribute('open'); // close Pico dropdown
       });
 
-      document.addEventListener('input', e => {
+      // Track form input
+      document.addEventListener('input', (e) => {
         if (e.target.name) formData[e.target.name] = e.target.value;
       });
     }
 
+    // -------------------------------
+    // Navigation
+    // -------------------------------
     function goToStep(stepId) {
       const steps = getSteps();
       if (stepId >= 1 && stepId <= steps.length) {
         currentStep = stepId;
+        // Re-render content so interpolations (e.g., formData) appear in output view
         renderWizard();
         renderStepMenu();
         updateUI();
-        attachEventListeners();
+        attachEventListeners(); // rebind after innerHTML updates
         refreshIcons();
       }
     }
 
     function previousStep() {
-      if (currentStep > 1) goToStep(--currentStep);
+      if (currentStep > 1) goToStep(currentStep - 1);
     }
 
     function nextStep() {
       const steps = getSteps();
-      if (currentStep < steps.length) goToStep(++currentStep);
+      if (currentStep < steps.length) goToStep(currentStep + 1);
     }
 
+    // -------------------------------
+    // UI update (simplified text updates)
+    // -------------------------------
     function updateUI() {
       const steps = getSteps();
       const maxSteps = steps.length;
       const currentStepData = steps[currentStep - 1];
 
-      document.getElementById('interactive-progress').value = currentStep;
-      document.getElementById('interactive-progress').max = maxSteps;
+      // Progress
+      const progressEl = document.getElementById('interactive-progress');
+      progressEl.value = currentStep;
+      progressEl.max = maxSteps;
 
+      // Title text (preserve icon)
       const stepTitle = document.getElementById('step-title');
-      const text = ` ${currentStep}. ${currentStepData.name}`;
-      if (stepTitle.lastChild?.nodeType === 3)
-        stepTitle.lastChild.nodeValue = text;
-      else
-        stepTitle.append(document.createTextNode(text));
+      const titleIcon = stepTitle.querySelector('i[data-lucide]');
+      stepTitle.textContent = `${currentStep}. ${currentStepData.name}`;
+      if (titleIcon) stepTitle.prepend(titleIcon);
 
+      // Dropdown summary text (preserve icon)
       const summary = document.getElementById('step-summary');
-      summary.lastChild?.nodeType === 3
-        ? summary.lastChild.nodeValue = ` ${currentStep}/${maxSteps} - ${currentStepData.name}`
-        : summary.append(document.createTextNode(` ${currentStep}/${maxSteps} - ${currentStepData.name}`));
+      const summaryIcon = summary.querySelector('i[data-lucide]');
+      summary.textContent = `${currentStep}/${maxSteps} - ${currentStepData.name}`;
+      if (summaryIcon) summary.prepend(summaryIcon);
 
+      // Show active step content
       document.querySelectorAll('.step-content').forEach(article => {
-        article.classList.toggle('active', parseInt(article.dataset.step) === currentStep);
+        const stepId = parseInt(article.dataset.step, 10);
+        article.classList.toggle('active', stepId === currentStep);
       });
 
+      // Highlight current item in dropdown
       document.querySelectorAll('#step-menu a[data-step]').forEach(a => {
-        const stepId = parseInt(a.dataset.step);
-        if (stepId === currentStep) a.setAttribute('aria-current', 'step');
-        else a.removeAttribute('aria-current');
+        const stepId = parseInt(a.dataset.step, 10);
+        a.toggleAttribute('aria-current', stepId === currentStep);
       });
 
+      // Buttons
       document.getElementById('back-btn').disabled = currentStep === 1;
       document.getElementById('next-btn').disabled = currentStep === maxSteps;
 
       refreshIcons();
     }
 
+    // -------------------------------
+    // Start the application
+    // -------------------------------
     init();
   </script>
 </body>
