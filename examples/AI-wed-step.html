@@ -25,7 +25,7 @@
     }
     .button-group {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: auto 1fr 1fr; /* Menu | Back | Next */
       gap: 1rem;
     }
     .step-content { display: none; }
@@ -42,6 +42,9 @@
       cursor: pointer;
     }
     #step-menu li a[aria-current="step"] { font-weight: 600; }
+
+    /* Optional: keep layout steady when swapping steps */
+    #main-content { min-height: 40vh; }
   </style>
 </head>
 <body>
@@ -60,7 +63,7 @@
         </details>
       </div>
 
-      <progress id="interactive-progress" value="1" max="1"></progress>
+      <progress id="interactive-progress" value="1" max="1" aria-valuetext=""></progress>
     </div>
   </div>
 
@@ -68,10 +71,12 @@
 
   <div class="container">
     <div class="button-group">
-      <button id="home-btn" class="secondary home-btn">
-        <i data-lucide="home"></i>
-        Home
+      <!-- Hamburger menu button (replaces Home) -->
+      <button id="menu-btn" class="secondary">
+        <i data-lucide="menu"></i>
+        Menu
       </button>
+
       <button id="back-btn" class="secondary back-btn">
         <i data-lucide="arrow-left"></i>
         Back
@@ -82,6 +87,37 @@
       </button>
     </div>
   </div>
+
+  <!-- Menu dialog (Pico modal) -->
+  <dialog id="menu-dialog">
+    <article>
+      <header>
+        <strong>Menu</strong>
+        <button id="menu-close" aria-label="Close" class="close"></button>
+      </header>
+      <nav>
+        <ul>
+          <li><a href="#" id="menu-help"><i data-lucide="help-circle"></i> Help</a></li>
+          <li><a href="#" id="menu-about"><i data-lucide="info"></i> About</a></li>
+          <li><a href="#" id="menu-settings"><i data-lucide="settings"></i> Settings</a></li>
+        </ul>
+      </nav>
+    </article>
+  </dialog>
+
+  <!-- Aux content dialog (renders Help/About/Settings from aux tags) -->
+  <dialog id="aux-dialog">
+    <article>
+      <header>
+        <strong id="aux-title"></strong>
+        <button id="aux-close" aria-label="Close" class="close"></button>
+      </header>
+      <div id="aux-content"></div>
+      <footer>
+        <button id="aux-ok" class="secondary">Close</button>
+      </footer>
+    </article>
+  </dialog>
 
   <!-- AI.Web.Script -->
   <script type="text/ai-web-script">
@@ -156,11 +192,33 @@ cities:
 - Sydney, Australia
 - Berlin, Germany
 - Rome, Italy
+
+<!-- AUX TAGS (NOT counted as wizard steps) -->
+<help>
+# Help
+
+- Use **Next** and **Back** to move between steps.
+- Your inputs are saved as you type.
+- Use the **Steps** dropdown to jump directly.
+_Current: step {currentStep} of {totalSteps}._
+</help>
+
+<about>
+# About
+
+**AI.Web.Script Wizard** — a tiny, markdown-driven wizard demo.
+</about>
+
+<settings>
+# Settings
+
+_Coming soon:_ theme, export, and defaults.
+</settings>
   </script>
 
   <script>
     // -------------------------------
-    // Parser for AI.Web.Script format
+    // Parser for AI.Web.Script format (with AUX tags)
     // -------------------------------
     class AIWebScriptParser {
       parse(scriptContent) {
@@ -169,7 +227,8 @@ cities:
           metadata: this.parseKeyValue(sections.METADATA || ''),
           aiGenerated: this.parseKeyValue(sections['AI-GENERATED'] || ''),
           views: this.parseViews(sections.VIEWS || ''),
-          data: this.parseData(sections.DATA || '')
+          data: this.parseData(sections.DATA || ''),
+          aux: this.parseAux(scriptContent) // parse from the whole source, not just sections
         };
       }
       splitIntoSections(content) {
@@ -216,6 +275,19 @@ cities:
         if (currentKey) result[currentKey] = currentArray;
         return result;
       }
+      // NEW: parse <help>, <about>, <settings> from the full script text
+      parseAux(fullText) {
+        const tag = (name) => {
+          const re = new RegExp(`<${name}>([\\s\\S]*?)<\\/${name}>`, 'i');
+          const m = fullText.match(re);
+          return m ? m[1].trim() : '';
+        };
+        return {
+          help: tag('help'),
+          about: tag('about'),
+          settings: tag('settings')
+        };
+      }
     }
 
     // -------------------------------
@@ -223,7 +295,7 @@ cities:
     // -------------------------------
     let parsedScript = null;
     let currentStep = 1;
-    let formData = {};   // <-- plain JS object holding form values
+    let formData = {};
     let aiData = {};
     let stepsCache = null;
 
@@ -250,18 +322,38 @@ cities:
       return stepsCache;
     }
 
-    // Re-apply saved values to inputs/textareas after each render
     function restoreFormValues(root = document) {
       const fields = root.querySelectorAll('input[name], textarea[name], select[name]');
       fields.forEach(el => {
-        const key = el.name;
-        if (key in formData) {
-          // Support input/textarea/select
-          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
-            el.value = formData[key];
-          }
-        }
+        if (el.name in formData) el.value = formData[el.name];
       });
+    }
+
+    // Menu / Aux modals
+    function openMenuDialog() {
+      document.getElementById('menu-dialog').showModal();
+      refreshIcons();
+    }
+    function closeMenuDialog() {
+      document.getElementById('menu-dialog').close();
+    }
+    function openAuxFromTag(tagName) {
+      const content = (parsedScript.aux?.[tagName] || '').trim();
+      if (!content) return;
+      // Inject step vars before interpolation
+      const steps = getSteps();
+      const withStepVars = content
+        .replace(/\{currentStep\}/g, String(currentStep))
+        .replace(/\{totalSteps\}/g, String(steps.length));
+      const html = marked.parse(interpolateVariables(withStepVars));
+      document.getElementById('aux-title').textContent =
+        tagName.charAt(0).toUpperCase() + tagName.slice(1);
+      document.getElementById('aux-content').innerHTML = html;
+      document.getElementById('aux-dialog').showModal();
+      refreshIcons();
+    }
+    function closeAux() {
+      document.getElementById('aux-dialog').close();
     }
 
     // -------------------------------
@@ -273,14 +365,14 @@ cities:
 
       const parser = new AIWebScriptParser();
       parsedScript = parser.parse(scriptElement.textContent);
-      stepsCache = null; // invalidate cache
+      stepsCache = null;
 
       generateAIData();
       renderWizard();
       renderStepMenu();
       updateUI();
       attachEventListeners();
-      restoreFormValues(document);  // <-- ensure fields are repopulated on first render
+      restoreFormValues(document);
       refreshIcons();
     }
 
@@ -339,7 +431,6 @@ cities:
         return `<div id="step-${step.id}" class="step-content" data-step="${step.id}">${html}</div>`;
       }).join('');
 
-      // After rendering, restore any saved form values into the DOM
       restoreFormValues(mainContent);
       refreshIcons();
     }
@@ -356,7 +447,7 @@ cities:
     // Events
     // -------------------------------
     function attachEventListeners() {
-      document.getElementById('home-btn').addEventListener('click', () => goToStep(1));
+      // Step control buttons
       document.getElementById('back-btn').addEventListener('click', previousStep);
       document.getElementById('next-btn').addEventListener('click', nextStep);
 
@@ -367,24 +458,39 @@ cities:
         e.preventDefault();
         const stepId = parseInt(link.dataset.step, 10);
         goToStep(stepId);
-        document.getElementById('step-dropdown').removeAttribute('open'); // close Pico dropdown
+        document.getElementById('step-dropdown').removeAttribute('open');
       });
 
       // Track form input live into formData
       document.addEventListener('input', (e) => {
         const t = e.target;
-        if (t && t.name) {
-          // For inputs/textarea/select
-          formData[t.name] = t.value;
-        }
+        if (t && t.name) formData[t.name] = t.value;
       });
-      // Also catch change (helps with select/radio if added later)
       document.addEventListener('change', (e) => {
         const t = e.target;
-        if (t && t.name) {
-          formData[t.name] = t.value;
-        }
+        if (t && t.name) formData[t.name] = t.value;
       });
+
+      // Hamburger -> open menu dialog
+      document.getElementById('menu-btn').addEventListener('click', openMenuDialog);
+      document.getElementById('menu-close').addEventListener('click', closeMenuDialog);
+      document.getElementById('menu-dialog').addEventListener('cancel', (e) => { e.preventDefault(); closeMenuDialog(); });
+
+      // Menu choices -> open aux dialog with aux tag content
+      document.getElementById('menu-help').addEventListener('click', (e) => {
+        e.preventDefault(); closeMenuDialog(); openAuxFromTag('help');
+      });
+      document.getElementById('menu-about').addEventListener('click', (e) => {
+        e.preventDefault(); closeMenuDialog(); openAuxFromTag('about');
+      });
+      document.getElementById('menu-settings').addEventListener('click', (e) => {
+        e.preventDefault(); closeMenuDialog(); openAuxFromTag('settings');
+      });
+
+      // Aux dialog close buttons
+      document.getElementById('aux-close').addEventListener('click', closeAux);
+      document.getElementById('aux-ok').addEventListener('click', closeAux);
+      document.getElementById('aux-dialog').addEventListener('cancel', (e) => { e.preventDefault(); closeAux(); });
     }
 
     // -------------------------------
@@ -394,13 +500,11 @@ cities:
       const steps = getSteps();
       if (stepId >= 1 && stepId <= steps.length) {
         currentStep = stepId;
-
-        // Re-render content so interpolations appear in output view
         renderWizard();
         renderStepMenu();
         updateUI();
-        attachEventListeners();          // rebind after innerHTML updates
-        restoreFormValues(document);     // <-- re-apply saved values after each navigation
+        attachEventListeners();         // rebind after innerHTML updates
+        restoreFormValues(document);
         refreshIcons();
       }
     }
@@ -415,17 +519,17 @@ cities:
     }
 
     // -------------------------------
-    // UI update (simplified text updates)
+    // UI update
     // -------------------------------
     function updateUI() {
       const steps = getSteps();
       const maxSteps = steps.length;
       const currentStepData = steps[currentStep - 1];
 
-      // Progress
       const progressEl = document.getElementById('interactive-progress');
       progressEl.value = currentStep;
       progressEl.max = maxSteps;
+      progressEl.setAttribute('aria-valuetext', `Step ${currentStep} of ${maxSteps}`);
 
       // Title text (preserve icon)
       const stepTitle = document.getElementById('step-title');
@@ -462,9 +566,6 @@ cities:
     // Start the application
     // -------------------------------
     init();
-
-    // (Optional) If you want the raw JSON string at any time:
-    // const jsonString = JSON.stringify(formData);
   </script>
 </body>
 </html>
