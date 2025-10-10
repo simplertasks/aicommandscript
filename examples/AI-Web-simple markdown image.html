@@ -7,51 +7,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
 
   <style>
-    main {
-      max-width: 800px;
-      margin: auto;
-      padding: 2rem;
-    }
-
-    figure {
-      margin: var(--pico-spacing) 0;
-      text-align: center;
-    }
-
-    figure img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    figcaption {
-      font-size: 0.9em;
-      color: var(--pico-muted-color);
-      margin-top: 0.25rem;
-    }
-
-    .align-left {
-      float: left;
-      margin-right: 1rem;
-    }
-
-    .align-right {
-      float: right;
-      margin-left: 1rem;
-    }
-
-    .align-center {
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: center;
-    }
-
-    .markdown::after {
-      content: "";
-      display: block;
-      clear: both;
-    }
+    img { max-width: 100%; height: auto; display: block; margin: 1rem 0; }
+    .align-center { margin-left: auto; margin-right: auto; text-align: center; }
   </style>
 </head>
 <body>
@@ -61,40 +18,27 @@
     <textarea id="markdown-source" style="display:none;">
 # 🐝 Enhanced Markdown Image Syntax
 
-Here are a few examples of how you can control **width**, **alignment**, and **caption**:
+### Centered with fixed width + caption
+![Bee|200|center|Our friendly bee mascot](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
 
 ---
 
-### 1️⃣ Centered with fixed width + caption
-![Bee|200|center|Our friendly bee mascot](![Bee|200|center|Our friendly bee mascot](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
+### Default (left-aligned)
+![Bee|300|left|Default alignment](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
 
 ---
 
-### 2️⃣ Left-aligned with % width
-![Bee|40%|left](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
-
-Some text wrapping around the image. The **left alignment** uses a float-based layout.
-
----
-
-### 3️⃣ Plain Markdown image (default)
+### Plain Markdown image
 ![Bee](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
-
     </textarea>
 
-    <div id="markdown-output" class="markdown"></div>
+    <div id="markdown-output"></div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/marked@10.0.0/marked.min.js"></script>
   <script>
-    marked.setOptions({
-      gfm: true,
-      breaks: true,
-      mangle: false,
-      headerIds: false,
-    });
+    marked.setOptions({ gfm: true, breaks: true });
 
-    // Enhance already-rendered HTML (after marked.parse)
     function enhanceRenderedImages(html) {
       return html.replace(
         /<img src="([^"]+)" alt="([^"]*)">/g,
@@ -105,39 +49,26 @@ Some text wrapping around the image. The **left alignment** uses a float-based l
           const align = (parts[2] || '').toLowerCase();
           const caption = parts[3] || '';
 
+          // Only allow "center" as a special case; everything else defaults to left
+          const isCenter = align === 'center';
+          const alignClass = isCenter ? 'align-center' : '';
           const widthStyle = width
             ? `max-width:${width}${width.endsWith('%') ? '' : 'px'};`
             : '';
-          const alignClass = align ? `align-${align}` : '';
           const figcaption = caption ? `<figcaption>${caption}</figcaption>` : '';
 
           return `<figure class="${alignClass}" style="${widthStyle}">
-              <img src="${url}" alt="${baseAlt}" style="${widthStyle}" loading="lazy">
-              ${figcaption}
-            </figure>`;
+                    <img src="${url}" alt="${baseAlt}" style="${widthStyle}">
+                    ${figcaption}
+                  </figure>`;
         }
       );
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       const src = document.getElementById('markdown-source').value.trim();
-      const output = document.getElementById('markdown-output');
-
-      // Step 1: Parse Markdown normally
       const html = marked.parse(src);
-
-      // Step 2: Enhance rendered <img> tags
-      const enhancedHTML = enhanceRenderedImages(html);
-
-      output.innerHTML = enhancedHTML;
-
-      // Optional image error handler
-      output.addEventListener('error', (e) => {
-        if (e.target.tagName === 'IMG') {
-          console.warn('Image failed to load:', e.target.src);
-          e.target.alt = '⚠️ Image failed to load';
-        }
-      }, true);
+      document.getElementById('markdown-output').innerHTML = enhanceRenderedImages(html);
     });
   </script>
 </body>
