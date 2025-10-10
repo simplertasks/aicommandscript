@@ -31,20 +31,16 @@
     .step-content { display: none; }
     .step-content.active { display: block; }
 
-    /* Lucide sizing */
     i[data-lucide] { width: 18px; height: 18px; vertical-align: middle; }
     .button-group button i[data-lucide]:first-child { margin-right: .25rem; }
     .button-group button i[data-lucide]:last-child { margin-left: .25rem; }
 
-    /* Dropdown summary tidy look */
     details.dropdown summary {
       display: inline-flex;
       align-items: center;
       gap: .4rem;
       cursor: pointer;
     }
-
-    /* Highlight current step in dropdown */
     #step-menu li a[aria-current="step"] { font-weight: 600; }
   </style>
 </head>
@@ -227,9 +223,9 @@ cities:
     // -------------------------------
     let parsedScript = null;
     let currentStep = 1;
-    let formData = {};
+    let formData = {};   // <-- plain JS object holding form values
     let aiData = {};
-    let stepsCache = null; // cache for getSteps()
+    let stepsCache = null;
 
     // -------------------------------
     // Helpers
@@ -254,6 +250,20 @@ cities:
       return stepsCache;
     }
 
+    // Re-apply saved values to inputs/textareas after each render
+    function restoreFormValues(root = document) {
+      const fields = root.querySelectorAll('input[name], textarea[name], select[name]');
+      fields.forEach(el => {
+        const key = el.name;
+        if (key in formData) {
+          // Support input/textarea/select
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+            el.value = formData[key];
+          }
+        }
+      });
+    }
+
     // -------------------------------
     // Init
     // -------------------------------
@@ -263,13 +273,14 @@ cities:
 
       const parser = new AIWebScriptParser();
       parsedScript = parser.parse(scriptElement.textContent);
-      stepsCache = null; // invalidate cache (fresh parse)
+      stepsCache = null; // invalidate cache
 
       generateAIData();
       renderWizard();
       renderStepMenu();
       updateUI();
       attachEventListeners();
+      restoreFormValues(document);  // <-- ensure fields are repopulated on first render
       refreshIcons();
     }
 
@@ -296,7 +307,7 @@ cities:
       for (const [key, value] of Object.entries(parsedScript.metadata))
         result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
 
-      // Data (no flags; plain numbered list for arrays)
+      // Data (arrays -> simple numbered text list)
       for (const [key, value] of Object.entries(parsedScript.data)) {
         if (Array.isArray(value)) {
           const listText = value.map((item, i) => `${i + 1}. ${item}`).join('\n');
@@ -328,6 +339,8 @@ cities:
         return `<div id="step-${step.id}" class="step-content" data-step="${step.id}">${html}</div>`;
       }).join('');
 
+      // After rendering, restore any saved form values into the DOM
+      restoreFormValues(mainContent);
       refreshIcons();
     }
 
@@ -357,9 +370,20 @@ cities:
         document.getElementById('step-dropdown').removeAttribute('open'); // close Pico dropdown
       });
 
-      // Track form input
+      // Track form input live into formData
       document.addEventListener('input', (e) => {
-        if (e.target.name) formData[e.target.name] = e.target.value;
+        const t = e.target;
+        if (t && t.name) {
+          // For inputs/textarea/select
+          formData[t.name] = t.value;
+        }
+      });
+      // Also catch change (helps with select/radio if added later)
+      document.addEventListener('change', (e) => {
+        const t = e.target;
+        if (t && t.name) {
+          formData[t.name] = t.value;
+        }
       });
     }
 
@@ -370,11 +394,13 @@ cities:
       const steps = getSteps();
       if (stepId >= 1 && stepId <= steps.length) {
         currentStep = stepId;
-        // Re-render content so interpolations (e.g., formData) appear in output view
+
+        // Re-render content so interpolations appear in output view
         renderWizard();
         renderStepMenu();
         updateUI();
-        attachEventListeners(); // rebind after innerHTML updates
+        attachEventListeners();          // rebind after innerHTML updates
+        restoreFormValues(document);     // <-- re-apply saved values after each navigation
         refreshIcons();
       }
     }
@@ -436,6 +462,9 @@ cities:
     // Start the application
     // -------------------------------
     init();
+
+    // (Optional) If you want the raw JSON string at any time:
+    // const jsonString = JSON.stringify(formData);
   </script>
 </body>
 </html>
