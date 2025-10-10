@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Markdown Viewer</title>
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@2/css/pico.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body { max-width: 800px; margin: auto; padding: 2rem; }
+    img { display: block; margin: 1rem auto; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Markdown Viewer</h1>
+    <div id="preview"></div>
+  </main>
+
+  <script>
+    // Simple Markdown with your image
+    const markdown = `
+# Hello Markdown 👋
+
+This is a minimal static Markdown previewer using **marked** and **Pico.css**.
+
+![Cute hummingbird](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg){width=400 height=250}
+
+> Beautiful simplicity, locally rendered.
+`;
+
+    // Extend Markdown to support {width=... height=...}
+    function renderMarkdown(md) {
+      const custom = md.replace(
+        /!\[(.*?)\]\((.*?)\)\{(.*?)\}/g,
+        (match, alt, src, attrs) => {
+          const style = attrs
+            .split(/\s+/)
+            .map(a => {
+              const [k, v] = a.split('=');
+              return `${k}:${v}px`;
+            })
+            .join(';');
+          return `<img src="${src}" alt="${alt}" style="${style}">`;
+        }
+      );
+      document.getElementById('preview').innerHTML = marked.parse(custom);
+    }
+
+    renderMarkdown(markdown);
+  </script>
+</body>
+</html>
