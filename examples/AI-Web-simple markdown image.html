@@ -18,13 +18,18 @@
       text-align: center;
     }
 
+    figure img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
     figcaption {
       font-size: 0.9em;
       color: var(--pico-muted-color);
       margin-top: 0.25rem;
     }
 
-    /* alignment helpers */
     .align-left {
       float: left;
       margin-right: 1rem;
@@ -42,7 +47,6 @@
       text-align: center;
     }
 
-    /* optional: keep floated items contained */
     .markdown::after {
       content: "";
       display: block;
@@ -89,15 +93,16 @@ Some text wrapping around the image. The **left alignment** uses a float-based l
       headerIds: false,
     });
 
-    function convertEnhancedImages(md) {
-      return md.replace(
-        /!\[([^|\]]+)(?:\|([^|\]]*))?(?:\|([^|\]]*))?(?:\|([^\]]*))?\]\(([^)]+)\)/g,
-        (match, alt, width, align, caption, url) => {
-          alt = alt?.trim() || "";
-          width = width?.trim() || "";
-          align = align?.trim().toLowerCase() || "";
-          caption = caption?.trim() || "";
-          url = url?.trim() || "";
+    // Enhance already-rendered HTML (after marked.parse)
+    function enhanceRenderedImages(html) {
+      return html.replace(
+        /<img src="([^"]+)" alt="([^"]*)">/g,
+        (match, url, alt) => {
+          const parts = alt.split('|').map(s => s.trim());
+          const baseAlt = parts[0] || '';
+          const width = parts[1] || '';
+          const align = (parts[2] || '').toLowerCase();
+          const caption = parts[3] || '';
 
           const widthStyle = width
             ? `max-width:${width}${width.endsWith('%') ? '' : 'px'};`
@@ -106,7 +111,7 @@ Some text wrapping around the image. The **left alignment** uses a float-based l
           const figcaption = caption ? `<figcaption>${caption}</figcaption>` : '';
 
           return `<figure class="${alignClass}" style="${widthStyle}">
-              <img src="${url}" alt="${alt}">
+              <img src="${url}" alt="${baseAlt}" style="${widthStyle}" loading="lazy">
               ${figcaption}
             </figure>`;
         }
@@ -117,8 +122,21 @@ Some text wrapping around the image. The **left alignment** uses a float-based l
       const src = document.getElementById('markdown-source').value.trim();
       const output = document.getElementById('markdown-output');
 
-      const enhanced = convertEnhancedImages(src);
-      output.innerHTML = marked.parse(enhanced);
+      // Step 1: Parse Markdown normally
+      const html = marked.parse(src);
+
+      // Step 2: Enhance rendered <img> tags
+      const enhancedHTML = enhanceRenderedImages(html);
+
+      output.innerHTML = enhancedHTML;
+
+      // Optional image error handler
+      output.addEventListener('error', (e) => {
+        if (e.target.tagName === 'IMG') {
+          console.warn('Image failed to load:', e.target.src);
+          e.target.alt = '⚠️ Image failed to load';
+        }
+      }, true);
     });
   </script>
 </body>
