@@ -15,6 +15,65 @@
   <main class="container">
     <h1>Enhanced Markdown Image Demo</h1>
 
+		
+		
+		instruction
+
+<pre>
+
+You’re absolutely right! The table syntax won’t render correctly in plain markdown text. Here’s the corrected version:
+
+# Enhanced Markdown Image Guidelines
+
+## Syntax
+
+Standard: `![Alt text](url)`
+Enhanced: `![Alt text|width|align|caption](url)`
+
+Parameters (all optional after alt text):
+
+1. **Alt text** - Fallback description
+1. **Width** - Pixels (200) or percent (40%)
+1. **Align** - `center` only (left is default)
+1. **Caption** - Text displayed below image
+
+## Examples
+
+**Basic image**
+`![Bee](url)` → Left-aligned, no width constraint
+
+**Fixed width**
+`![Bee|200](url)` → 200px wide
+
+**Percentage width**
+`![Bee|40%](url)` → 40% of container
+
+**Centered**
+`![Bee|200|center](url)` → Centered, 200px wide
+
+**With caption**
+`![Bee|200|center|Our friendly bee](url)` → All features
+
+**Caption only**
+`![Bee|||Caption text](url)` → Skip width/align parameters
+
+## Key Features
+
+- HTML-escaped captions and alt text for security
+- Native lazy loading on all images
+- All images wrapped in `<figure>` elements
+- Only `center` changes alignment (everything else is left)
+- Works with pixels or percentages
+- Graceful fallback to standard markdown
+
+## Quick Reference
+
+Default: `![Alt](url)`
+Set width: `![Alt|200](url)`
+Percent: `![Alt|40%](url)`
+Centered: `![Alt|200|center](url)`
+Caption: `![Alt|200|center|Text](url)`
+</pre>
     <textarea id="markdown-source" style="display:none;">
 # 🐝 Enhanced Markdown Image Syntax
 
