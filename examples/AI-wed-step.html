@@ -36,13 +36,11 @@
     .button-group button i[data-lucide]:first-child { margin-right: .25rem; }
     .button-group button i[data-lucide]:last-child { margin-left: .25rem; }
 
-    /* Make the dropdown summary look tidy */
     details.dropdown summary {
       display: inline-flex;
       align-items: center;
       gap: .4rem;
     }
-    /* Step list alignment inside dropdown */
     #step-menu li a[aria-current="step"] {
       font-weight: 600;
     }
@@ -54,7 +52,7 @@
       <div class="progress-header">
         <h2 id="step-title"><i data-lucide="map-pin" aria-hidden="true"></i></h2>
 
-        <!-- NEW: Pico dropdown for step navigation -->
+        <!-- Pico dropdown for step navigation -->
         <details class="dropdown" id="step-dropdown">
           <summary id="step-summary">
             <i data-lucide="list-ordered" aria-hidden="true"></i>
@@ -145,7 +143,6 @@ By the way, the other cities were:
 {cities}
 
 > Goodbye
-
 </view>
 
 DATA
@@ -193,7 +190,7 @@ cities:
         const lines = content.split('\n');
         for (const line of lines) {
           const match = line.match(/^([^:]+):\s*(.+)$/);
-          if (match) result[match[1].trim()] = result[match[1].trim()] ? result[match[1].trim()] + ' ' + match[2].trim() : match[2].trim();
+          if (match) result[match[1].trim()] = match[2].trim();
         }
         return result;
       }
@@ -231,14 +228,12 @@ cities:
     let formData = {};
     let aiData = {};
 
-    // Lucide helper: (re)render icons after DOM changes
     function refreshIcons() {
       if (window.lucide && typeof lucide.createIcons === 'function') {
         lucide.createIcons();
       }
     }
 
-    // Initialize the application
     function init() {
       const scriptElement = document.querySelector('script[type="text/ai-web-script"]');
       if (!scriptElement) {
@@ -249,10 +244,7 @@ cities:
       const parser = new AIWebScriptParser();
       parsedScript = parser.parse(scriptElement.textContent);
 
-      // Generate AI data (simulated)
       generateAIData();
-
-      // Render the wizard and UI
       renderWizard();
       renderStepMenu();
       updateUI();
@@ -260,7 +252,6 @@ cities:
       refreshIcons();
     }
 
-    // Simulate AI generation
     function generateAIData() {
       if (parsedScript.data.cities) {
         const randomCity = parsedScript.data.cities[
@@ -268,208 +259,140 @@ cities:
         ];
         aiData['ai-selected-city'] = randomCity;
       }
-
       aiData['ai-evaluation'] = 'Your facts show good knowledge of the city. Some details could be more specific.';
       aiData['ai-grade'] = 'B+ - Good effort with room for improvement';
       aiData['ai-funfact'] = `Did you know that ${aiData['ai-selected-city']} has a fascinating history dating back centuries?`;
     }
 
-    // Convert views to steps
     function getSteps() {
       const viewNames = Object.keys(parsedScript.views);
       return viewNames.map((name, index) => ({
         id: index + 1,
         name: name.charAt(0).toUpperCase() + name.slice(1),
-        viewName: name,
-        title: name.charAt(0).toUpperCase() + name.slice(1)
+        viewName: name
       }));
     }
 
-    // Variable interpolation
+    // Simplified interpolation – no flags
     function interpolateVariables(content) {
       let result = content;
 
-      // Replace metadata variables
-      for (const [key, value] of Object.entries(parsedScript.metadata)) {
+      for (const [key, value] of Object.entries(parsedScript.metadata))
         result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
-      }
 
-      // Replace data variables
       for (const [key, value] of Object.entries(parsedScript.data)) {
         if (Array.isArray(value)) {
-          // Create numbered list with flags
-          const listHtml = value.map((item, i) => {
-            const country = item.split(',')[1]?.trim() || '';
-            const flag = getCountryFlag(country);
-            return `${i + 1}. ${flag} ${item}`;
-          }).join('\n');
-          result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), listHtml);
+          const listText = value.map((item, i) => `${i + 1}. ${item}`).join('\n');
+          result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), listText);
         } else {
           result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
         }
       }
 
-      // Replace AI-generated variables
-      for (const [key, value] of Object.entries(aiData)) {
+      for (const [key, value] of Object.entries(aiData))
         result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
-      }
 
-      // Replace form data
-      for (const [key, value] of Object.entries(formData)) {
+      for (const [key, value] of Object.entries(formData))
         result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value || '[not provided]');
-      }
 
       return result;
     }
 
-    // Get country flag emoji
-    function getCountryFlag(country) {
-      const flags = {
-        'England': '🏴',
-        'USA': '🇺🇸',
-        'Canada': '🇨🇦',
-        'France': '🇫🇷',
-        'Japan': '🇯🇵',
-        'Australia': '🇦🇺',
-        'Germany': '🇩🇪',
-        'Italy': '🇮🇹'
-      };
-      return flags[country] || '🌍';
-    }
-
-    // Render wizard from parsed script
     function renderWizard() {
       const steps = getSteps();
       const mainContent = document.getElementById('main-content');
-
       mainContent.innerHTML = steps.map(step => {
         const view = parsedScript.views[step.viewName];
         const interpolated = interpolateVariables(view.content);
         const html = marked.parse(interpolated);
-        return `
-          <div id="step-${step.id}" class="step-content" data-step="${step.id}">
-            ${html}
-          </div>
-        `;
+        return `<div id="step-${step.id}" class="step-content" data-step="${step.id}">${html}</div>`;
       }).join('');
     }
 
-    // NEW: Render the step dropdown menu (Pico details dropdown)
     function renderStepMenu() {
       const steps = getSteps();
       const menu = document.getElementById('step-menu');
-
       menu.innerHTML = steps.map(step => `
-        <li>
-          <a href="#" data-step="${step.id}">
-            ${step.id}/${steps.length} - ${step.name}
-          </a>
-        </li>
+        <li><a href="#" data-step="${step.id}">${step.id}/${steps.length} - ${step.name}</a></li>
       `).join('');
     }
 
-    // Attach event listeners
     function attachEventListeners() {
       document.getElementById('home-btn').addEventListener('click', () => goToStep(1));
       document.getElementById('back-btn').addEventListener('click', previousStep);
       document.getElementById('next-btn').addEventListener('click', nextStep);
 
-      // Delegate clicks inside the dropdown menu
-      document.getElementById('step-menu').addEventListener('click', (e) => {
+      document.getElementById('step-menu').addEventListener('click', e => {
         const link = e.target.closest('a[data-step]');
         if (!link) return;
         e.preventDefault();
         const stepId = parseInt(link.dataset.step);
         goToStep(stepId);
-
-        // Close the dropdown after selection
-        const dd = document.getElementById('step-dropdown');
-        dd.removeAttribute('open');
+        document.getElementById('step-dropdown').removeAttribute('open');
       });
 
-      // Form input tracking
-      document.addEventListener('input', (e) => {
-        if (e.target.name) {
-          formData[e.target.name] = e.target.value;
-        }
+      document.addEventListener('input', e => {
+        if (e.target.name) formData[e.target.name] = e.target.value;
       });
     }
 
-    // Navigation functions
     function goToStep(stepId) {
       const steps = getSteps();
       if (stepId >= 1 && stepId <= steps.length) {
         currentStep = stepId;
-        renderWizard();       // content changes
-        renderStepMenu();     // keep the menu in sync (in case steps change)
-        updateUI();           // reflect selection
+        renderWizard();
+        renderStepMenu();
+        updateUI();
         attachEventListeners();
         refreshIcons();
       }
     }
 
     function previousStep() {
-      if (currentStep > 1) {
-        currentStep--;
-        goToStep(currentStep);
-      }
+      if (currentStep > 1) goToStep(--currentStep);
     }
 
     function nextStep() {
       const steps = getSteps();
-      if (currentStep < steps.length) {
-        currentStep++;
-        goToStep(currentStep);
-      }
+      if (currentStep < steps.length) goToStep(++currentStep);
     }
 
-    // UI update
     function updateUI() {
       const steps = getSteps();
       const maxSteps = steps.length;
       const currentStepData = steps[currentStep - 1];
 
-      // Progress
       document.getElementById('interactive-progress').value = currentStep;
       document.getElementById('interactive-progress').max = maxSteps;
 
-      // Title text
       const stepTitle = document.getElementById('step-title');
       const text = ` ${currentStep}. ${currentStepData.name}`;
-      if (stepTitle.lastChild?.nodeType === 3) {
+      if (stepTitle.lastChild?.nodeType === 3)
         stepTitle.lastChild.nodeValue = text;
-      } else {
+      else
         stepTitle.append(document.createTextNode(text));
-      }
 
-      // Dropdown summary text
       const summary = document.getElementById('step-summary');
       summary.lastChild?.nodeType === 3
         ? summary.lastChild.nodeValue = ` ${currentStep}/${maxSteps} - ${currentStepData.name}`
         : summary.append(document.createTextNode(` ${currentStep}/${maxSteps} - ${currentStepData.name}`));
 
-      // Show active step content
       document.querySelectorAll('.step-content').forEach(article => {
-        const stepId = parseInt(article.dataset.step);
-        article.classList.toggle('active', stepId === currentStep);
+        article.classList.toggle('active', parseInt(article.dataset.step) === currentStep);
       });
 
-      // Highlight current item in dropdown
       document.querySelectorAll('#step-menu a[data-step]').forEach(a => {
         const stepId = parseInt(a.dataset.step);
         if (stepId === currentStep) a.setAttribute('aria-current', 'step');
         else a.removeAttribute('aria-current');
       });
 
-      // Buttons enabled/disabled
       document.getElementById('back-btn').disabled = currentStep === 1;
       document.getElementById('next-btn').disabled = currentStep === maxSteps;
 
-      // Re-hydrate icons if needed
       refreshIcons();
     }
 
-    // Start the application
     init();
   </script>
 </body>
