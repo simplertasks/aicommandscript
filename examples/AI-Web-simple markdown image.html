@@ -39,26 +39,34 @@
   <script>
     marked.setOptions({ gfm: true, breaks: true });
 
+    // Escape HTML safely
+    const escapeHtml = (text = '') =>
+      text.replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+
     function enhanceRenderedImages(html) {
       return html.replace(
         /<img src="([^"]+)" alt="([^"]*)">/g,
         (match, url, alt) => {
           const parts = alt.split('|').map(s => s.trim());
-          const baseAlt = parts[0] || '';
+          const baseAlt = escapeHtml(parts[0] || '');
           const width = parts[1] || '';
           const align = (parts[2] || '').toLowerCase();
-          const caption = parts[3] || '';
+          const caption = escapeHtml(parts[3] || '');
 
-          // Only allow "center" as a special case; everything else defaults to left
-          const isCenter = align === 'center';
-          const alignClass = isCenter ? 'align-center' : '';
+          // Handle width (unit-flexible)
           const widthStyle = width
-            ? `max-width:${width}${width.endsWith('%') ? '' : 'px'};`
+            ? `max-width:${/^\d+$/.test(width) ? width + 'px' : width};`
             : '';
+
+          // Only allow 'center' (default is left)
+          const alignClass = align === 'center' ? 'align-center' : '';
           const figcaption = caption ? `<figcaption>${caption}</figcaption>` : '';
 
           return `<figure class="${alignClass}" style="${widthStyle}">
-                    <img src="${url}" alt="${baseAlt}" style="${widthStyle}">
+                    <img src="${url}" alt="${baseAlt}" loading="lazy" style="${widthStyle}">
                     ${figcaption}
                   </figure>`;
         }
