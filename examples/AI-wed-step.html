@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI.Web.Script Wizard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .75rem;
+      margin-bottom: 0.5rem;
+    }
+    .progress-header h2 {
+      margin: 0;
+      font-size: 1rem;
+      display: inline-flex;
+      gap: .5rem;
+      align-items: center;
+    }
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1rem;
+    }
+    .step-content { display: none; }
+    .step-content.active { display: block; }
+
+    /* Lucide sizing */
+    i[data-lucide] { width: 18px; height: 18px; vertical-align: middle; }
+    .button-group button i[data-lucide]:first-child { margin-right: .25rem; }
+    .button-group button i[data-lucide]:last-child { margin-left: .25rem; }
+
+    /* Make the dropdown summary look tidy */
+    details.dropdown summary {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    /* Step list alignment inside dropdown */
+    #step-menu li a[aria-current="step"] {
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-indicator">
+    <div class="container">
+      <div class="progress-header">
+        <h2 id="step-title"><i data-lucide="map-pin" aria-hidden="true"></i></h2>
+
+        <!-- NEW: Pico dropdown for step navigation -->
+        <details class="dropdown" id="step-dropdown">
+          <summary id="step-summary">
+            <i data-lucide="list-ordered" aria-hidden="true"></i>
+            Steps
+          </summary>
+          <ul id="step-menu"></ul>
+        </details>
+      </div>
+
+      <progress id="interactive-progress" value="1" max="1"></progress>
+    </div>
+  </div>
+
+  <main class="container" id="main-content"></main>
+
+  <div class="container">
+    <div class="button-group">
+      <button id="home-btn" class="secondary home-btn">
+        <i data-lucide="home"></i>
+        Home
+      </button>
+      <button id="back-btn" class="secondary back-btn">
+        <i data-lucide="arrow-left"></i>
+        Back
+      </button>
+      <button id="next-btn" class="next-btn">
+        Next
+        <i data-lucide="arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- AI.Web.Script -->
+  <script type="text/ai-web-script">
+METADATA
+title: Cities Quiz
+author: J. Smith
+description: A simple quiz testing knowledge of cities.
+
+AI-GENERATED
+ai-selected-city: randomly select one city from {cities}
+ai-evaluation: evaluate {city-facts} for accuracy and completeness
+ai-grade: assign grade A-F with brief explanation
+ai-funfact: generate interesting fact about {ai-selected-city}
+
+VIEWS
+<view name="input">
+
+# Welcome to {title} by {author}
+
+{description}
+
+<form>
+  <label>Please enter your name
+    <input type="text" name="user-name" placeholder="Your name" />
+  </label>
+
+<label>What are three facts about {ai-selected-city}?
+<textarea name="city-facts" rows="4" placeholder="Enter three facts..."></textarea>
+</label>
+
+</form>
+</view>
+
+<view name="output">
+**Hello {user-name}!**
+
+You were asked about **{ai-selected-city}** and you replied:
+
+*{city-facts}*
+
+## AI Evaluation
+
+{ai-evaluation}
+
+**Grade: {ai-grade}**
+
+## Fun Fact
+
+*{ai-funfact}*
+</view>
+
+<view name="goodbye">
+## Thanks for playing {title}!
+
+By the way, the other cities were:
+
+{cities}
+
+> Goodbye
+
+</view>
+
+DATA
+cities:
+
+- London, England
+- New York City, USA
+- Toronto, Canada
+- Washington, D.C., USA
+- Ottawa, Canada
+- Paris, France
+- Tokyo, Japan
+- Sydney, Australia
+- Berlin, Germany
+- Rome, Italy
+  </script>
+
+  <script>
+    // Parser for AI.Web.Script format
+    class AIWebScriptParser {
+      parse(scriptContent) {
+        const sections = this.splitIntoSections(scriptContent);
+        return {
+          metadata: this.parseMetadata(sections.METADATA || ''),
+          aiGenerated: this.parseAIGenerated(sections['AI-GENERATED'] || ''),
+          views: this.parseViews(sections.VIEWS || ''),
+          data: this.parseData(sections.DATA || '')
+        };
+      }
+      splitIntoSections(content) {
+        const sections = {};
+        const sectionRegex = /^([A-Z\-]+)\s*$/gm;
+        const parts = content.split(sectionRegex).filter(s => s.trim());
+        for (let i = 0; i < parts.length; i += 2) {
+          if (parts[i] && parts[i + 1]) {
+            sections[parts[i].trim()] = parts[i + 1].trim();
+          }
+        }
+        return sections;
+      }
+      parseMetadata(content) { return this.parseKeyValue(content); }
+      parseAIGenerated(content) { return this.parseKeyValue(content); }
+      parseKeyValue(content) {
+        const result = {};
+        const lines = content.split('\n');
+        for (const line of lines) {
+          const match = line.match(/^([^:]+):\s*(.+)$/);
+          if (match) result[match[1].trim()] = result[match[1].trim()] ? result[match[1].trim()] + ' ' + match[2].trim() : match[2].trim();
+        }
+        return result;
+      }
+      parseViews(content) {
+        const views = {};
+        const viewRegex = /<view name="([^"]+)">([\s\S]*?)<\/view>/g;
+        let match;
+        while ((match = viewRegex.exec(content)) !== null) {
+          views[match[1]] = { name: match[1], content: match[2].trim() };
+        }
+        return views;
+      }
+      parseData(content) {
+        const result = {};
+        const lines = content.split('\n');
+        let currentKey = null;
+        let currentArray = [];
+        for (const line of lines) {
+          if (line.match(/^([^:]+):$/)) {
+            if (currentKey) result[currentKey] = currentArray;
+            currentKey = line.replace(':', '').trim();
+            currentArray = [];
+          } else if (line.trim().startsWith('-')) {
+            currentArray.push(line.trim().substring(1).trim());
+          }
+        }
+        if (currentKey) result[currentKey] = currentArray;
+        return result;
+      }
+    }
+
+    // Application state
+    let parsedScript = null;
+    let currentStep = 1;
+    let formData = {};
+    let aiData = {};
+
+    // Lucide helper: (re)render icons after DOM changes
+    function refreshIcons() {
+      if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+      }
+    }
+
+    // Initialize the application
+    function init() {
+      const scriptElement = document.querySelector('script[type="text/ai-web-script"]');
+      if (!scriptElement) {
+        console.error('No AI.Web.Script found');
+        return;
+      }
+
+      const parser = new AIWebScriptParser();
+      parsedScript = parser.parse(scriptElement.textContent);
+
+      // Generate AI data (simulated)
+      generateAIData();
+
+      // Render the wizard and UI
+      renderWizard();
+      renderStepMenu();
+      updateUI();
+      attachEventListeners();
+      refreshIcons();
+    }
+
+    // Simulate AI generation
+    function generateAIData() {
+      if (parsedScript.data.cities) {
+        const randomCity = parsedScript.data.cities[
+          Math.floor(Math.random() * parsedScript.data.cities.length)
+        ];
+        aiData['ai-selected-city'] = randomCity;
+      }
+
+      aiData['ai-evaluation'] = 'Your facts show good knowledge of the city. Some details could be more specific.';
+      aiData['ai-grade'] = 'B+ - Good effort with room for improvement';
+      aiData['ai-funfact'] = `Did you know that ${aiData['ai-selected-city']} has a fascinating history dating back centuries?`;
+    }
+
+    // Convert views to steps
+    function getSteps() {
+      const viewNames = Object.keys(parsedScript.views);
+      return viewNames.map((name, index) => ({
+        id: index + 1,
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        viewName: name,
+        title: name.charAt(0).toUpperCase() + name.slice(1)
+      }));
+    }
+
+    // Variable interpolation
+    function interpolateVariables(content) {
+      let result = content;
+
+      // Replace metadata variables
+      for (const [key, value] of Object.entries(parsedScript.metadata)) {
+        result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+      }
+
+      // Replace data variables
+      for (const [key, value] of Object.entries(parsedScript.data)) {
+        if (Array.isArray(value)) {
+          // Create numbered list with flags
+          const listHtml = value.map((item, i) => {
+            const country = item.split(',')[1]?.trim() || '';
+            const flag = getCountryFlag(country);
+            return `${i + 1}. ${flag} ${item}`;
+          }).join('\n');
+          result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), listHtml);
+        } else {
+          result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+        }
+      }
+
+      // Replace AI-generated variables
+      for (const [key, value] of Object.entries(aiData)) {
+        result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value);
+      }
+
+      // Replace form data
+      for (const [key, value] of Object.entries(formData)) {
+        result = result.replace(new RegExp(`\\{${key}\\}`, 'g'), value || '[not provided]');
+      }
+
+      return result;
+    }
+
+    // Get country flag emoji
+    function getCountryFlag(country) {
+      const flags = {
+        'England': '🏴',
+        'USA': '🇺🇸',
+        'Canada': '🇨🇦',
+        'France': '🇫🇷',
+        'Japan': '🇯🇵',
+        'Australia': '🇦🇺',
+        'Germany': '🇩🇪',
+        'Italy': '🇮🇹'
+      };
+      return flags[country] || '🌍';
+    }
+
+    // Render wizard from parsed script
+    function renderWizard() {
+      const steps = getSteps();
+      const mainContent = document.getElementById('main-content');
+
+      mainContent.innerHTML = steps.map(step => {
+        const view = parsedScript.views[step.viewName];
+        const interpolated = interpolateVariables(view.content);
+        const html = marked.parse(interpolated);
+        return `
+          <div id="step-${step.id}" class="step-content" data-step="${step.id}">
+            ${html}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // NEW: Render the step dropdown menu (Pico details dropdown)
+    function renderStepMenu() {
+      const steps = getSteps();
+      const menu = document.getElementById('step-menu');
+
+      menu.innerHTML = steps.map(step => `
+        <li>
+          <a href="#" data-step="${step.id}">
+            ${step.id}/${steps.length} - ${step.name}
+          </a>
+        </li>
+      `).join('');
+    }
+
+    // Attach event listeners
+    function attachEventListeners() {
+      document.getElementById('home-btn').addEventListener('click', () => goToStep(1));
+      document.getElementById('back-btn').addEventListener('click', previousStep);
+      document.getElementById('next-btn').addEventListener('click', nextStep);
+
+      // Delegate clicks inside the dropdown menu
+      document.getElementById('step-menu').addEventListener('click', (e) => {
+        const link = e.target.closest('a[data-step]');
+        if (!link) return;
+        e.preventDefault();
+        const stepId = parseInt(link.dataset.step);
+        goToStep(stepId);
+
+        // Close the dropdown after selection
+        const dd = document.getElementById('step-dropdown');
+        dd.removeAttribute('open');
+      });
+
+      // Form input tracking
+      document.addEventListener('input', (e) => {
+        if (e.target.name) {
+          formData[e.target.name] = e.target.value;
+        }
+      });
+    }
+
+    // Navigation functions
+    function goToStep(stepId) {
+      const steps = getSteps();
+      if (stepId >= 1 && stepId <= steps.length) {
+        currentStep = stepId;
+        renderWizard();       // content changes
+        renderStepMenu();     // keep the menu in sync (in case steps change)
+        updateUI();           // reflect selection
+        attachEventListeners();
+        refreshIcons();
+      }
+    }
+
+    function previousStep() {
+      if (currentStep > 1) {
+        currentStep--;
+        goToStep(currentStep);
+      }
+    }
+
+    function nextStep() {
+      const steps = getSteps();
+      if (currentStep < steps.length) {
+        currentStep++;
+        goToStep(currentStep);
+      }
+    }
+
+    // UI update
+    function updateUI() {
+      const steps = getSteps();
+      const maxSteps = steps.length;
+      const currentStepData = steps[currentStep - 1];
+
+      // Progress
+      document.getElementById('interactive-progress').value = currentStep;
+      document.getElementById('interactive-progress').max = maxSteps;
+
+      // Title text
+      const stepTitle = document.getElementById('step-title');
+      const text = ` ${currentStep}. ${currentStepData.name}`;
+      if (stepTitle.lastChild?.nodeType === 3) {
+        stepTitle.lastChild.nodeValue = text;
+      } else {
+        stepTitle.append(document.createTextNode(text));
+      }
+
+      // Dropdown summary text
+      const summary = document.getElementById('step-summary');
+      summary.lastChild?.nodeType === 3
+        ? summary.lastChild.nodeValue = ` ${currentStep}/${maxSteps} - ${currentStepData.name}`
+        : summary.append(document.createTextNode(` ${currentStep}/${maxSteps} - ${currentStepData.name}`));
+
+      // Show active step content
+      document.querySelectorAll('.step-content').forEach(article => {
+        const stepId = parseInt(article.dataset.step);
+        article.classList.toggle('active', stepId === currentStep);
+      });
+
+      // Highlight current item in dropdown
+      document.querySelectorAll('#step-menu a[data-step]').forEach(a => {
+        const stepId = parseInt(a.dataset.step);
+        if (stepId === currentStep) a.setAttribute('aria-current', 'step');
+        else a.removeAttribute('aria-current');
+      });
+
+      // Buttons enabled/disabled
+      document.getElementById('back-btn').disabled = currentStep === 1;
+      document.getElementById('next-btn').disabled = currentStep === maxSteps;
+
+      // Re-hydrate icons if needed
+      refreshIcons();
+    }
+
+    // Start the application
+    init();
+  </script>
+</body>
+</html>
