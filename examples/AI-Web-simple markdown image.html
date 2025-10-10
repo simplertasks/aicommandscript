@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Enhanced Markdown Image Demo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+  <style>
+    main {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+
+    figure {
+      margin: var(--pico-spacing) 0;
+      text-align: center;
+    }
+
+    figcaption {
+      font-size: 0.9em;
+      color: var(--pico-muted-color);
+      margin-top: 0.25rem;
+    }
+
+    .align-left img {
+      float: left;
+      margin-right: 1rem;
+    }
+
+    .align-right img {
+      float: right;
+      margin-left: 1rem;
+    }
+
+    .align-center img {
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Enhanced Markdown Image Demo</h1>
+
+    <!-- Hidden Markdown source -->
+    <textarea id="markdown-source" style="display:none;">
+# 🐝 Enhanced Markdown Image Syntax
+
+Here are a few examples of how you can control **width**, **alignment**, and **caption**:
+
+---
+
+### 1️⃣ Centered with fixed width + caption
+![Bee|200|center|Our friendly bee mascot](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
+
+---
+
+### 2️⃣ Left-aligned with % width
+![Bee|40%|left](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
+
+Some text wrapping around the image. The **left alignment** uses a float-based layout.
+
+---
+
+### 3️⃣ Plain Markdown image (default)
+![Bee](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
+    </textarea>
+
+    <!-- Rendered output -->
+    <div id="markdown-output" class="markdown"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@10.0.0/marked.min.js"></script>
+  <script>
+    // Allow HTML rendering
+    marked.setOptions({
+      gfm: true,
+      breaks: true,
+      mangle: false,
+      headerIds: false,
+    });
+
+    // Enhanced Markdown image syntax converter
+    function convertEnhancedImages(md) {
+      return md.replace(
+        /!\[([^|\]]+)(?:\|([^|\]]*))?(?:\|([^|\]]*))?(?:\|([^\]]*))?\]\(([^)]+)\)/g,
+        (match, alt, width, align, caption, url) => {
+          alt = alt?.trim() || "";
+          width = width?.trim() || "";
+          align = align?.trim().toLowerCase() || "";
+          caption = caption?.trim() || "";
+          url = url?.trim() || "";
+
+          const widthStyle = width
+            ? `max-width:${width}${width.endsWith('%') ? '' : 'px'};`
+            : '';
+          const alignClass = align ? `align-${align}` : '';
+          const figcaption = caption ? `<figcaption>${caption}</figcaption>` : '';
+
+          return `<figure class="${alignClass}" style="${widthStyle}">
+              <img src="${url}" alt="${alt}">
+              ${figcaption}
+            </figure>`;
+        }
+      );
+    }
+
+    // Render Markdown on load
+    document.addEventListener('DOMContentLoaded', () => {
+      const src = document.getElementById('markdown-source').value.trim();
+      const output = document.getElementById('markdown-output');
+
+      const enhanced = convertEnhancedImages(src);
+      output.innerHTML = marked.parse(enhanced);
+    });
+  </script>
+</body>
+</html>
