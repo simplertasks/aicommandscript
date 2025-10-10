@@ -24,19 +24,29 @@
       margin-top: 0.25rem;
     }
 
-    .align-left img {
+    /* alignment helpers */
+    .align-left {
       float: left;
       margin-right: 1rem;
     }
 
-    .align-right img {
+    .align-right {
       float: right;
       margin-left: 1rem;
     }
 
-    .align-center img {
+    .align-center {
       display: block;
-      margin: 0 auto;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+
+    /* optional: keep floated items contained */
+    .markdown::after {
+      content: "";
+      display: block;
+      clear: both;
     }
   </style>
 </head>
@@ -44,7 +54,6 @@
   <main class="container">
     <h1>Enhanced Markdown Image Demo</h1>
 
-    <!-- Hidden Markdown source -->
     <textarea id="markdown-source" style="display:none;">
 # 🐝 Enhanced Markdown Image Syntax
 
@@ -68,13 +77,11 @@ Some text wrapping around the image. The **left alignment** uses a float-based l
 ![Bee](https://www.birdlife.org/wp-content/uploads/2021/06/Hummingbird-Norbert-Hentges-Unsplash-edited-scaled.jpg)
     </textarea>
 
-    <!-- Rendered output -->
     <div id="markdown-output" class="markdown"></div>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/marked@10.0.0/marked.min.js"></script>
   <script>
-    // Allow HTML rendering
     marked.setOptions({
       gfm: true,
       breaks: true,
@@ -82,7 +89,6 @@ Some text wrapping around the image. The **left alignment** uses a float-based l
       headerIds: false,
     });
 
-    // Enhanced Markdown image syntax converter
     function convertEnhancedImages(md) {
       return md.replace(
         /!\[([^|\]]+)(?:\|([^|\]]*))?(?:\|([^|\]]*))?(?:\|([^\]]*))?\]\(([^)]+)\)/g,
@@ -107,7 +113,6 @@ Some text wrapping around the image. The **left alignment** uses a float-based l
       );
     }
 
-    // Render Markdown on load
     document.addEventListener('DOMContentLoaded', () => {
       const src = document.getElementById('markdown-source').value.trim();
       const output = document.getElementById('markdown-output');
