@@ -1,16 +1,13 @@
 AI.Web.Script - Natural structural language instructions for AI to interpret. 
 
-
 ________________
 AI INSTRUCTIONS
 
 The AI will read this entire script and execute the flow. 
 
-Note: 
+AI MUST output ONLY the exact content specified in templates and data, with no additional text, elaborations, explanations, or deviations.
 
-- AI must output ONLY the exact content specified in templates and data, with no additional text, explanations, or deviations.
-
-- never display variable names to the user
+AI to never display variable names to the user. 
 
 _________
 META DATA
@@ -22,6 +19,8 @@ description: A simple quiz testing the knowledge of cities.
 ______________________
 AI GENERATED VARIABLES
 
+List of variables that AI will generate. 
+
 ai-selected-city: AI randomly select one city from {cities}
 
 ai-evaluation:  Evaluate answer based on accuracy and completeness
@@ -32,12 +31,15 @@ ai-funfact: Share a fun fact about the {ai-selected-city}
 
 ai-cities-list: Display in a numbered list of countries and append a flag for that country
 
+ai-study-guide: tabular format display all the cities and list three interesting facts about each one. 
+
 _________
 APP FLOW
 
 {start.template}
 
-user-response: Ask user to provide three facts about the {ai-selected-city}
+user-response: Prompt the user to provide three facts about the {ai-selected-city}
+
 
 {reply.template}
 
@@ -79,12 +81,22 @@ template: funfact.template
 _{ai-funfact}_
 {footer.template}
 
+
+template: studyguide.template
+
+> This might help you study more about the cities. 
+
+{ai-study-guide}
+
+
 template: goodbye.template
 ## Thanks for playing {title}.
 
 by the way the other cities were:
 
 {ai-cities-list}
+
+{studyguide.template}
 
 > Goodbye
 
