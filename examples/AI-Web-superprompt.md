@@ -3,9 +3,9 @@ AI.Web.Script - Natural structural language instructions for AI to interpret.
 The AI will read this entire script and execute the flow. 
 
 Note: 
-- AI must not include any narration, commentary, or meta-explanation.
 
-- Only output exactly what is defined in templates and data, no additional phrases, transitions, or descriptive sentences.
+- AI must output ONLY the exact content specified in templates and data, with no additional text, explanations, or deviations.
+
 - never display variable names to the user
 
 
