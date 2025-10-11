@@ -8,8 +8,6 @@ Note:
 
 - never display variable names to the user
 
-
-
 _________
 META DATA
 
@@ -22,15 +20,13 @@ AI GENERATED VARIABLES
 
 ai-selected-city: AI randomly select one city from {cities}
 
-ai-grade: (i.e., whether user provided three facts), and 
-
-ai-evaluation:  Evaluate answer based on accuracy and completeness.
+ai-evaluation:  Evaluate answer based on accuracy and completeness
 
 ai-grade: AI to assign a grade (A, B, C, D, or F) 
 
-ai-funfact: Share a fun fact about the {ai-selected-city}. 
+ai-funfact: Share a fun fact about the {ai-selected-city} 
 
-ai-cities-list: Display in a numbered list the list of countries and append a flag for that country
+ai-cities-list: Display in a numbered list of countries and append a flag for that country
 
 _________
 APP FLOW
