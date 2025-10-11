@@ -92,7 +92,7 @@ template: studyguide.template
 template: goodbye.template
 ## Thanks for playing {title}.
 
-by the way the other cities were:
+By the way the other cities were:
 
 {ai-cities-list}
 
