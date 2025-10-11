@@ -41,7 +41,7 @@ user-response: Ask user to provide three facts about the {ai-selected-city}
 
 Then ask the user if they want to answer another city question or if they want to quit.
 
-If they want to quit display this
+If they want to quit display:
 {goodbye.template}
 
 __________
