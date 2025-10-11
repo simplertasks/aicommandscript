@@ -43,7 +43,7 @@ user-response: Ask user to provide three facts about the {ai-selected-city}
 
 {funfact.template}
 
-Then ask the user if they want to answer another city question or if they want to quit.
+Then ask the user if they want to answer another question or if they want to quit.
 
 If they want to quit display:
 {goodbye.template}
