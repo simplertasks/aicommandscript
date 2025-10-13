@@ -1,4 +1,5 @@
-AI.Web.Script - Natural structural language instructions for AI to interpret. 
+AICS AI Command Script
+- Natural structural language instructions for building AI apps. 
 
 ________________
 AI INSTRUCTIONS
@@ -37,6 +38,7 @@ _________
 APP FLOW
 
 {start.template}
+
 
 user-response: Prompt the user to provide three facts about the {ai-selected-city}
 
