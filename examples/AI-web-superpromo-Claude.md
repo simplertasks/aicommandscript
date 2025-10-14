@@ -11,7 +11,7 @@ AI will never display variable names, code syntax, or meta-commentary to the use
 ⸻
 META DATA
 
-title: Cities Quiz
+title: Citiesr Quiz
 author: J. Smith  
 description: A simple quiz testing knowledge of cities
 version: 1.0
