@@ -1,118 +1,211 @@
 ![AICommandScript Logo](images/bee-64.png)
 
-# AICommandScript (AICS)
+# AICS (AI Command Script)
 
-*A lightweight, natural-language framework for creating structured, shareable AI applications.*
+**Natural language instructions for building AI apps without coding.**
 
----
+## Overview
 
-AICommandScript makes AI app creation accessible to everyone — as easy as writing a note, as powerful as writing an app. 
-## Why AICS?
-
-> **AICS is the only framework where writing an app feels like writing a note.**  
-> **You can run an AICS app by pasting text — no setup, no installs.**
-
-With AICS, apps are just plain-text notes with lightweight structure.  
-They’re easy to create, easy to share, and run instantly inside an AI environment — no coding, no installation, no special tools required.
-
----
-
-## The Vision
-
-A future where building an “application” is as easy as writing a structured note.
-
-AICommandScript solves the **Goldilocks Problem** in AI development:
-
-- **Too little structure** → Inconsistent, unreliable, hard to maintain  
-- **Too much structure** → Intimidating, requires technical knowledge, loses accessibility  
-- **AICS** → Just right  
-
-This balance bridges the gap between *citizen developers* and professional developers, enabling both to work with the same approachable toolchain.
-
----
-
-## What is AICommandScript?
-
-AICommandScript (AICS) is a framework for creating AI applications using natural language instructions instead of programming code. It’s designed to be **accessible to non-programmers** while offering enough structure and power for repeatable, reliable AI workflows.
-
-At its core is the **Command Script**:  
-a lightweight, natural-language framework that adds just enough discipline to AI interactions through:
-
-- **Reusable templates**  
-- **Explicit structure**  
-- **Data integration**  
-- **Flow control**
-
-Unlike freeform prompting, AICS ensures your AI interactions are not just powerful, but **predictable, shareable, and consistent**.  
-
----
-
-## How It Works
-
-Instead of writing code, you define:
-
-- **Behaviors** → session flow and user interactions  
-- **Templates** → reusable message formats with placeholders like `[[emoji]]`, `[[user_fruit]]`  
-- **Data structures** → facts and content your app will use  
-- **AI instructions** → rules that guide how the AI responds  
-
-The AI reads these instructions and executes your application exactly as described.
-
----
+AICS is a declarative scripting language that enables non-programmers to create interactive AI-powered applications. Simply write human-readable instructions, define templates, and let AI handle the execution.
 
 ## Key Features
 
-- **Plain Text & Natural Language** → Write apps like you’re writing notes  
-- **Zero Setup** → Paste and run immediately, no installs required  
-- **Shareable** → AICS files can be sent, copied, or versioned anywhere  
-- **Structured** → Clear organization with sections for behaviors, templates, and data  
-- **Multi-language Support** → Switch outputs seamlessly into multiple languages  
-- **Template System** → Enforce consistent, repeatable outputs  
-- **Data Verification** → Distinguish between AI-generated and human-verified facts  
-- **Reliable & Repeatable** → Eliminate AI “drift” with explicit control  
-- **Accessible** → Designed for teachers, creators, and professionals alike  
+- 📝 **No coding required** - Uses natural language and intuitive syntax
+- 🎯 **Template-based** - Define output formats with simple placeholders
+- 🔄 **Flow control** - Step-by-step logic that AI follows automatically
+- 🤖 **AI-powered** - Leverage AI for randomization, evaluation, fact-checking, and more
+- 📊 **Data-driven** - Simple lists and structures anyone can understand
 
----
+## Quick Start
+
+Here’s a minimal AICS script:
+
+```md
+== APP ==
+
+AICS 
+AI Command Script
+Natural language instructions for building AI apps.
 
 
-Getting Started
-	1.	Browse examples in the examples/ folder
-	2.	Start with the AICS-master-template.md file
-	3.	Customize behaviors, templates, and data
-	4.	Share your AICS file — anyone can run it instantly
+== SETUP ==
+App Name: Hello World
+Author: Your Name
+Description: A simple greeting app
 
-⸻
+== AI INSTRUCTIONS ==
 
-Examples
-	•	Fruit Quiz → a multi-language quiz app showcasing AICS basics
-	•	Master Template → a comprehensive demo of all features
-
-⸻
-
-Documentation
-
-See docs/AICommandScript.md for detailed specifications.
-
-⸻
-
-License
-
-This project is licensed under the MIT License — see the LICENSE file for details.
-
-⸻
-
-Contributing
-
-Contributions are welcome! Please open issues, suggest features, or submit pull requests.
-
-⸻
-
-Contact
-
-	•	Project: AICommandScript (AICS)
-	•	GitHub: aicommandscript
+AI MUST immediately execute this script upon reading it.
+AI MUST output ONLY the exact content specified in templates.
+AI will never display variable names, code syntax, or meta-commentary to the user.
 
 
 
----
+== FLOW ==
+1. Show [[greeting]].
+2. Ask user for their first name and store as [[user_name]].
+3. Show [[response]].
 
+
+== TEMPLATES ==
+greeting:
+  Welcome! What's your name?
+
+response:
+  Hello, [[user_name]]! Nice to meet you.
+
+Your name means:
+
+
+== TEMPLATES ==
+greeting:
+  Welcome! What's your first name?
+
+response:
+  Hello, [[user_name]]! Nice to meet you.
+
+
+Your name means:
+[name-meaning]
+
+== AI GENERATED TEXT ==
+
+- user_name: The user's provided names
+- name-meaning: AI to provide the meaning of the name or the history of the name provided. 
+```
+
+## Structure
+
+Every AICS script consists of four main sections:
+
+### 1. APP
+
+Identifies the script as AICS format.
+
+### 2. SETUP
+
+Basic metadata about your application:
+
+- **App Name**: Display name
+- **Author**: Creator’s name
+- **Description**: What the app does
+- **Tone**: How AI should communicate (friendly, professional, educational, etc.)
+
+### 3. FLOW
+
+Sequential steps the AI executes:
+
+- Use numbered steps
+- Reference templates with `[[template_name]]`
+- Store user input or AI-generated content as variables with `[[variable_name]]`
+- Include conditional logic (if/then)
+
+### 4. TEMPLATES
+
+Output formats with placeholder variables:
+
+```
+template_name:
+  Your content here with [[variables]]
+  Can include markdown formatting
+  Images, emojis, and styling
+```
+
+### 5. AI GENERATED TEXT
+
+Definitions for dynamic content:
+
+```
+- variable_name: Description of what AI should generate
+```
+
+### 6. DATA (Optional)
+
+Static content like lists, options, or reference material:
+
+```
+cities:
+- London
+- Paris
+- Tokyo
+```
+
+## Example: Cities Quiz
+
+See the complete example in [`examples/cities-quiz.aics`](examples/cities-quiz.aics)
+
+This quiz app demonstrates:
+
+- Random selection from data lists
+- User input collection and storage
+- AI evaluation and grading
+- Dynamic fact generation
+- Conditional flow (continue/quit)
+- Template reuse and variable substitution
+
+## Variable Syntax
+
+Variables use double square brackets:
+
+- `[[variable_name]]` - Inserts the variable’s value
+- Variables can store:
+  - User input
+  - AI-generated content
+  - Selected data from lists
+  - Evaluation results
+
+## AI Instructions
+
+Special instructions can be added to control AI behavior:
+
+```
+== AI INSTRUCTIONS ==
+AI MUST immediately execute this script upon reading it.
+AI MUST output ONLY the exact content specified in templates.
+AI will never display variable names, code syntax, or meta-commentary.
+```
+
+## Use Cases
+
+- 📚 **Educational quizzes** - Test knowledge on any topic
+- 🎮 **Interactive games** - Text adventures, trivia, puzzles
+- 💬 **Chatbots** - Customer service, FAQs, guided assistance
+- 📋 **Surveys & forms** - Collect and evaluate responses
+- 🎓 **Tutoring apps** - Personalized learning experiences
+- 🔍 **Decision trees** - Guided troubleshooting or recommendations
+
+## Best Practices
+
+1. **Keep flows simple** - Break complex apps into clear steps
+1. **Use descriptive variable names** - `[[user_age]]` not `[[x]]`
+1. **Test incrementally** - Start with basic flow, add features gradually
+1. **Document AI generation** - Clearly explain what AI should create
+1. **Provide data** - Give AI reference material when needed
+
+## Limitations
+
+- Currently interpreted by AI (Claude, ChatGPT, etc.)
+- No persistent storage between sessions
+- Limited to AI’s capabilities and knowledge
+- Best for conversational/educational apps
+
+## Contributing
+
+AICS is an experimental format. Contributions welcome:
+
+- Example scripts
+- Use case documentation
+- Syntax improvements
+- Interpreter implementations
+
+## License
+
+MIT License - Feel free to use and modify
+
+## Credits
+
+Created by J. Smith (example author)
+
+-----
+
+**Ready to build your first AI app? Start with the Quick Start example above!**
