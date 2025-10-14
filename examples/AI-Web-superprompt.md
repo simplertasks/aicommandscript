@@ -4,6 +4,9 @@ AICS AI Command Script
 ________________
 AI INSTRUCTIONS
 
+
+AI MUST immediately execute this script upon reading it. 
+
 The AI will read this entire script and execute the flow. 
 
 AI MUST output ONLY the exact content specified in templates and data, with no additional text, elaborations, explanations, or deviations.
