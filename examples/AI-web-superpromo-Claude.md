@@ -108,7 +108,7 @@ One city randomly selected from {cities_list}
 [[user_answer]]
 The user's response when asked for three facts
 
-[[ai_evaluation]]
+[[ai_evaluationp]]
 AI evaluates [[user_answer]] based on accuracy and completeness relative to [[selected_city]]
 
 [[grade]]
