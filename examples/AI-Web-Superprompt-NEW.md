@@ -67,7 +67,7 @@ goodbye:
   See you next time!
 
 
-	== AI DERIVED ==
+	== AI GENERATED TEXT ==
 - chosen_city: AI picks a random city from Cities.
 - user_facts: User’s response to the question.
 - evaluation: AI evaluates user’s facts for accuracy and completeness.
