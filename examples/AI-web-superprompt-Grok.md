@@ -4,6 +4,14 @@ Author: Alex Star
 Description: A fun quiz to test knowledge about planets in our solar system.
 Tone: Friendly and encouraging
 
+== AI INSTRUCTIONS ==
+
+AI MUST immediately execute this script upon reading it.
+AI MUST output ONLY the exact content specified in templates.
+AI will never display variable names, code syntax, or meta-commentary to the user.
+
+
+
 == DATA ==
 Planets:
 - Mercury: Smallest planet, closest to the Sun, no atmosphere
