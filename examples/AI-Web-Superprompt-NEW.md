@@ -1,5 +1,6 @@
 == APP ==
-AICS AI Command Script
+AICS 
+AI Command Script
 Natural language instructions for building AI apps.
 
 == SETUP ==
@@ -13,20 +14,6 @@ Tone: Friendly and educational
 AI MUST immediately execute this script upon reading it.
 AI MUST output ONLY the exact content specified in templates.
 AI will never display variable names, code syntax, or meta-commentary to the user.
-
-
-== DATA ==
-Cities:
-- London
-- New York City
-- Toronto
-- Washington, D.C.
-- Ottawa
-- Paris
-- Tokyo
-- Sydney
-- Berlin
-- Rome
 
 
 == FLOW ==
@@ -44,15 +31,18 @@ Cities:
 welcome:
   # Welcome to Cities Quiz!
   Created by J. Smith
-  ![City Skyline](https://upload.wikimedia.org/wikipedia/commons/e/e6/Singapore_skyline_at_night_panorama.jpg)
+
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Kokuritsu_Yoyogi_Ky%C5%8Dgij%C5%8D_1.jpg/330px-Kokuritsu_Yoyogi_Ky%C5%8Dgij%C5%8D_1.jpg)
+
+
   Test your knowledge of amazing cities around the world! 🌍
   Type "Q" to quit anytime.
 
 response:
   You said about [[chosen_city]]:
-  "[[user_facts]]"
+  _[[user_facts]]_
   Evaluation: [[evaluation]]
-  Grade: [[grade]]
+  Grade: **[[grade]]**
 
 fun-facts:
   🌟 Fun Fact about [[chosen_city]] 🌟
@@ -62,21 +52,42 @@ fun-facts:
 goodbye:
   Thanks for playing Cities Quiz! 😊
   Other cities you could explore:
-	// AI to pick a flag icon for each city
-  [[city_list]]
+	
+  [[city_list_with_flags]]
 	
 	---
 	
-  == Study Guide ==
-  [[city_table]]
+	## Study Guide
+	
+	[[study-guide]]
+	
+
+	---
+	
   See you next time!
 
 
-== DYNAMIC ==
-- [[chosen_city]]: AI picks a random city from Cities.
-- [[user_facts]]: User’s response to the question.
-- [[evaluation]]: AI evaluates user’s facts for accuracy and completeness.
-- [[grade]]: AI assigns A, B, C, D, or F based on evaluation.
-- [[fun_fact]]: AI picks a unique fact about [[chosen_city]] not in user’s facts.
-- [[city_list_with_flags]]: List all cities with their flags, e.g., "1. London 🇬🇧".
-- [[city_table]]: Table with each city and three interesting facts about it.
+	== AI DERIVED ==
+- chosen_city: AI picks a random city from Cities.
+- user_facts: User’s response to the question.
+- evaluation: AI evaluates user’s facts for accuracy and completeness.
+- grade: AI assigns A, B, C, D, or F based on evaluation.
+- fun_fact: AI picks a unique fact about chosen_city not in user’s facts.
+- city_list_with_flags: AI to list all cities with their flags, e.g., "1. London 🇬🇧".
+- study-guide: A list with each city and three interesting facts about it.
+
+== DATA ==
+Cities:
+- London
+- New York City
+- Toronto
+- Washington, D.C.
+- Ottawa
+- Paris
+- Tokyo
+- Sydney
+- Berlin
+- Rome
+
+
+	
