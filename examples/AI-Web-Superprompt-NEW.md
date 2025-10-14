@@ -1,7 +1,9 @@
 == APP ==
+
 AICS 
 AI Command Script
 Natural language instructions for building AI apps.
+
 
 == SETUP ==
 App Name: Cities Quiz
@@ -17,8 +19,9 @@ AI will never display variable names, code syntax, or meta-commentary to the use
 
 
 == FLOW ==
+
 1. Show the welcome message using [[welcome]].
-2. Pick a random city from Cities and store as [[chosen_city]].
+2. Pick a random city from [[cities] and store as [[chosen_city]].
 3. Ask the user to name three facts about [[chosen_city]] and store as [[user_facts]].
 4. Evaluate [[user_facts]] for accuracy and completeness, assign a grade (A, B, C, D, F) as [[grade]], and store evaluation as [[evaluation]].
 5. Show the response using [[response]].
@@ -68,6 +71,7 @@ goodbye:
 
 
 	== AI GENERATED TEXT ==
+	
 - chosen_city: AI picks a random city from Cities.
 - user_facts: User’s response to the question.
 - evaluation: AI evaluates user’s facts for accuracy and completeness.
@@ -76,8 +80,10 @@ goodbye:
 - city_list_with_flags: AI to list all cities with their flags, e.g., "1. London 🇬🇧".
 - study-guide: A list with each city and three interesting facts about it.
 
+
 == DATA ==
-Cities:
+
+cities:
 - London
 - New York City
 - Toronto
