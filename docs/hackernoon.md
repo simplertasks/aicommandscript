@@ -122,6 +122,9 @@ If you’re already comfortable prompting AI, you might wonder: why use AICS at 
 1. **If it’s not behaving, ask an LLM for help.** Have a model suggest better wording, structure, or templates.
 1. even non-programmers could easily learn how to create AICS And host them on the Internet using GitHub Gists which also that you to preview the markdown so you can see how it looks
 1. aics could be written in a Google document which offers revision history and they are easily shared
+1. it's probably best to use the file extension.md 
+Although.yaml can give you some nice highlighting
+
 
 
 
