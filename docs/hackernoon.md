@@ -11,6 +11,8 @@ Paste a special version of  Markdown text into ChatGPT. Get a working AI app bac
 **See you in action:**
 url here
 
+sCREENSHOT
+
 
 Here’s the entire “Hello World” app:
 
@@ -37,6 +39,8 @@ AI MUST output ONLY the exact content specified in templates.
 
 == TEMPLATES ==
 greeting:
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Wikipedia_Hello_World_Graphic.svg/330px-Wikipedia_Hello_World_Graphic.svg.png)
+
   ## Welcome! What's your first name?
 
 response:
