@@ -32,13 +32,13 @@ Natural language instructions for building AI apps.
 App Name: Hello World
 Author: Your Name
 Description: A simple greeting app
+compatibility: ChatGPT 4,5
 
 == AI INSTRUCTIONS ==
 
 AI MUST immediately execute this script upon reading it.
 AI MUST output ONLY the exact content specified in templates.
 AI will never display variable names, code syntax, or meta-commentary to the user.
-
 
 
 == FLOW ==
@@ -59,7 +59,7 @@ Your name means:
 
 == TEMPLATES ==
 greeting:
-  Welcome! What's your first name?
+  ## Welcome! What's your first name?
 
 response:
   Hello, [[user_name]]! Nice to meet you.
@@ -70,8 +70,8 @@ Your name means:
 
 == AI GENERATED TEXT ==
 
-- user_name: The user's provided names
 - name-meaning: AI to provide the meaning of the name or the history of the name provided. 
+
 ```
 
 ## Structure
@@ -90,6 +90,8 @@ Basic metadata about your application:
 - **Author**: Creator’s name
 - **Description**: What the app does
 - **Tone**: How AI should communicate (friendly, professional, educational, etc.)
+- ** Compatibility: list which LLM's the script has been tested with
+
 
 ### 3. FLOW
 
