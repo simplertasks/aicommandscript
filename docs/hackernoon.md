@@ -1,5 +1,9 @@
 ## Build an AI App with 20 lines of Markdown
 
+TODO
+Link to live example and screenshots and better image for inclusion
+
+
 Paste a special version of  Markdown text into ChatGPT. Get a working AI app back.
 
 **AICS (AI Command Script)** is an open-source, MIT-licensed format that lets you describe AI apps using simple, human-readable blocks. Think of it as *Markdown for AI apps* — you define setup, flow, logic, and templates, and the AI executes it directly.
