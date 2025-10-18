@@ -1,8 +1,12 @@
-## Build an AI App with 20 lines if Markdown
+## Build an AI App with 20 lines of Markdown
 
 Paste Markdown text into ChatGPT. Get a working AI app back.
 
-**AICS (AI Command Script)** is an open-source, MIT-licensed format that lets you describe AI apps using simple, human-readable blocks. Think of it as *Markdown for AI logic* — you define setup, flow, and templates, and the AI executes it directly.
+**AICS (AI Command Script)** is an open-source, MIT-licensed format that lets you describe AI apps using simple, human-readable blocks. Think of it as *Markdown for AI apps* — you define setup, flow, logic, and templates, and the AI executes it directly.
+
+**See you in action:**
+url here
+
 
 Here’s the entire “Hello World” app:
 
@@ -63,7 +67,7 @@ AICS is based on Markdown, the lightweight formatting used in READMEs and docs, 
 
 ## Why AICS vs. Just Writing a Good Prompt?
 
-If you’re already comfortable prompting AI, you might wonder: why use ACIS at all?
+If you’re already comfortable prompting AI, you might wonder: why use AICS at all?
 
 **Plain prompts become unreadable fast.** Try cramming multi-step logic, output formatting, and examples into one block of text — it gets messy, hard to follow, and nearly impossible to maintain or share.
 
