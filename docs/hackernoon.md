@@ -136,6 +136,9 @@ if you need some programming like functions you can simply ask for things like, 
 
 AICS isn’t meant to replace complex frameworks or heavy APIs, but considering its development speed, extendability, low friction, and human readability, it’s absolutely worth a look.
 
+## Future LLM Native Support
+
+Right now, each AICS script includes its own format documentation so any LLM can interpret it immediately. As AICS gains adoption, LLM providers could easily add native support — it’s a simple decision since AICS is just structured Markdown. Built-in support would make AICS far more dependable and consistent across runs. 
 
 ## Conclusion
 
