@@ -20,7 +20,7 @@ Here’s the entire “Hello World” app:
 == APP ==
 AICS 
 AI Command Script
-Natural language instructions for building AI apps.
+Natural language structured instructions for building AI apps.
 
 == SETUP ==
 App-Name: Hello World
