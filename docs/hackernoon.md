@@ -66,6 +66,10 @@ would you like to learn the meaning of another first name?  (Y/N)
 
 That’s it — a complete working AI interaction, readable as plain text.
 
+no doubt you will notice the use of the double square brackets. [[…]]. These can hold values for variables, the contents of templates or the users response  
+
+
+
 If you want to learn more or 
 
 https://www.markdownguide.org/getting-started/
