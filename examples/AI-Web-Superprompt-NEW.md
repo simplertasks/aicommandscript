@@ -10,12 +10,14 @@ App Name: Cities Quiz
 Author: J. Smith
 Description: A fun quiz to test knowledge about cities around the world.
 Tone: Friendly and educational
+Compatibility: ChatGPT 4,5
+
 
 == AI INSTRUCTIONS ==
 
 AI MUST immediately execute this script upon reading it.
 AI MUST output ONLY the exact content specified in templates.
-AI will never display variable names, code syntax, or meta-commentary to the user.
+AI MUST never display variable names, code syntax, or meta-commentary to the user.
 
 
 == FLOW ==
@@ -31,29 +33,35 @@ AI will never display variable names, code syntax, or meta-commentary to the use
 
 
 == TEMPLATES ==
+
 welcome:
-  # Welcome to Cities Quiz!
+  ## Welcome to Cities Quiz!
   Created by J. Smith
 
 ![](https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Kokuritsu_Yoyogi_Ky%C5%8Dgij%C5%8D_1.jpg/330px-Kokuritsu_Yoyogi_Ky%C5%8Dgij%C5%8D_1.jpg)
 
 
-  Test your knowledge of amazing cities around the world! 🌍
-  Type "Q" to quit anytime.
+  Test your knowledge of  cities around the world! 🌍
+  Type **"Q"** to Quit anytime.
 
 response:
   You said about [[chosen_city]]:
+	
   _[[user_facts]]_
-  Evaluation: [[evaluation]]
+	
+  Evaluation:
+	[[evaluation]]
+	
   Grade: **[[grade]]**
 
 fun-facts:
-  🌟 Fun Fact about [[chosen_city]] 🌟
+  🌟 Fun Fact about [[chosen_city]] 
   [[fun_fact]]
   Type "Q" to quit or anything else to continue.
 
 goodbye:
   Thanks for playing Cities Quiz! 😊
+	
   Other cities you could explore:
 	
   [[city_list_with_flags]]
@@ -64,11 +72,9 @@ goodbye:
 	
 	[[study-guide]]
 	
-
-	---
-	
   See you next time!
-
+	
+---
 
 	== AI GENERATED TEXT ==
 	
@@ -88,12 +94,10 @@ cities:
 - New York City
 - Toronto
 - Washington, D.C.
-- Ottawa
 - Paris
 - Tokyo
 - Sydney
 - Berlin
 - Rome
-
 
 	
