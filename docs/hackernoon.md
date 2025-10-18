@@ -97,6 +97,10 @@ If you’re already comfortable prompting AI, you might wonder: why use AICS at 
 1. **Test thoroughly.** A single success doesn’t guarantee consistency across runs or models. AI compliance with directives isn’t guaranteed — always test your scripts with your target model to ensure reliability.
 1. **Keep instructions short and accurate.** Prefer clear, minimal directives over long explanations.
 1. **If it’s not behaving, ask an LLM for help.** Have a model suggest better wording, structure, or templates.
+1. even non-programmers could easily learn how to create AICS And host them on the Internet using GitHub Gists which also that you to preview the markdown so you can see how it looks
+1. aics could be written in a Google document which offers revision history and they are easily shared
+
+
 
 ⸻
 
