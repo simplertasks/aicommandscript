@@ -128,6 +128,8 @@ You can achieve basic logic just by using natural language — simple “if… t
 
 Multi-language apps are also possible: just ask the user which language they want to use at the start, and instruct the AI to respond accordingly.
 
+if you need some programming like functions you can simply ask for things like, a random city from [[cities]]. 
+
 AICS isn’t meant to replace complex frameworks or heavy APIs, but considering its development speed, extendability, low friction, and human readability, it’s absolutely worth a look.
 
 
