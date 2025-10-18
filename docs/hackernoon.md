@@ -4,9 +4,9 @@ TODO
 Link to live example and screenshots and better image for inclusion
 
 
-Paste a special version of  Markdown text into ChatGPT. Get a working AI app back.
+Paste a special flavor of  Markdown text into ChatGPT. Get a working AI app back.
 
-**AICS (AI Command Script)** is an open-source, MIT-licensed format that lets you describe AI apps using simple, human-readable blocks. Think of it as *Markdown for AI apps* — you define setup, flow, logic, and templates, and the AI executes it directly.
+**AICS (AI Command Script)** is an open-source, MIT-licensed format that lets you describe AI apps using simple, human-readable blocks. Think of it as *Markdown for AI apps* — you define setup, flow, format, logic, and templates, and the AI executes it directly.
 
 **See you in action:**
 url here
@@ -31,6 +31,7 @@ compatibility: ChatGPT 4, 5
 == AI INSTRUCTIONS ==
 AI MUST immediately execute this script upon reading it.
 AI MUST output ONLY the exact content specified in templates.
+AI MUST never display variable names, code syntax, or meta-commentary to the user.
 
 == FLOW ==
 1. Show [[greeting]].
@@ -49,8 +50,12 @@ response:
 Your name means:
 [name-meaning]
 
+would you like to learn the meaning of another first name?  (Y/N) 
+
+
 == AI GENERATED TEXT ==
 - name-meaning: AI to provide the meaning or history of the name.
+
 ```
 
 That’s it — a complete working AI interaction, readable as plain text.
